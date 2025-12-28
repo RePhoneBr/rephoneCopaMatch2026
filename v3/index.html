@@ -247,6 +247,55 @@
     text-align: center;
   }
 }
+      /* FOOTER DISCRETO */
+.site-footer {
+  width: 100%;
+  background: #f8fafc;
+  border-top: 1px solid #e2e8f0;
+  padding: 14px 16px;
+  font-size: 11px;
+  color: #64748b;
+}
+
+.footer-inner {
+  max-width: 1200px;
+  margin: 0 auto;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 10px;
+  align-items: center;
+}
+
+.footer-links {
+  display: flex;
+  gap: 14px;
+  flex-wrap: wrap;
+}
+
+.footer-links a {
+  color: #64748b;
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.footer-links a:hover {
+  text-decoration: underline;
+}
+
+.footer-copy {
+  font-weight: 600;
+}
+
+/* MOBILE */
+@media (max-width: 600px) {
+  .footer-inner {
+    flex-direction: column;
+    text-align: center;
+    gap: 6px;
+  }
+}
+
 </style>
 </head>
 <body>
@@ -617,7 +666,12 @@ detectarCidade();
 };
 function aceitarCookies() {
   localStorage.setItem('lgpd_aceito', 'true');
-  document.getElementById('lgpdBanner').style.display = 'none';
+
+  const banner = document.getElementById('lgpdBanner');
+  if (banner) {
+    banner.style.display = 'none';
+  }
+
   iniciarAnalytics();
 }
 
@@ -632,20 +686,42 @@ function iniciarAnalytics() {
 }
 
 // Mostrar banner apenas se não aceitou
-window.addEventListener('load', () => {
+window.addEventListener('DOMContentLoaded', () => {
+  const banner = document.getElementById('lgpdBanner');
+  if (!banner) return;
+
   if (!localStorage.getItem('lgpd_aceito')) {
-    document.getElementById('lgpdBanner').style.display = 'flex';
+    banner.style.display = 'flex';
+  } else {
+    banner.style.display = 'none';
   }
 });
+      </script>
+<footer class="site-footer">
+      <div class="footer-inner">
 
-    </script>
-   <!-- Banner LGPD -->
-<div id="lgpdBanner" class="lgpd-banner">
-  <span>
-    Usamos cookies para melhorar sua experiência e analisar acessos.
-    <a href="/politica-de-privacidade.html" target="_blank">Saiba mais</a>
-  </span>
-  <button onclick="aceitarCookies()">Aceitar</button>
-</div>
-</body>
+        <div class="footer-copy">
+          © 2025 RePhone — Aracruz/ES
+        </div>
+
+        <nav class="footer-links">
+          <a href="/sobre.html">Sobre</a>
+          <a href="/termos-de-uso.html">Termos</a>
+          <a href="/politica-de-privacidade.html">Privacidade</a>
+          <a href="/contato.html">Contato</a>
+        </nav>
+
+      </div>
+    </footer>
+
+    <!-- Banner LGPD -->
+    <div id="lgpdBanner" class="lgpd-banner">
+      <span>
+        Usamos cookies para melhorar sua experiência e analisar acessos.
+        <a href="/politica-de-privacidade.html" target="_blank">Saiba mais</a>
+      </span>
+      <button onclick="aceitarCookies()">Aceitar</button>
+    </div>
+
+  </body>
 </html>
