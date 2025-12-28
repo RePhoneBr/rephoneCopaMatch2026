@@ -241,7 +241,7 @@
             <input type="text" id="matchModelo" placeholder="Ex: iPhone 13 Pro">
             <label>Preço Máximo</label>
             <input type="number" id="matchPreco" placeholder="Ex: 4000">
-            <button class="btn-match" onclick="fazerMatch()">MATCH</button>
+            <button class="btn-match" onclick="limparBusca(); fazerMatch();">MATCH</button>
         <button class="toggle-busca" onclick="toggleBusca()">
   🔍 BUSCA MANUAL
 </button>
@@ -254,11 +254,13 @@
   <input type="text" id="buscaModelo" placeholder="Ex: iPhone 13">
 
   <label>Preço até</label>
-  <input type="text" id="buscaPreco" placeholder="Ex: 3500">
+  <input type="number" id="buscaPreco" placeholder="Ex: 3500">
+<button class="btn-close" onclick="limparBusca()">
+  ✖ LIMPAR FILTROS
+</button>
 
   <button class="btn-match" onclick="buscarManual()">BUSCAR</button>
 </div>
-          
     </section>
 
     <h2 class="section-title">As melhores ofertas RePhone</h2>
@@ -287,7 +289,6 @@
     alert("Carregando anúncios, tente novamente.");
     return;
   }
-
   const marca = document.getElementById('buscaMarca').value.toLowerCase();
   const modelo = document.getElementById('buscaModelo').value.toLowerCase();
   const precoMax =
@@ -309,16 +310,18 @@ document.getElementById('mCircle').style.background = "#0ea5e9";
     return okMarca && okModelo && okPreco;
   });
 
-  if (!filtrados.length) {
-    alert("Nenhum resultado encontrado.");
-    return;
-  }
+     if (!filtrados.length) {
+  const circle = document.getElementById('mCircle');
+  document.getElementById('mText').innerText = "NENHUM RESULTADO NA BUSCA";
+  circle.className = "status-circle";
+  circle.style.background = "#ef4444";
+  return;
+}
 
-  renderizar(filtrados);
+   renderizar(filtrados);
 
   // 👉 muda o estado visual do MATCH
-  document.getElementById('mText').innerText = "BUSCA MANUAL ATIVA";
-  document.getElementById('mCircle').style.background = "#0ea5e9";
+    document.getElementById('mCircle').style.background = "#0ea5e9";
 };
 
     // --- LOCALIZAÇÃO PADRÃO POR GPS (COM FALLBACK) ---
@@ -370,7 +373,29 @@ async function detectarCidade() {
         detectarCidadePorIP();
     }
 }
+window.limparBusca = () => {
+  // 🔄 Volta todos os anúncios
+  renderizar(todosAnuncios);
+  const btn = document.querySelector('.toggle-busca');
+if (btn) btn.innerText = "🔍 BUSCA MANUAL";
 
+  // 🧹 Limpa campos
+  document.getElementById('buscaMarca').value = "";
+  document.getElementById('buscaModelo').value = "";
+  document.getElementById('buscaPreco').value = "";
+
+  // 🔵 Status visual padrão
+  document.getElementById('mText').innerText = "MATCH? Faça uma pesquisa!!!...";
+ const circle = document.getElementById('mCircle');
+circle.className = "status-circle";
+circle.style.background = "#cbd5e1";
+
+  // 📱 Fecha busca manual no mobile
+  const box = document.getElementById('buscaManualBox');
+  if (box.classList.contains('open')) {
+    box.classList.remove('open');
+  }
+};
 // Fallback por IP (mesmo comportamento atual)
 async function detectarCidadePorIP() {
     const txtLoc = document.getElementById('txtLocation');
@@ -460,15 +485,23 @@ detectarCidade();
         }
 
         window.fazerMatch = () => {
-          document.getElementById('mText').innerText = "MATCH ATIVO";
-document.getElementById('mCircle').style.background = "#cbd5e1";
-            const circle = document.getElementById('mCircle');
-            const mStatus = document.getElementById('mText');
-            const mod = document.getElementById('matchModelo').value.toLowerCase();
-            const pMax = parseFloat(document.getElementById('matchPreco').value.replace(/\D/g, '')) || Infinity;
-            if(!mod) return alert("Digite o modelo que deseja.");
-            circle.className = "status-circle searching";
-            mStatus.innerText = "CALCULANDO MELHOR VANTAGEM...";
+  const circle = document.getElementById('mCircle');
+  const mStatus = document.getElementById('mText');
+
+  const mod = document.getElementById('matchModelo').value.toLowerCase();
+  const pMax = parseFloat(
+    document.getElementById('matchPreco').value.replace(/\D/g, '')
+  ) || Infinity;
+
+  if (!mod) {
+    alert("Digite o modelo que deseja.");
+    return;
+  }
+
+  circle.className = "status-circle searching";
+  circle.style.background = "";
+  mStatus.innerText = "CALCULANDO MELHOR VANTAGEM...";
+
             setTimeout(() => {
                 let candidatos = todosAnuncios.filter(a => a.modelo.toLowerCase().includes(mod));
                 if (candidatos.length === 0) {
@@ -520,8 +553,7 @@ document.getElementById('mCircle').style.background = "#cbd5e1";
             `;
             document.getElementById('matchLink').href = `anuncio.html?id=${ad.id}`;
             document.getElementById('matchPopup').classList.add('active');
-        }
-        window.closeMatch = () => document.getElementById('matchPopup').classList.remove('active');
+        }     
     </script>
 </body>
 </html>
