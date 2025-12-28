@@ -270,7 +270,7 @@
         <span class="match-label">MATCH!</span>
         <div class="match-content" id="matchData"></div>
         <div class="match-actions">
-            <button class="btn-close" onclick="closeMatch()">FECHAR</button>
+            <button class="btn-close" onclick="fecharMatch()">FECHAR</button>
             <a href="#" id="matchLink" class="btn-view">VER AGORA</a>
         </div>
     </div>
@@ -554,6 +554,22 @@ detectarCidade();
             document.getElementById('matchLink').href = `anuncio.html?id=${ad.id}`;
             document.getElementById('matchPopup').classList.add('active');
         }     
+  window.fecharMatch = () => {
+  document.getElementById('matchPopup').classList.remove('active');
+
+  // 🔥 GARANTE que overlays não bloqueiem clique
+  const overlay = document.getElementById('menuOverlay');
+  if (overlay) overlay.style.display = 'none';
+
+  document.getElementById('mText').innerText = "MATCH? Faça uma pesquisa!!!...";
+  const circle = document.getElementById('mCircle');
+  circle.className = "status-circle";
+  circle.style.background = "#cbd5e1";
+
+  renderizar(todosAnuncios);
+};
+
+
     </script>
 </body>
 </html>
