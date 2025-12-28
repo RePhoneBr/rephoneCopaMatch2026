@@ -722,6 +722,27 @@ window.addEventListener('DOMContentLoaded', () => {
       </span>
       <button onclick="aceitarCookies()">Aceitar</button>
     </div>
+<script>
+  function aceitarCookies() {
+    localStorage.setItem('lgpdConsent', 'accepted');
+    document.getElementById('lgpdBanner').style.display = 'none';
+
+    // Se estiver usando Google Analytics com consent mode
+    if (typeof gtag === 'function') {
+      gtag('consent', 'update', {
+        analytics_storage: 'granted'
+      });
+    }
+  }
+
+  // Ocultar banner se já aceitou
+  window.addEventListener('load', () => {
+    if (localStorage.getItem('lgpdConsent') === 'accepted') {
+      const banner = document.getElementById('lgpdBanner');
+      if (banner) banner.style.display = 'none';
+    }
+  });
+</script>
 
   </body>
 </html>
