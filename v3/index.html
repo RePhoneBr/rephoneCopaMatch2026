@@ -74,7 +74,7 @@
         .match-card label { display: block; font-weight: 800; font-size: 12px; color: var(--text-muted); text-transform: uppercase; margin-bottom: 5px; }
         .match-card input { width: 100%; padding: 16px; border-radius: 15px; border: 1px solid #e2e8f0; background: #f8fafc; margin-bottom: 15px; font-size: 15px; outline: none; }
         .btn-match { width: 100%; background: var(--green); color: white; border: none; padding: 18px; border-radius: 15px; font-weight: 800; font-size: 15px; cursor: pointer; }
-
+ 
         /* RADAR GRID */
         .section-title { padding: 20px; font-size: 24px; font-weight: 900; }
         .feed { padding: 0 15px 100px; display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
@@ -114,18 +114,9 @@
         .match-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 20px; }
         .btn-view { background: var(--green); color: white; padding: 15px; border-radius: 12px; text-decoration: none; font-weight: 800; text-align: center; }
         .btn-close { background: rgba(255,255,255,0.1); color: white; padding: 15px; border-radius: 12px; border: none; font-weight: 700; }
-    <style>
   /* ========================= */
   /* SEU CSS ATUAL (NÃO MEXE) */
   /* ========================= */
-
-  .card {
-    background: white;
-    border-radius: 25px;
-    padding: 12px;
-    border: 1px solid #e2e8f0;
-  }
-
   /* ========================= */
   /* DESKTOP – VISUAL PROFISSIONAL */
   /* ========================= */
@@ -159,9 +150,57 @@
       grid-template-columns: repeat(5, 1fr);
     }
   }
-</style>
+      /* BOTÃO BUSCA MANUAL */
+.toggle-busca {
+  width: 100%;
+  background: #f1f5f9;
+  border: 1px solid #e2e8f0;
+  border-radius: 16px;
+  padding: 14px;
+  font-weight: 900;
+  font-size: 13px;
+  margin-top: 14px;
+  cursor: pointer;
+  transition: background 0.3s;
+}
 
-    </style>
+.toggle-busca:hover {
+  background: #e2e8f0;
+}
+
+/* COLLAPSIBLE */
+.busca-collapsible {
+  overflow: hidden;
+  max-height: 0;
+  opacity: 0;
+  transform: translateY(-8px);
+  transition: all 0.45s cubic-bezier(.4,0,.2,1);
+  margin-top: 0;
+}
+
+/* ABERTO */
+.busca-collapsible.open {
+  max-height: 600px;
+  opacity: 1;
+  transform: translateY(0);
+  margin-top: 14px;
+}
+
+/* DESKTOP → SEMPRE ABERTO */
+@media (min-width: 1024px) {
+  .busca-collapsible {
+    max-height: none;
+    opacity: 1;
+    transform: none;
+    margin-top: 18px;
+  }
+
+  .toggle-busca {
+    display: none;
+  }
+}
+
+</style>
 </head>
 <body>
 
@@ -172,7 +211,6 @@
         </div>
         <button class="btn-menu-icon" onclick="toggleMenu()">☰</button>
     </header>
-
     <div class="location-bar" id="txtLocation">
         Olá, você está em <strong>sua região</strong>
     </div>
@@ -202,9 +240,25 @@
             <label>Modelo desejado</label>
             <input type="text" id="matchModelo" placeholder="Ex: iPhone 13 Pro">
             <label>Preço Máximo</label>
-            <input type="text" id="matchPreco" placeholder="Ex: 4000">
+            <input type="number" id="matchPreco" placeholder="Ex: 4000">
             <button class="btn-match" onclick="fazerMatch()">MATCH</button>
-        </div>
+        <button class="toggle-busca" onclick="toggleBusca()">
+  🔍 BUSCA MANUAL
+</button>
+
+<div id="buscaManualBox" class="match-card busca-collapsible">
+  <label>Buscar por Marca</label>
+  <input type="text" id="buscaMarca" placeholder="Ex: Apple, Samsung">
+
+  <label>Buscar por Modelo</label>
+  <input type="text" id="buscaModelo" placeholder="Ex: iPhone 13">
+
+  <label>Preço até</label>
+  <input type="text" id="buscaPreco" placeholder="Ex: 3500">
+
+  <button class="btn-match" onclick="buscarManual()">BUSCAR</button>
+</div>
+          
     </section>
 
     <h2 class="section-title">As melhores ofertas RePhone</h2>
@@ -228,6 +282,44 @@
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
         const auth = getAuth(app);
+     window.buscarManual = () => {
+  if (!todosAnuncios.length) {
+    alert("Carregando anúncios, tente novamente.");
+    return;
+  }
+
+  const marca = document.getElementById('buscaMarca').value.toLowerCase();
+  const modelo = document.getElementById('buscaModelo').value.toLowerCase();
+  const precoMax =
+    parseFloat(document.getElementById('buscaPreco').value.replace(/\D/g, '')) ||
+    Infinity;
+document.getElementById('mText').innerText = "BUSCA MANUAL ATIVA";
+document.getElementById('mCircle').style.background = "#0ea5e9";
+  const filtrados = todosAnuncios.filter(ad => {
+    const okMarca = marca
+      ? (ad.marca || '').toLowerCase().includes(marca)
+      : true;
+
+    const okModelo = modelo
+      ? (ad.modelo || '').toLowerCase().includes(modelo)
+      : true;
+
+    const okPreco = parseFloat(ad.preco) <= precoMax;
+
+    return okMarca && okModelo && okPreco;
+  });
+
+  if (!filtrados.length) {
+    alert("Nenhum resultado encontrado.");
+    return;
+  }
+
+  renderizar(filtrados);
+
+  // 👉 muda o estado visual do MATCH
+  document.getElementById('mText').innerText = "BUSCA MANUAL ATIVA";
+  document.getElementById('mCircle').style.background = "#0ea5e9";
+};
 
     // --- LOCALIZAÇÃO PADRÃO POR GPS (COM FALLBACK) ---
 async function detectarCidade() {
@@ -305,6 +397,17 @@ detectarCidade();
             menu.classList.toggle('active');
             overlay.style.display = menu.classList.contains('active') ? 'block' : 'none';
         };
+      window.toggleBusca = () => {
+  const box = document.getElementById('buscaManualBox');
+  const btn = document.querySelector('.toggle-busca');
+
+  box.classList.toggle('open');
+
+  btn.innerText = box.classList.contains('open')
+    ? "🔵 BUSCA MANUAL ATIVA"
+    : "🔍 BUSCA MANUAL";
+};
+
 
         onAuthStateChanged(auth, async (user) => {
             const guest = document.getElementById('menuGuest');
@@ -357,6 +460,8 @@ detectarCidade();
         }
 
         window.fazerMatch = () => {
+          document.getElementById('mText').innerText = "MATCH ATIVO";
+document.getElementById('mCircle').style.background = "#cbd5e1";
             const circle = document.getElementById('mCircle');
             const mStatus = document.getElementById('mText');
             const mod = document.getElementById('matchModelo').value.toLowerCase();
