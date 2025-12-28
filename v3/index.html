@@ -8,8 +8,19 @@
   <link rel="apple-touch-icon" sizes="180x180" href="/favicon.png">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <!-- Google Analytics -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-LHRJ19C0CW"></script>
+  <script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('consent', 'default', {
+    analytics_storage: 'denied'
+  });
+  </script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap" rel="stylesheet">
     <style>
+      
         :root { --dark: #0f172a; --green: #16a34a; --green-light: #4ade80; --bg: #f8fafc; --text-muted: #64748b; }
         * { margin:0; padding:0; box-sizing:border-box; font-family:'Inter', sans-serif; }
         body { background: var(--bg); color: var(--dark); overflow-x: hidden; }
@@ -199,7 +210,43 @@
     display: none;
   }
 }
+.lgpd-banner {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  background: #0f172a;
+  color: #fff;
+  padding: 12px 16px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  font-size: 14px;
+  z-index: 3000;
+}
 
+.lgpd-banner a {
+  color: #38bdf8;
+  text-decoration: underline;
+}
+
+.lgpd-banner button {
+  background: #22c55e;
+  color: #000;
+  border: none;
+  padding: 8px 14px;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+@media (max-width: 600px) {
+  .lgpd-banner {
+    flex-direction: column;
+    text-align: center;
+  }
+}
 </style>
 </head>
 <body>
@@ -568,8 +615,37 @@ detectarCidade();
 
   renderizar(todosAnuncios);
 };
+function aceitarCookies() {
+  localStorage.setItem('lgpd_aceito', 'true');
+  document.getElementById('lgpdBanner').style.display = 'none';
+  iniciarAnalytics();
+}
 
+function iniciarAnalytics() {
+  if (window.gtag) {
+    gtag('consent', 'update', {
+      analytics_storage: 'granted'
+    });
+
+    gtag('config', 'G-LHRJ19C0CW');
+  }
+}
+
+// Mostrar banner apenas se não aceitou
+window.addEventListener('load', () => {
+  if (!localStorage.getItem('lgpd_aceito')) {
+    document.getElementById('lgpdBanner').style.display = 'flex';
+  }
+});
 
     </script>
+   <!-- Banner LGPD -->
+<div id="lgpdBanner" class="lgpd-banner">
+  <span>
+    Usamos cookies para melhorar sua experiência e analisar acessos.
+    <a href="/politica-de-privacidade.html" target="_blank">Saiba mais</a>
+  </span>
+  <button onclick="aceitarCookies()">Aceitar</button>
+</div>
 </body>
 </html>
