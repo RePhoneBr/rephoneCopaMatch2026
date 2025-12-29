@@ -76,6 +76,30 @@
         .nav-item span { display: block; font-size: 18px; margin-bottom: 4px; }
 
         .empty-state { text-align: center; padding: 40px 20px; color: var(--muted); }
+        .acoes-venda {
+    display: flex;
+    gap: 8px;
+    margin-top: 8px;
+}
+
+.btn-status {
+    border: none;
+    padding: 6px 10px;
+    border-radius: 10px;
+    font-size: 11px;
+    font-weight: 800;
+    cursor: pointer;
+}
+
+.btn-status.vendido {
+    background: #2563eb;
+    color: #fff;
+}
+
+.btn-status.entregue {
+    background: var(--green);
+    color: #fff;
+}
     </style>
 </head>
 <body>
@@ -96,7 +120,7 @@
 
     <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-app.js";
-    import { getFirestore, collection, query, where, onSnapshot, doc, deleteDoc, getDoc } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-firestore.js";
+    import { getFirestore, collection, query, where, onSnapshot, doc, deleteDoc, getDoc, updateDoc, serverTimestamp }from "https://www.gstatic.com/firebasejs/12.7.0/firebase-firestore.js";
     import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-auth.js";
 
     const firebaseConfig = { 
@@ -141,14 +165,33 @@
                 const precoFormatado = parseFloat(ad.preco).toLocaleString('pt-br', {minimumFractionDigits: 2});
 
                 item.innerHTML = `
-                    <img src="${ad.fotos && ad.fotos[0] ? ad.fotos[0] : 'https://via.placeholder.com/60'}">
-                    <div class="ad-info">
-                        <h3>${ad.modelo}</h3>
-                        <p>${ad.capacidade || '--'} • Bateria ${ad.bateria || '--'}%</p>
-                        <span class="price">R$ ${precoFormatado}</span>
-                    </div>
-                    <button class="btn-delete" onclick="window.deletarAnuncio('${d.id}')">🗑️</button>
-                `;
+    <img src="${ad.fotos && ad.fotos[0] ? ad.fotos[0] : 'https://via.placeholder.com/60'}">
+    <div class="ad-info">
+        <h3>${ad.modelo}</h3>
+        <p>${ad.capacidade || '--'} • Bateria ${ad.bateria || '--'}%</p>
+        <span class="price">R$ ${precoFormatado}</span>
+
+        ${ad.statusVenda !== "entregue" ? `
+<div class="acoes-venda">
+    ${!ad.statusVenda ? `
+    <button class="btn-status vendido"
+        onclick="marcarVendido('${d.id}')">
+        Vendido
+    </button>` : ``}
+
+    <button class="btn-status entregue"
+        onclick="marcarEntregue('${d.id}')">
+        Entregue
+    </button>
+</div>` : `
+<p style="font-size:11px;color:#16a34a;font-weight:800;margin-top:6px">
+✔ Entregue
+</p>
+`}
+    </div>
+
+    <button class="btn-delete" onclick="window.deletarAnuncio('${d.id}')">🗑️</button>
+`;
                 container.appendChild(item);
             });
         });
@@ -165,6 +208,30 @@
             }
         }
     };
+        window.marcarVendido = async (anuncioId) => {
+    try {
+        await updateDoc(doc(db, "anuncios", anuncioId), {
+            statusVenda: "vendido",
+            atualizadoEm: serverTimestamp()
+        });
+        alert("Marcado como vendido");
+    } catch (e) {
+        alert("Erro ao marcar como vendido");
+    }
+};
+
+window.marcarEntregue = async (anuncioId) => {
+    try {
+        await updateDoc(doc(db, "anuncios", anuncioId), {
+            statusVenda: "entregue",
+            atualizadoEm: serverTimestamp()
+        });
+        alert("Marcado como entregue");
+    } catch (e) {
+        alert("Erro ao marcar como entregue");
+    }
+};
+
 </script>
 </body>
 </html>
