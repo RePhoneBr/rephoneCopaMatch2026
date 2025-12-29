@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+<meta charset="UTF-8">
+<title>Acompanhar negociação | RePhone</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
+
+<style>
+body { background:#f8fafc; font-family:Inter; }
+.card {
+  max-width:500px;
+  margin:40px auto;
+  background:white;
+  padding:25px;
+  border-radius:25px;
+  box-shadow:0 20px 40px rgba(0,0,0,.08);
+}
+h1 { font-size:22px; font-weight:900; }
+.status { font-weight:800; margin:15px 0; }
+button {
+  width:100%; padding:16px;
+  border-radius:14px; border:none;
+  font-weight:800; cursor:pointer;
+}
+.btn-ok { background:#16a34a; color:white; }
+textarea { width:100%; margin-top:10px; border-radius:12px; padding:10px; }
+</style>
+</head>
+
+<body>
+<div class="card">
+  <h1>Acompanhamento</h1>
+  <p id="produto"></p>
+  <div class="status" id="status"></div>
+
+  <button id="btnConfirmar" class="btn-ok" style="display:none">
+    Confirmar entrega
+  </button>
+
+  <div id="avaliacao" style="display:none">
+    <h3>Avalie a experiência</h3>
+    ⭐ <input type="number" min="1" max="5" id="nota"><br>
+    <textarea id="comentario" placeholder="Sugestão (opcional)"></textarea>
+    <button onclick="enviarAvaliacao()">Enviar</button>
+  </div>
+</div>
+
+<script type="module">
+import {
+  getFirestore, doc, onSnapshot, updateDoc, serverTimestamp
+} from "https://www.gstatic.com/firebasejs/12.7.0/firebase-firestore.js";
+
+const db = window.db;
+const id = new URLSearchParams(location.search).get('id');
+const ref = doc(db, "contatos", id);
+
+onSnapshot(ref, snap => {
+  const d = snap.data();
+  document.getElementById('status').innerText = d.status;
+
+  if (d.status === "entregue_pelo_vendedor") {
+    document.getElementById('btnConfirmar').style.display = 'block';
+  }
+
+  if (d.status === "finalizado") {
+    document.getElementById('avaliacao').style.display = 'block';
+  }
+});
+
+document.getElementById('btnConfirmar').onclick = async () => {
+  await updateDoc(ref, {
+    status: "finalizado",
+    atualizadoEm: serverTimestamp()
+  });
+};
+
+window.enviarAvaliacao = async () => {
+  alert("Avaliação salva com sucesso!");
+};
+</script>
+</body>
+</html>
