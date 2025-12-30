@@ -344,25 +344,25 @@ async function carregarAnuncio() {
 
   /* ===== LOCALIZAÇÃO ===== */
   const localEl = document.getElementById("pLocal");
-  if (ad.coords) {
-    const [lat,lon] = ad.coords.split(",");
-    navigator.geolocation.getCurrentPosition(
-      pos=>{
-        const km = calcularKM(
-          pos.coords.latitude,
-          pos.coords.longitude,
-          parseFloat(lat),
-          parseFloat(lon)
-        );
-        localEl.innerText =
-          `📍 ${ad.cidade} (a ${km.toFixed(1)} km de você)`;
-      },
-      ()=> localEl.innerText = `📍 ${ad.cidade || "Local não informado"}`
-    );
-  } else {
-    localEl.innerText = `📍 ${ad.cidade || "Local não informado"}`;
-  }
 
+if (typeof ad.coords === "string" && ad.coords.includes(",")) {
+  const [lat, lon] = ad.coords.split(",");
+  navigator.geolocation.getCurrentPosition(
+    pos => {
+      const km = calcularKM(
+        pos.coords.latitude,
+        pos.coords.longitude,
+        parseFloat(lat),
+        parseFloat(lon)
+      );
+      localEl.innerText =
+        `📍 ${ad.cidade} (a ${km.toFixed(1)} km de você)`;
+    },
+    () => localEl.innerText = `📍 ${ad.cidade || "Local não informado"}`
+  );
+} else {
+  localEl.innerText = `📍 ${ad.cidade || "Local não informado"}`;
+}
   /* ===== SEO ===== */
   document.getElementById("metaTitle").content =
     `${ad.modelo} - R$ ${precoFmt}`;
@@ -372,20 +372,22 @@ async function carregarAnuncio() {
 
   /* ===== FINALIZA LOAD ===== */
 document.getElementById("mainPanel").style.display = "grid";
+}
 
+/* CHAMADA CORRETA — FORA DA FUNÇÃO */
 carregarAnuncio();
 
-/* ===== MENSAGEM WHATSAPP ===== */
-const mensagem =
-  `Olá! Vi seu anúncio: ${ad.marca} ${ad.modelo} ${ad.capacidade} ` +
-  `no site RePhone.com.br por R$ ${precoFmt}.\n\n` +
-  `Link: ${window.location.href}`;
-
-/* ===== WHATSAPP + TRACK ===== */
+/* ===== WHATSAPP ===== */
 document.getElementById("pZap").onclick = async () => {
+
+  if (!ad.whatsapp) {
+    alert("Vendedor não informou WhatsApp");
+    return;
+  }
+
   try {
     await addDoc(collection(db,"interesses"),{
-      anuncioId: idAnuncio, // 🔴 use o ID correto do anúncio
+      anuncioId: anuncioId, // ✅ corrigido
       vendedorId: ad.vendedorId || ad.uid || null,
       compradorId: auth.currentUser ? auth.currentUser.uid : "anonimo",
       canal: "whatsapp",
