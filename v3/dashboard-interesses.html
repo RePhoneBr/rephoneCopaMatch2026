@@ -160,9 +160,25 @@ onAuthStateChanged(auth, (user)=>{
   });
 });
 
-window.marcar = async (id,status)=>{
-  await updateDoc(doc(db,"interesses",id),{ status });
+window.marcar = async (interesseId, status) => {
+  const interesseRef = doc(db, "interesses", interesseId);
+
+  // Atualiza o interesse
+  await updateDoc(interesseRef, { status });
+
+  // Buscar interesse para saber qual anúncio
+  const snap = await getDoc(interesseRef);
+  const interesse = snap.data();
+
+  // Sincroniza com o anúncio
+  if (status === "vendido" || status === "entregue") {
+    await updateDoc(
+      doc(db, "anuncios", interesse.anuncioId),
+      { statusVenda: status }
+    );
+  }
 };
+
 </script>
 
 </body>
