@@ -371,14 +371,9 @@ async function carregarAnuncio() {
   document.getElementById("metaImg").content = foto;
 
   /* ===== WHATSAPP + TRACK ===== */
-  const mensagem =
-`Olá! Tenho interesse no seu anúncio no RePhone:
-
-📱 ${ad.modelo}
-💰 R$ ${precoFmt}
-
-Podemos conversar?`;
-
+document.getElementById("mainPanel").style.display="grid";
+}
+carregarAnuncio();
   document.getElementById("pZap").onclick = async ()=>{
     try {
       await addDoc(collection(db,"interesses"),{
@@ -396,15 +391,13 @@ Podemos conversar?`;
       "_blank"
     );
   };
-
-  /* ===== SHARE ===== */
+ /* ===== SHARE ===== */
   document.getElementById('pShare').onclick = async () => {
   const shareData = {
     title: `RePhone - ${ad.marca} ${ad.modelo} ${ad.capacidade}`,
     text: `📱 ${ad.marca} ${ad.modelo} ${ad.capacidade}\n💰 R$ ${precoFmt}\nDisponível no RePhone.com.br`,
     url: window.location.href
   };
-
   if (navigator.share) {
     await navigator.share(shareData);
   } else {
@@ -412,10 +405,6 @@ Podemos conversar?`;
     alert("Link copiado!");
   }
 };
-  document.getElementById("mainPanel").style.display="grid";
-}
-
-carregarAnuncio();
 </script>
 </body>
 </html>
