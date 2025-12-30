@@ -574,6 +574,16 @@ detectarCidade();
                         <div class="details">${ad.capacidade} • Bateria ${ad.bateria}%</div>
                         <div class="location">📍 ${ad.cidade}</div>
                         <span class="price">R$ ${parseFloat(ad.preco).toLocaleString('pt-br')}</span>
+                        ${ad.statusVenda === "vendido" ? `
+<div class="badge-tipo" style="background:#2563eb;color:#fff">
+VENDIDO
+</div>` : ``}
+
+${ad.statusVenda === "entregue" ? `
+<div class="badge-tipo" style="background:#16a34a;color:#fff">
+ENTREGUE
+</div>` : ``}
+
                     </a>
                 `;
                 grid.appendChild(card);
