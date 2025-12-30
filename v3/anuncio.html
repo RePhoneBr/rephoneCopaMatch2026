@@ -370,34 +370,46 @@ async function carregarAnuncio() {
     `Confira este ${ad.modelo} disponível no RePhone.`;
   document.getElementById("metaImg").content = foto;
 
-  /* ===== WHATSAPP + TRACK ===== */
-document.getElementById("mainPanel").style.display="grid";
-}
-carregarAnuncio();
-  document.getElementById("pZap").onclick = async ()=>{
-    try {
-      await addDoc(collection(db,"interesses"),{
-        anuncioId,
-        vendedorId: ad.vendedorId || ad.uid || null,
-        compradorId: auth.currentUser ? auth.currentUser.uid : "anonimo",
-        canal: "whatsapp",
-        criadoEm: serverTimestamp(),
-        status: "contato"
-      });
-    } catch(e){ console.warn("Interesse não registrado"); }
+  /* ===== FINALIZA LOAD ===== */
+document.getElementById("mainPanel").style.display = "grid";
 
-    window.open(
-      `https://wa.me/55${ad.whatsapp}?text=${encodeURIComponent(mensagem)}`,
-      "_blank"
-    );
-  };
- /* ===== SHARE ===== */
-  document.getElementById('pShare').onclick = async () => {
+carregarAnuncio();
+
+/* ===== MENSAGEM WHATSAPP ===== */
+const mensagem =
+  `Olá! Vi seu anúncio: ${ad.marca} ${ad.modelo} ${ad.capacidade} ` +
+  `no site RePhone.com.br por R$ ${precoFmt}.\n\n` +
+  `Link: ${window.location.href}`;
+
+/* ===== WHATSAPP + TRACK ===== */
+document.getElementById("pZap").onclick = async () => {
+  try {
+    await addDoc(collection(db,"interesses"),{
+      anuncioId: idAnuncio, // 🔴 use o ID correto do anúncio
+      vendedorId: ad.vendedorId || ad.uid || null,
+      compradorId: auth.currentUser ? auth.currentUser.uid : "anonimo",
+      canal: "whatsapp",
+      criadoEm: serverTimestamp(),
+      status: "contato"
+    });
+  } catch(e){
+    console.warn("Interesse não registrado", e);
+  }
+
+  window.open(
+    `https://wa.me/55${ad.whatsapp}?text=${encodeURIComponent(mensagem)}`,
+    "_blank"
+  );
+};
+
+/* ===== SHARE ===== */
+document.getElementById('pShare').onclick = async () => {
   const shareData = {
     title: `RePhone - ${ad.marca} ${ad.modelo} ${ad.capacidade}`,
     text: `📱 ${ad.marca} ${ad.modelo} ${ad.capacidade}\n💰 R$ ${precoFmt}\nDisponível no RePhone.com.br`,
     url: window.location.href
   };
+
   if (navigator.share) {
     await navigator.share(shareData);
   } else {
@@ -405,6 +417,7 @@ carregarAnuncio();
     alert("Link copiado!");
   }
 };
+
 </script>
 </body>
 </html>
