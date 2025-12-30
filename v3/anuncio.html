@@ -6,11 +6,6 @@
 
 <title>Detalhes do Aparelho | RePhone</title>
 
-<meta property="og:type" content="website">
-<meta property="og:title" id="metaTitle" content="RePhone - Aparelho Disponível">
-<meta property="og:description" id="metaDesc" content="Confira este anúncio no RePhone">
-<meta property="og:image" id="metaImg" content="https://www.rephone.com.br/logo.png">
-
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
 
 <style>
@@ -36,8 +31,6 @@ body { background:var(--bg); padding:15px; padding-bottom:110px; color:var(--dar
   font-size:11px; font-weight:900; padding:6px 14px;
   border-radius:20px; text-transform:uppercase;
 }
-.status-lojista { background:#dbeafe; color:var(--blue); }
-.status-particular { background:#f1f5f9; color:var(--muted); }
 
 .main-grid {
   display:grid; grid-template-columns:1fr; gap:25px;
@@ -59,57 +52,9 @@ body { background:var(--bg); padding:15px; padding-bottom:110px; color:var(--dar
 }
 .gallery img { max-width:90%; max-height:90%; object-fit:contain; }
 
-h1 { font-size:26px; font-weight:900; margin-bottom:5px; }
-
-.seller-name { font-weight:700; font-size:16px; margin-top:5px; display:block; }
-.location-tag { font-size:13px; color:var(--muted); margin-top:4px; display:block; }
-
 .price {
   font-size:32px; font-weight:900; color:var(--green);
   margin:18px 0 25px; display:block;
-}
-
-.info-grid {
-  display:grid;
-  grid-template-columns:repeat(auto-fill,minmax(140px,1fr));
-  gap:12px; margin-bottom:25px;
-}
-.info-box {
-  background:#f8fafc; border-radius:18px;
-  padding:15px; border:1px solid #e2e8f0;
-}
-.info-box small {
-  font-size:9px; font-weight:900; color:var(--muted);
-  text-transform:uppercase; display:block; margin-bottom:4px;
-}
-.info-box span { font-size:14px; font-weight:700; }
-
-.desc-box { border-top:1px solid #f1f5f9; padding-top:20px; }
-.desc-box h4 {
-  font-size:11px; font-weight:900; color:var(--muted);
-  text-transform:uppercase; margin-bottom:8px;
-}
-.desc-box p { font-size:14px; line-height:1.6; color:#475569; }
-
-.footer-controls {
-  position:fixed; bottom:0; left:0; width:100%;
-  background:rgba(255,255,255,.95);
-  backdrop-filter:blur(10px);
-  border-top:1px solid #e2e8f0;
-  padding:15px; display:flex; gap:12px; justify-content:center;
-}
-
-.btn-zap {
-  background:#25d366; color:#fff;
-  padding:18px 24px; border-radius:22px;
-  font-weight:900; font-size:16px;
-  text-decoration:none; max-width:380px; width:100%; text-align:center;
-}
-
-.btn-share {
-  border:2px solid #e2e8f0; background:#fff;
-  border-radius:22px; padding:18px 22px;
-  font-weight:800; cursor:pointer;
 }
 </style>
 </head>
@@ -124,50 +69,56 @@ h1 { font-size:26px; font-weight:900; margin-bottom:5px; }
 
   <div class="main-grid" id="mainPanel" style="display:none">
     <div class="gallery">
-      <img id="pImg" src="/img/placeholder.png" alt="Foto do aparelho">
+      <img id="pImg" src="/img/placeholder.png">
     </div>
 
     <div class="panel">
+
+      <!-- ✅ AVISO STATUS (AGORA NO LUGAR CERTO) -->
+      <div id="avisoStatus" style="
+        display:none;
+        background:#dcfce7;
+        color:#166534;
+        padding:12px;
+        border-radius:14px;
+        font-size:13px;
+        font-weight:800;
+        margin-bottom:12px;">
+      </div>
+
       <h1 id="pModeloHeader">---</h1>
-      <span id="pNomeVendedor" class="seller-name"></span>
-      <span id="pLocal" class="location-tag"></span>
+      <span id="pNomeVendedor" style="font-weight:700"></span>
+      <span id="pLocal"></span>
       <span class="price" id="pPreco"></span>
 
-      <div class="info-grid">
-        <div class="info-box"><small>Marca</small><span id="pMarca"></span></div>
-        <div class="info-box"><small>Modelo</small><span id="pModeloGrid"></span></div>
-        <div class="info-box"><small>Cor</small><span id="pCor"></span></div>
-        <div class="info-box"><small>Capacidade</small><span id="pCapacidade"></span></div>
-        <div class="info-box"><small>Condição</small><span id="pCondicao"></span></div>
-        <div class="info-box"><small>Bateria</small><span id="pBateria"></span>%</div>
-        <div class="info-box"><small>Garantia</small><span id="pGarantia"></span></div>
-      </div>
-
-      <div class="desc-box">
-        <h4>Descrição</h4>
-        <p id="pDesc"></p>
-      </div>
+      <p id="pDesc"></p>
     </div>
   </div>
 </div>
 
 <div class="footer-controls">
-  <a id="pZap" class="btn-zap" href="#">Falar no WhatsApp</a>
-  <button id="pShare" class="btn-share">Compartilhar</button>
+  <a id="pZap" href="#">Falar no WhatsApp</a>
+  <button id="pShare">Compartilhar</button>
 </div>
 
 <script type="module">
+/* ===============================
+   IMPORTS (TODOS NO TOPO)
+================================ */
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-app.js";
-import { getFirestore, doc, getDoc, addDoc, collection, serverTimestamp }
-  from "https://www.gstatic.com/firebasejs/12.7.0/firebase-firestore.js";
+import {
+  getFirestore, doc, getDoc, addDoc, collection,
+  serverTimestamp, query, where, onSnapshot
+} from "https://www.gstatic.com/firebasejs/12.7.0/firebase-firestore.js";
 import { getAuth } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-auth.js";
 
+/* ===============================
+   FIREBASE
+================================ */
 const firebaseConfig = {
   apiKey: "AIzaSyBiN8FqX8UZeyAh1cG2GHZtQWiQH0xPBV4",
   authDomain: "rephone-a0a80.firebaseapp.com",
-  projectId: "rephone-a0a80",
-  storageBucket: "rephone-a0a80.appspot.com",
-  appId: "1:431497247030:web:a943715e4acc04b8995b97"
+  projectId: "rephone-a0a80"
 };
 
 const app = initializeApp(firebaseConfig);
@@ -175,94 +126,50 @@ const db = getFirestore(app);
 const auth = getAuth(app);
 
 /* ===============================
-   VARIÁVEIS GLOBAIS (OBRIGATÓRIO)
+   VARIÁVEIS
 ================================ */
 let ad = null;
-let id = null;
+let id = new URLSearchParams(location.search).get("id");
 
 /* ===============================
    CARREGAR ANÚNCIO
 ================================ */
-id = new URLSearchParams(location.search).get("id");
-if (!id) alert("Anúncio não encontrado");
-
 const snap = await getDoc(doc(db,"anuncios",id));
-if (!snap.exists()) alert("Anúncio não existe");
-
 ad = snap.data();
+
 const preco = Number(ad.preco).toLocaleString("pt-BR",{minimumFractionDigits:2});
 
 /* ===============================
-   REGISTRAR INTERESSE (PARTE 4)
+   STATUS ENTREGA (CORRETO)
 ================================ */
-async function registrarInteresse() {
-  try {
-    await addDoc(collection(db, "interesses"), {
-      anuncioId: id,
-      vendedorId: ad.vendedorId || null,
-      compradorId: auth.currentUser ? auth.currentUser.uid : "anonimo",
-      canal: "whatsapp",
-      criadoEm: serverTimestamp(),
-      status: "contato"
-    });
-  } catch (e) {
-    console.error("Erro ao registrar interesse", e);
-  }
-}
+const qStatus = query(
+  collection(db,"interesses"),
+  where("anuncioId","==",id)
+);
+
+onSnapshot(qStatus,(snap)=>{
+  snap.forEach(d=>{
+    const i = d.data();
+    if(i.status === "entregue"){
+      const aviso = document.getElementById("avisoStatus");
+      aviso.innerText = "✅ Este aparelho foi marcado como entregue.";
+      aviso.style.display = "block";
+    }
+  });
+});
 
 /* ===============================
    PREENCHER TELA
 ================================ */
-document.getElementById("pImg").src = ad.fotos?.[0] || "/img/placeholder.png";
 document.getElementById("pModeloHeader").innerText = ad.modelo;
-document.getElementById("pModeloGrid").innerText = ad.modelo;
 document.getElementById("pPreco").innerText = `R$ ${preco}`;
-document.getElementById("pMarca").innerText = ad.marca || "--";
-document.getElementById("pCor").innerText = ad.cor || "--";
-document.getElementById("pCapacidade").innerText = ad.capacidade || "--";
-document.getElementById("pCondicao").innerText = ad.condicao || "--";
-document.getElementById("pBateria").innerText = ad.bateria || "--";
-document.getElementById("pGarantia").innerText = ad.garantia || "Sem garantia";
 document.getElementById("pDesc").innerText = ad.descricao || "";
-document.getElementById("pLocal").innerText = `📍 ${ad.cidade || "Local não informado"}`;
-
-/* ===============================
-   BOTÃO WHATSAPP (COM REGISTRO)
-================================ */
-document.getElementById("pZap").onclick = async (e) => {
-  e.preventDefault();
-
-  await registrarInteresse();
-
-  const msg = encodeURIComponent(
-    `Olá! Vi seu anúncio do ${ad.modelo} no RePhone por R$ ${preco}.`
-  );
-
-  window.open(
-    `https://wa.me/55${ad.whatsapp}?text=${msg}`,
-    "_blank"
-  );
-};
-
-/* ===============================
-   COMPARTILHAR
-================================ */
-document.getElementById("pShare").onclick = async ()=>{
-  if(navigator.share){
-    await navigator.share({ title: ad.modelo, url: location.href });
-  } else {
-    await navigator.clipboard.writeText(location.href);
-    alert("Link copiado!");
-  }
-};
-
-/* ===============================
-   SELO VENDEDOR
-================================ */
-document.getElementById("pVendedorTipo").innerText =
-  ad.tipo === "lojista" ? "🏢 LOJISTA VERIFICADO" : "👤 VENDEDOR PARTICULAR";
+document.getElementById("pLocal").innerText = ad.cidade || "";
+document.getElementById("pNomeVendedor").innerText =
+  ad.nomeVendedor || "Vendedor RePhone";
 
 document.getElementById("mainPanel").style.display="grid";
 </script>
+
 </body>
 </html>
