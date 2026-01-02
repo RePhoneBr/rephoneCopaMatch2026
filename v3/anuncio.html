@@ -303,7 +303,61 @@ async function carregarAnuncio() {
     `📍 ${ad.cidade || "Local não informado"}`;
 
   document.getElementById("mainPanel").style.display = "grid";
+    /* ===== VENDEDOR ===== */
+let vendedorNome = "Vendedor particular";
+let badgeTxt = "👤 VENDEDOR PARTICULAR";
+let badgeClass = "badge-verificado status-particular";
 
+if (ad.vendedorId || ad.uid) {
+  const vSnap = await getDoc(
+    doc(db,"vendedores", ad.vendedorId || ad.uid)
+  );
+
+  if (vSnap.exists()) {
+    const v = vSnap.data();
+    vendedorNome = v.nome || vendedorNome;
+
+    if (v.status === "verificado") {
+      badgeTxt = "🏢 LOJISTA VERIFICADO";
+      badgeClass = "badge-verificado status-lojista";
+    }
+  }
+}
+
+document.getElementById("pNomeVendedor").innerText =
+  `Vendedor: ${vendedorNome}`;
+
+const badge = document.getElementById("pVendedorTipo");
+badge.innerText = badgeTxt;
+badge.className = badgeClass;
+/* ===== LOCALIZAÇÃO + KM ===== */
+const localEl = document.getElementById("pLocal");
+
+if (typeof ad.coords === "string" && ad.coords.includes(",")) {
+  const [lat, lon] = ad.coords.split(",");
+
+  navigator.geolocation.getCurrentPosition(
+    pos => {
+      const km = calcularKM(
+        pos.coords.latitude,
+        pos.coords.longitude,
+        parseFloat(lat),
+        parseFloat(lon)
+      );
+
+      localEl.innerText =
+        `📍 ${ad.cidade || "Local não informado"} (${km.toFixed(1)} km de você)`;
+    },
+    () => {
+      localEl.innerText =
+        `📍 ${ad.cidade || "Local não informado"}`;
+    }
+  );
+} else {
+  localEl.innerText =
+    `📍 ${ad.cidade || "Local não informado"}`;
+    }
+    
   /* ================= WHATSAPP ================= */
   const mensagem = 
     `Olá! Vi seu anúncio do ${ad.marca} ${ad.modelo} ${ad.capacidade} ` +
