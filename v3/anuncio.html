@@ -241,8 +241,7 @@
         <button id="pShare" class="btn-share">COMPARTILHAR</button>
         <a id="pZap" class="btn-zap" href="#">NEGOCIAR</a>
     </div>
-
-   <script type="module">
+<script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-app.js";
 import { getFirestore, doc, getDoc, addDoc, collection, serverTimestamp } 
 from "https://www.gstatic.com/firebasejs/12.7.0/firebase-firestore.js";
@@ -275,18 +274,6 @@ function primeiraFoto(fotos) {
   return "/img/placeholder.png";
 }
 
-function calcularKM(lat1, lon1, lat2, lon2) {
-  const R = 6371;
-  const dLat = (lat2-lat1)*Math.PI/180;
-  const dLon = (lon2-lon1)*Math.PI/180;
-  const a =
-    Math.sin(dLat/2)**2 +
-    Math.cos(lat1*Math.PI/180) *
-    Math.cos(lat2*Math.PI/180) *
-    Math.sin(dLon/2)**2;
-  return R * (2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a)));
-}
-
 /* ================= LOAD ================= */
 async function carregarAnuncio() {
   const snap = await getDoc(doc(db,"anuncios",anuncioId));
@@ -299,127 +286,75 @@ async function carregarAnuncio() {
   const precoFmt = Number(ad.preco || 0)
     .toLocaleString("pt-BR",{minimumFractionDigits:2});
 
-  /* ===== VENDEDOR ===== */
-  let vendedorNome = "Vendedor particular";
-  let badgeTxt = "👤 VENDEDOR PARTICULAR";
-  let badgeClass = "badge-verificado status-particular";
-
-  if (ad.vendedorId || ad.uid) {
-    const vSnap = await getDoc(
-      doc(db,"vendedores", ad.vendedorId || ad.uid)
-    );
-    if (vSnap.exists()) {
-      const v = vSnap.data();
-      vendedorNome = v.nome || vendedorNome;
-      if (v.status === "verificado") {
-        badgeTxt = "🏢 LOJISTA VERIFICADO";
-        badgeClass = "badge-verificado status-lojista";
-      }
-    }
-  }
-
-  document.getElementById("pNomeVendedor").innerText =
-    `Vendedor: ${vendedorNome}`;
-  const badge = document.getElementById("pVendedorTipo");
-  badge.innerText = badgeTxt;
-  badge.className = badgeClass;
-
-  /* ===== DADOS PRINCIPAIS ===== */
-  const foto = primeiraFoto(ad.fotos);
-
-  document.getElementById("pImg").src = foto;
+  /* ===== DADOS ===== */
+  document.getElementById("pImg").src = primeiraFoto(ad.fotos);
   document.getElementById("pModeloHeader").innerText = ad.modelo || "--";
   document.getElementById("pModeloGrid").innerText = ad.modelo || "--";
   document.getElementById("pPreco").innerText = `R$ ${precoFmt}`;
-
   document.getElementById("pMarca").innerText = ad.marca || "--";
   document.getElementById("pCor").innerText = ad.cor || "--";
   document.getElementById("pCapacidade").innerText = ad.capacidade || "--";
   document.getElementById("pCondicao").innerText = ad.condicao || "--";
   document.getElementById("pEstado").innerText = ad.estado || "--";
   document.getElementById("pBateria").innerText = ad.bateria || "--";
-  document.getElementById("pGarantia").innerText =
-    ad.garantia || "Sem garantia";
+  document.getElementById("pGarantia").innerText = ad.garantia || "Sem garantia";
   document.getElementById("pDesc").innerText = ad.descricao || "";
+  document.getElementById("pLocal").innerText =
+    `📍 ${ad.cidade || "Local não informado"}`;
 
-  /* ===== LOCALIZAÇÃO ===== */
-  const localEl = document.getElementById("pLocal");
+  document.getElementById("mainPanel").style.display = "grid";
 
-if (typeof ad.coords === "string" && ad.coords.includes(",")) {
-  const [lat, lon] = ad.coords.split(",");
-  navigator.geolocation.getCurrentPosition(
-    pos => {
-      const km = calcularKM(
-        pos.coords.latitude,
-        pos.coords.longitude,
-        parseFloat(lat),
-        parseFloat(lon)
-      );
-      localEl.innerText =
-        `📍 ${ad.cidade} (a ${km.toFixed(1)} km de você)`;
-    },
-    () => localEl.innerText = `📍 ${ad.cidade || "Local não informado"}`
-  );
-} else {
-  localEl.innerText = `📍 ${ad.cidade || "Local não informado"}`;
-}
-  /* ===== SEO ===== */
-  document.getElementById("metaTitle").content =
-    `${ad.modelo} - R$ ${precoFmt}`;
-  document.getElementById("metaDesc").content =
-    `Confira este ${ad.modelo} disponível no RePhone.`;
-  document.getElementById("metaImg").content = foto;
+  /* ================= WHATSAPP ================= */
+  const mensagem = 
+    `Olá! Vi seu anúncio do ${ad.marca} ${ad.modelo} ${ad.capacidade} ` +
+    `no site RePhone.com.br por R$ ${precoFmt}.\n\n` +
+    `Link: ${window.location.href}`;
 
-  /* ===== FINALIZA LOAD ===== */
-document.getElementById("mainPanel").style.display = "grid";
-}
+  document.getElementById("pZap").onclick = async () => {
 
-/* CHAMADA CORRETA — FORA DA FUNÇÃO */
-carregarAnuncio();
+    if (!ad.whatsapp) {
+      alert("Vendedor não informou WhatsApp");
+      return;
+    }
 
-/* ===== WHATSAPP ===== */
-document.getElementById("pZap").onclick = async () => {
+    try {
+      await addDoc(collection(db,"interesses"),{
+        anuncioId,
+        vendedorId: ad.vendedorId || ad.uid || null,
+        compradorId: auth.currentUser ? auth.currentUser.uid : "anonimo",
+        canal: "whatsapp",
+        criadoEm: serverTimestamp(),
+        status: "contato"
+      });
+    } catch(e){
+      console.warn("Interesse não registrado", e);
+    }
 
-  if (!ad.whatsapp) {
-    alert("Vendedor não informou WhatsApp");
-    return;
-  }
-
-  try {
-    await addDoc(collection(db,"interesses"),{
-      anuncioId: anuncioId, // ✅ corrigido
-      vendedorId: ad.vendedorId || ad.uid || null,
-      compradorId: auth.currentUser ? auth.currentUser.uid : "anonimo",
-      canal: "whatsapp",
-      criadoEm: serverTimestamp(),
-      status: "contato"
-    });
-  } catch(e){
-    console.warn("Interesse não registrado", e);
-  }
-
-  window.open(
-    `https://wa.me/55${ad.whatsapp}?text=${encodeURIComponent(mensagem)}`,
-    "_blank"
-  );
-};
-
-/* ===== SHARE ===== */
-document.getElementById('pShare').onclick = async () => {
-  const shareData = {
-    title: `RePhone - ${ad.marca} ${ad.modelo} ${ad.capacidade}`,
-    text: `📱 ${ad.marca} ${ad.modelo} ${ad.capacidade}\n💰 R$ ${precoFmt}\nDisponível no RePhone.com.br`,
-    url: window.location.href
+    window.open(
+      `https://wa.me/55${ad.whatsapp}?text=${encodeURIComponent(mensagem)}`,
+      "_blank"
+    );
   };
 
-  if (navigator.share) {
-    await navigator.share(shareData);
-  } else {
-    await navigator.clipboard.writeText(window.location.href);
-    alert("Link copiado!");
-  }
-};
+  /* ================= SHARE ================= */
+  document.getElementById("pShare").onclick = async () => {
+    const shareData = {
+      title: `RePhone - ${ad.marca} ${ad.modelo}`,
+      text: `📱 ${ad.marca} ${ad.modelo}\n💰 R$ ${precoFmt}\nDisponível no RePhone.com.br`,
+      url: window.location.href
+    };
 
-</script>
+    if (navigator.share) {
+      await navigator.share(shareData);
+    } else {
+      await navigator.clipboard.writeText(window.location.href);
+      alert("Link copiado!");
+    }
+  };
+}
+
+/* 🚀 START */
+carregarAnuncio();
+    </script>
 </body>
 </html>
