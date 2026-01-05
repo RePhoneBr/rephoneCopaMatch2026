@@ -295,6 +295,106 @@
     gap: 6px;
   }
 }
+/* ======================================================
+   🔥 REPHONE PREMIUM UI PACK (DROP-IN)
+   Não altera funcionamento
+   ====================================================== */
+
+/* ===== BASE PREMIUM (APLICA EM TODOS) ===== */
+
+body {
+  background: linear-gradient(180deg, #f8fafc, #f1f5f9);
+}
+
+.main-header,
+#mobileMenu,
+#matchPopup {
+  backdrop-filter: blur(12px);
+  background: rgba(15, 23, 42, 0.88);
+}
+
+.card {
+  transition: transform .25s ease, box-shadow .25s ease;
+}
+
+.card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 25px 45px rgba(0,0,0,.08);
+}
+
+.price {
+  background: linear-gradient(135deg, #16a34a, #4ade80);
+  color: white;
+  padding: 6px 10px;
+  border-radius: 10px;
+  display: inline-block;
+}
+
+.btn-match,
+.btn-view {
+  box-shadow: 0 14px 35px rgba(22,163,74,.35);
+}
+
+.btn-match:active,
+.btn-view:active {
+  transform: scale(.97);
+}
+
+.badge-tipo {
+  box-shadow: 0 6px 20px rgba(0,0,0,.18);
+  letter-spacing: 0.8px;
+}
+
+.feed {
+  padding-bottom: 120px;
+}
+
+/* ===== MODO iOS ===== */
+body.ios {
+  --radius: 26px;
+}
+
+body.ios .card,
+body.ios .match-card,
+body.ios .btn-match,
+body.ios .btn-view {
+  border-radius: var(--radius);
+}
+
+body.ios .main-header {
+  border-radius: 0 0 32px 32px;
+}
+
+body.ios .price {
+  font-size: 18px;
+}
+
+/* ===== MODO ANDROID ===== */
+body.android {
+  --radius: 16px;
+}
+
+body.android .card,
+body.android .match-card,
+body.android .btn-match,
+body.android .btn-view {
+  border-radius: var(--radius);
+}
+
+body.android .main-header {
+  border-radius: 0 0 18px 18px;
+}
+
+body.android .price {
+  font-size: 16px;
+}
+
+/* ===== MOBILE FEEL ===== */
+@media (max-width: 768px) {
+  .card:active {
+    transform: scale(.97);
+  }
+}
 
 </style>
 </head>
