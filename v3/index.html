@@ -341,9 +341,7 @@
   from { transform: translateX(0); }
   to { transform: translateX(-100%); }
 }
-
-}
-
+      
 /* Mobile */
 @media (max-width: 600px) {
   .ticker-item {
@@ -508,8 +506,6 @@ onSnapshot(collection(db, "anuncios"), (snap) => {
   /* LOOP INFINITO PERFEITO */
   ticker.innerHTML += ticker.innerHTML;
 });
-</script>
-
 
    renderizar(filtrados);
 
