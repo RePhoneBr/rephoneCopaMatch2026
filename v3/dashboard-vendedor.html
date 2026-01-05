@@ -100,6 +100,47 @@
     background: var(--green);
     color: #fff;
 }
+        .painel-resumo {
+  background: white;
+  border-radius: 20px;
+  padding: 15px;
+  margin-bottom: 25px;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 6px 15px rgba(0,0,0,.04);
+}
+
+.linha-topo {
+  display: flex;
+  justify-content: space-between;
+  font-size: 12px;
+  color: var(--muted);
+  font-weight: 700;
+}
+
+.badges {
+  display: flex;
+  gap: 10px;
+  margin: 12px 0;
+  flex-wrap: wrap;
+}
+
+.badge {
+  font-size: 11px;
+  font-weight: 900;
+  padding: 6px 12px;
+  border-radius: 999px;
+}
+
+.badge.ativo { background: #dcfce7; color: #166534; }
+.badge.vendido { background: #dbeafe; color: #1e40af; }
+.badge.pendente { background: #ffedd5; color: #9a3412; }
+
+.perfil-vendedor {
+  font-size: 13px;
+  font-weight: 800;
+  color: var(--dark);
+}
+
     </style>
 </head>
 <body>
@@ -107,15 +148,32 @@
     <header>
         <h1>Meus Aparelhos</h1>
         <p class="subtitle" id="vendedorNome">Carregando perfil...</p>
+        <div id="painelResumo" class="painel-resumo">
+  <div class="linha-topo">
+    <span id="dataHoje">📅 --</span>
+    <span id="localAtual">📍 Localizando...</span>
+  </div>
+
+  <div class="badges">
+    <span class="badge ativo" id="countAtivos">Ativos: 0</span>
+    <span class="badge vendido" id="countVendidos">Vendidos: 0</span>
+    <span class="badge pendente" id="countPendentes">Pendentes: 0</span>
+  </div>
+
+  <div class="perfil-vendedor" id="perfilVendedor">
+    👤 Vendedor Particular • ⚠️ Não verificado
+  </div>
+</div>
+
     </header>
 
     <div id="listaAnuncios" class="ad-list">
         </div>
 
     <nav class="nav-bottom">
-        <a href="index.html" class="nav-item"><span>🏠</span>Radar</a>
+        <a href="index.html" class="nav-item"><span>🏠</span>HOME</a>
         <a href="vendedor-anuncio.html" class="nav-item"><span>➕</span>Anunciar</a>
-        <a href="dashboard-vendedor.html" class="nav-item active"><span>📊</span>Meus anuncios</a>
+        <a href="dashboard-interesses.html" class="nav-item"><span>📲</span>Interesses</a>
     </nav>
 
     <script type="module">
@@ -137,12 +195,41 @@
 
     onAuthStateChanged(auth, async (user) => {
         if (!user) { window.location.href = "vendedor-login.html"; return; }
+
+        // Localização
+navigator.geolocation.getCurrentPosition(
+  async pos => {
+    const res = await fetch(
+      `https://nominatim.openstreetmap.org/reverse?format=json&lat=${pos.coords.latitude}&lon=${pos.coords.longitude}`
+    );
+    const data = await res.json();
+    document.getElementById("localAtual").innerText =
+      "📍 " + (data.address.city || data.address.town || "Sua região");
+  },
+  () => {
+    document.getElementById("localAtual").innerText = "📍 Local não disponível";
+  }
+);
         
         // Buscar nome do vendedor para o cabeçalho
         const vSnap = await getDoc(doc(db, "vendedores", user.uid));
-        if(vSnap.exists()) {
-            document.getElementById('vendedorNome').innerText = "Vendedor: " + vSnap.data().nome;
-        }
+       if (vSnap.exists()) {
+  const v = vSnap.data();
+  document.getElementById('vendedorNome').innerText =
+    "Vendedor: " + v.nome;
+
+  const tipo = v.tipo === "lojista" ? "🏢 Lojista" : "👤 Particular";
+  const verificado = v.status === "verificado"
+    ? "✅ Verificado"
+    : "⚠️ Não verificado";
+
+  document.getElementById("perfilVendedor").innerText =
+    `${tipo} • ${verificado}`;
+}
+        const hoje = new Date().toLocaleDateString("pt-BR", {
+          weekday: "short", day: "2-digit", month: "2-digit", year: "numeric"
+        });
+        document.getElementById("dataHoje").innerText = "📅 " + hoje;
 
         // --- CORREÇÃO AQUI: Alterado de "uid" para "vendedorId" ---
         const q = query(collection(db, "anuncios"), where("vendedorId", "==", user.uid));
@@ -156,13 +243,34 @@
             }
             
             container.innerHTML = "";
+            let vendidos = 0;
+let pendentes = 0;
+
+snap.forEach(d => {
+  const ad = d.data();
+
+  if (!ad.statusVenda) ativos++;
+  else if (ad.statusVenda === "vendido") pendentes++;
+  else if (ad.statusVenda === "entregue") vendidos++;
+});
+
+document.getElementById("countAtivos").innerText =
+  `Ativos: ${ativos}`;
+document.getElementById("countVendidos").innerText =
+  `Vendidos: ${vendidos}`;
+document.getElementById("countPendentes").innerText =
+  `Pendentes: ${pendentes}`;
+            
             snap.forEach(d => {
                 const ad = d.data();
                 const item = document.createElement('div');
                 item.className = 'ad-item';
-                
+                let ativos = 0;
+
                 // Formatando o preço para exibir bonito
-                const precoFormatado = parseFloat(ad.preco).toLocaleString('pt-br', {minimumFractionDigits: 2});
+                const precoFormatado = Number(ad.preco || 0).toLocaleString('pt-BR', {
+  minimumFractionDigits: 2
+});
 
                 item.innerHTML = `
     <img src="${ad.fotos && ad.fotos[0] ? ad.fotos[0] : 'https://via.placeholder.com/60'}">
@@ -231,7 +339,6 @@ window.marcarEntregue = async (anuncioId) => {
         alert("Erro ao marcar como entregue");
     }
 };
-
 </script>
 </body>
 </html>
