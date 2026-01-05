@@ -1,119 +1,870 @@
-<!-- ⚠️ ARQUIVO CORRIGIDO — MESMAS FUNÇÕES, APENAS SINTAXE -->
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
-<meta charset="UTF-8">
-<title>RePhone | Match Inteligente</title>
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+  <title>RePhone | Match Inteligente</title>
 
-<style>
-/* === TODO SEU CSS FOI PRESERVADO === */
-/* ❗ Corrigido apenas: chave extra no ticker */
+  <link rel="apple-touch-icon" sizes="180x180" href="assets/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="assets/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="assets/favicon-16x16.png">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <!-- Google Analytics -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-LHRJ19C0CW"></script>
+  <script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('consent', 'default', {
+    analytics_storage: 'denied'
+  });
+  </script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+    <style>
+      
+        :root { --dark: #0f172a; --green: #16a34a; --green-light: #4ade80; --bg: #f8fafc; --text-muted: #64748b; }
+        * { margin:0; padding:0; box-sizing:border-box; font-family:'Inter', sans-serif; }
+        body { background: var(--bg); color: var(--dark); overflow-x: hidden; }
+        
+        /* HEADER MODERNA E ARREDONDADA */
+        .main-header { 
+            background: var(--dark); 
+            padding: 12px 20px; 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+            position: sticky; 
+            top: 0; 
+            z-index: 1000;
+            border-radius: 0 0 25px 25px; /* Bordas arredondadas embaixo */
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+        }
+        .brand-container { display: flex; flex-direction: column; }
+        .logo { font-weight: 900; font-size: 22px; color: white; text-decoration: none; line-height: 1; }
+        .logo span { color: var(--green); }
+        .slogan { color: #94a3b8; font-size: 10px; font-weight: 600; margin-top: 4px; letter-spacing: 0.3px; }
+        
+        /* BARRA DE LOCALIZAÇÃO (NOVO) */
+        .location-bar {
+            text-align: center;
+            font-size: 11px;
+            color: var(--text-muted);
+            padding: 15px 20px 5px 20px; /* Padding ajustado para não colar no header */
+            background: transparent;
+            font-weight: 600;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        .location-bar strong { color: var(--green); font-weight: 800; }
+
+        /* BOTÃO MENU */
+        .btn-menu-icon { background: none; border: none; color: white; font-size: 28px; cursor: pointer; padding: 5px; }
+
+        /* MENU DESLIZANTE */
+        #mobileMenu {
+            position: fixed; top: -100%; left: 0; width: 100%; height: auto;
+            background: var(--dark); padding: 80px 25px 30px;
+            z-index: 900; /* Menor que o Header para passar por baixo visualmente se precisar */
+            transition: top 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            border-radius: 0 0 30px 30px; box-shadow: 0 10px 40px rgba(0,0,0,0.5);
+            display: flex; flex-direction: column; gap: 12px;
+        }
+        #mobileMenu.active { top: 0; z-index: 2000; }
+        #menuOverlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); display: none; z-index: 1900; }
+        .menu-link { padding: 18px; border-radius: 15px; text-decoration: none; font-weight: 800; font-size: 13px; text-align: center; text-transform: uppercase; color: white; background: rgba(255,255,255,0.05); }
+        .menu-link.destaque { background: var(--green); }
+        .btn-logout-menu { color: #ef4444; background: none; border: none; font-weight: 800; margin-top: 10px; cursor: pointer; font-size: 12px; }
+
+        /* HERO & MATCH CARD */
+        .hero { padding: 10px 20px 30px; max-width: 600px; margin: 0 auto; }
+        .match-card { background: white; padding: 25px; border-radius: 30px; box-shadow: 0 20px 40px rgba(0,0,0,0.05); border: 1px solid #f1f5f9; }
+        .match-status-container { display: flex; align-items: center; gap: 10px; margin-bottom: 15px; }
+        .status-circle { width: 12px; height: 12px; border-radius: 50%; background: #cbd5e1; }
+        .searching { background: #94a3b8; animation: pulse 1s infinite; }
+        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
+        
+        .match-card label { display: block; font-weight: 800; font-size: 12px; color: var(--text-muted); text-transform: uppercase; margin-bottom: 5px; }
+        .match-card input { width: 100%; padding: 16px; border-radius: 15px; border: 1px solid #e2e8f0; background: #f8fafc; margin-bottom: 15px; font-size: 15px; outline: none; }
+        .btn-match { width: 100%; background: var(--green); color: white; border: none; padding: 18px; border-radius: 15px; font-weight: 800; font-size: 15px; cursor: pointer; }
+ 
+        /* RADAR GRID */
+        .section-title { padding: 20px; font-size: 24px; font-weight: 900; }
+        .feed { padding: 0 15px 100px; display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+        
+        /* CARD */
+        .card { background: white; border-radius: 25px; padding: 12px; border: 1px solid #e2e8f0; position: relative; display: flex; flex-direction: column; }
+        .badge-tipo { position: absolute; top: 18px; left: 18px; font-size: 8px; font-weight: 900; padding: 4px 8px; border-radius: 6px; text-transform: uppercase; background: rgba(255,255,255,0.9); border: 1px solid #e2e8f0; z-index: 10; }
+        .img-container { width: 100%; aspect-ratio: 1/1; background: #f1f5f9; border-radius: 18px; display: flex; align-items: center; justify-content: center; overflow: hidden; margin-bottom: 10px; }
+        .card img { max-width: 100%; max-height: 100%; object-fit: contain; }
+        
+        .info-top { font-size: 9px; font-weight: 800; color: var(--text-muted); text-transform: uppercase; }
+        .card h3 { font-size: 13px; font-weight: 800; margin: 4px 0; min-height: 32px; }
+        .status-row { display: flex; gap: 4px; margin-bottom: 6px; flex-wrap: wrap; }
+        .badge-condicao { font-size: 8px; font-weight: 800; padding: 3px 6px; border-radius: 4px; background: #eff6ff; color: #1e40af; text-transform: uppercase; }
+        .badge-cor { font-size: 8px; font-weight: 800; padding: 3px 6px; border-radius: 4px; background: #f1f5f9; color: var(--text-muted); text-transform: uppercase; }
+        
+        .details { font-size: 10px; color: var(--text-muted); font-weight: 600; }
+        .location { font-size: 10px; color: var(--green); font-weight: 700; margin-top: 5px; }
+        .price { font-size: 17px; font-weight: 900; color: var(--green); margin-top: 8px; }
+
+        /* MODAL DE MATCH INFERIOR */
+        #matchPopup { 
+            position: fixed; bottom: -100%; left: 0; width: 100%; 
+            background: var(--dark); color: white; padding: 25px; 
+            border-radius: 30px 30px 0 0; z-index: 2000;
+            transition: bottom 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            box-shadow: 0 -10px 40px rgba(22, 163, 74, 0.4);
+        }
+        #matchPopup.active { bottom: 0; }
+        .match-label { font-size: 24px; font-weight: 900; letter-spacing: 2px; text-align: center; display: block; animation: colorShift 1.5s infinite alternate; }
+        @keyframes colorShift {
+            0% { color: var(--green); text-shadow: 0 0 5px var(--green); }
+            100% { color: var(--green-light); text-shadow: 0 0 20px var(--green-light); }
+        }
+        .match-content { display: flex; align-items: center; gap: 15px; background: rgba(255,255,255,0.05); padding: 15px; border-radius: 20px; margin-top: 15px; }
+        .match-content img { width: 70px; height: 70px; border-radius: 12px; object-fit: contain; background: white; }
+        .match-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 20px; }
+        .btn-view { background: var(--green); color: white; padding: 15px; border-radius: 12px; text-decoration: none; font-weight: 800; text-align: center; }
+        .btn-close { background: rgba(255,255,255,0.1); color: white; padding: 15px; border-radius: 12px; border: none; font-weight: 700; }
+  /* ========================= */
+  /* SEU CSS ATUAL (NÃO MEXE) */
+  /* ========================= */
+  /* ========================= */
+  /* DESKTOP – VISUAL PROFISSIONAL */
+  /* ========================= */
+
+  @media (min-width: 1024px) {
+    body {
+      background: #f1f5f9;
+    }
+
+    .main-header {
+      padding: 18px 48px;
+      border-radius: 0 0 35px 35px;
+    }
+
+    .hero {
+      max-width: 1200px;
+      padding: 40px 0 50px;
+    }
+
+    .feed {
+      max-width: 1200px;
+      margin: 0 auto;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 22px;
+    }
+  }
+
+  @media (min-width: 1440px) {
+    .feed {
+      max-width: 1400px;
+      grid-template-columns: repeat(5, 1fr);
+    }
+  }
+      /* BOTÃO BUSCA MANUAL */
+.toggle-busca {
+  width: 100%;
+  background: #f1f5f9;
+  border: 1px solid #e2e8f0;
+  border-radius: 16px;
+  padding: 14px;
+  font-weight: 900;
+  font-size: 13px;
+  margin-top: 14px;
+  cursor: pointer;
+  transition: background 0.3s;
+}
+
+.toggle-busca:hover {
+  background: #e2e8f0;
+}
+
+/* COLLAPSIBLE */
+.busca-collapsible {
+  overflow: hidden;
+  max-height: 0;
+  opacity: 0;
+  transform: translateY(-8px);
+  transition: all 0.45s cubic-bezier(.4,0,.2,1);
+  margin-top: 0;
+}
+
+/* ABERTO */
+.busca-collapsible.open {
+  max-height: 600px;
+  opacity: 1;
+  transform: translateY(0);
+  margin-top: 14px;
+}
+
+/* DESKTOP → SEMPRE ABERTO */
+@media (min-width: 1024px) {
+  .busca-collapsible {
+    max-height: none;
+    opacity: 1;
+    transform: none;
+    margin-top: 18px;
+  }
+
+  .toggle-busca {
+    display: none;
+  }
+}
+.lgpd-banner {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  background: #0f172a;
+  color: #fff;
+  padding: 12px 16px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  font-size: 14px;
+  z-index: 3000;
+}
+
+.lgpd-banner a {
+  color: #38bdf8;
+  text-decoration: underline;
+}
+
+.lgpd-banner button {
+  background: #22c55e;
+  color: #000;
+  border: none;
+  padding: 8px 14px;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+@media (max-width: 600px) {
+  .lgpd-banner {
+    flex-direction: column;
+    text-align: center;
+  }
+}
+      /* FOOTER DISCRETO */
+.site-footer {
+  width: 100%;
+  background: #f8fafc;
+  border-top: 1px solid #e2e8f0;
+  padding: 14px 16px;
+  font-size: 11px;
+  color: #64748b;
+}
+
+.footer-inner {
+  max-width: 1200px;
+  margin: 0 auto;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 10px;
+  align-items: center;
+}
+
+.footer-links {
+  display: flex;
+  gap: 14px;
+  flex-wrap: wrap;
+}
+
+.footer-links a {
+  color: #64748b;
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.footer-links a:hover {
+  text-decoration: underline;
+}
+
+.footer-copy {
+  font-weight: 600;
+}
+
+/* MOBILE */
+@media (max-width: 600px) {
+  .footer-inner {
+    flex-direction: column;
+    text-align: center;
+    gap: 6px;
+  }
+}
+/* ===== TICKER DE VENDIDOS ===== */
+.ticker-wrap {
+  position: sticky;
+  top: 0;
+  z-index: 999;
+  background: linear-gradient(90deg, #020617, #0f172a);
+  padding: 10px 0;
+  border-bottom: 1px solid #1e293b;
+}
+
+.ticker-title {
+  text-align: center;
+  font-size: 11px;
+  font-weight: 900;
+  letter-spacing: .5px;
+  color: #22c55e;
+  margin-bottom: 6px;
+  text-transform: uppercase;
+}
+
+.ticker {
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+.ticker-content {
+  display: inline-flex;
+  gap: 30px;
+  animation: tickerMove 35s linear infinite;
+  padding-left: 100%;
+}
+
+.ticker-item {
+  font-size: 13px;
+  font-weight: 800;
+  color: #e5e7eb;
+  opacity: .9;
+}
+
+.ticker-item strong {
+  color: #22c55e;
+}
 
 @keyframes tickerMove {
-  from { transform: translateX(0); }
-  to { transform: translateX(-100%); }
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-100%);
+  }
 }
+
+/* Mobile */
+@media (max-width: 600px) {
+  .ticker-item {
+    font-size: 12px;
+  }
+}
+
 </style>
 </head>
-
 <body>
-
-<!-- HEADER / MENU / HERO — INTACTOS -->
-
+  
+<!-- BARRA ROLANTE DE VENDIDOS -->
 <div class="ticker-wrap">
-  <div class="ticker-title">🔥 ÚLTIMOS VENDIDOS</div>
+  <div class="ticker-title">🔥 Melhores Ofertas RePhone</div>
   <div class="ticker">
-    <div class="ticker-content" id="tickerVendidos"></div>
+    <div class="ticker-content" id="tickerVendidos">
+      <span class="ticker-item">Carregando ofertas...</span>
+    </div>
   </div>
 </div>
 
-<main id="radarGrid" class="feed"></main>
+    <header class="main-header">
+        <div class="brand-container">
+            <a href="index.html" class="logo">Re<span>Phone</span></a>
+            <span class="slogan">Faça Match no seu novo celular</span>
+        </div>
+        <button class="btn-menu-icon" onclick="toggleMenu()">☰</button>
+    </header>
+    <div class="location-bar" id="txtLocation">
+        Olá, você está em <strong>sua região</strong>
+    </div>
 
-<script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-app.js";
-import { 
-  getFirestore, collection, query, where, onSnapshot, doc, getDoc 
-} from "https://www.gstatic.com/firebasejs/12.7.0/firebase-firestore.js";
-import { 
-  getAuth, onAuthStateChanged, signOut 
-} from "https://www.gstatic.com/firebasejs/12.7.0/firebase-auth.js";
+    <div id="menuOverlay" onclick="toggleMenu()"></div>
+    <nav id="mobileMenu">
+        <div id="greeting" style="color:#94a3b8; font-size:11px; font-weight:800; text-align:center; margin-bottom:10px;">MENU REPHONE</div>
+        
+        <div id="menuGuest" style="display: flex; flex-direction: column; gap: 12px;">
+            <a href="vendedor-login.html" class="menu-link destaque">Entrar / Vender</a>
+            <a href="registro-vendedor.html" class="menu-link">Criar Conta Vendedor</a>
+        </div>
 
-/* 🔥 Firebase INIT (ANTES DE USAR db) */
-const firebaseConfig = {
-  apiKey: "AIzaSyBiN8FqX8UZeyAh1cG2GHZtQWiQH0xPBV4",
-  authDomain: "rephone-a0a80.firebaseapp.com",
-  projectId: "rephone-a0a80",
-  storageBucket: "rephone-a0a80.firebasestorage.app",
-  appId: "1:431497247030:web:a943715e4acc04b8995b97"
-};
+        <div id="menuLogged" style="display: none; flex-direction: column; gap: 12px;">
+            <a href="vendedor-anuncio.html" class="menu-link destaque">+ Novo Anúncio</a>
+            <a href="dashboard-vendedor.html" class="menu-link">Meus Anúncios</a>
+            <button class="btn-logout-menu" onclick="fazerLogout()">SAIR DA CONTA</button>
+        </div>
+    </nav>
 
-const app = initializeApp(firebaseConfig);
-const db = getFirestore(app);
-const auth = getAuth(app);
+    <section class="hero">
+        <div class="match-card">
+            <div class="match-status-container">
+                <div id="mCircle" class="status-circle"></div>
+                <div id="mText" style="font-size: 11px; font-weight: 800; color: #64748b;">MATCH? Faça uma pesquisa!!!...</div>
+            </div>
+            <label>Modelo desejado</label>
+            <input type="text" id="matchModelo" placeholder="Ex: iPhone 13 Pro">
+            <label>Preço Máximo</label>
+            <input type="number" id="matchPreco" placeholder="Ex: 4000">
+            <button class="btn-match" onclick="limparBusca(); fazerMatch();">MATCH</button>
+        <button class="toggle-busca" onclick="toggleBusca()">
+  🔍 BUSCA MANUAL
+</button>
 
-/* ===== TICKER VENDIDOS (CORRIGIDO) ===== */
-const ticker = document.getElementById("tickerVendidos");
+<div id="buscaManualBox" class="match-card busca-collapsible">
+  <label>Buscar por Marca</label>
+  <input type="text" id="buscaMarca" placeholder="Ex: Apple, Samsung">
 
-onSnapshot(collection(db, "anuncios"), (snap) => {
-  ticker.innerHTML = "";
-  const vendidos = [];
+  <label>Buscar por Modelo</label>
+  <input type="text" id="buscaModelo" placeholder="Ex: iPhone 13">
 
-  snap.forEach(d => {
-    const ad = d.data();
-    if (ad.statusVenda === "vendido") vendidos.push(ad);
-  });
+  <label>Preço até</label>
+  <input type="number" id="buscaPreco" placeholder="Ex: 3500">
+<button class="btn-close" onclick="limparBusca()">
+  ✖ LIMPAR FILTROS
+</button>
 
-  if (!vendidos.length) {
-    ticker.innerHTML = `<span class="ticker-item">📢 As melhores ofertas aparecem aqui</span>`;
+  <button class="btn-match" onclick="buscarManual()">BUSCAR</button>
+</div>
+    </section>
+
+    <h2 class="section-title">As melhores ofertas RePhone</h2>
+    <main id="radarGrid" class="feed"></main>
+
+    <div id="matchPopup">
+        <span class="match-label">MATCH!</span>
+        <div class="match-content" id="matchData"></div>
+        <div class="match-actions">
+            <button class="btn-close" onclick="fecharMatch()">FECHAR</button>
+            <a href="#" id="matchLink" class="btn-view">VER AGORA</a>
+        </div>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-app.js";
+        import { getFirestore, collection, query, where, onSnapshot, doc, getDoc } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-firestore.js";
+        import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-auth.js";
+        import { query, collection, where, limit, onSnapshot } 
+from "https://www.gstatic.com/firebasejs/12.7.0/firebase-firestore.js";
+
+const tickerEl = document.getElementById("tickerVendidos");
+
+const qVendidos = query(
+  collection(db, "anuncios"),
+  where("statusVenda", "==", "vendido"),
+  limit(15)
+);
+
+onSnapshot(qVendidos, async (snap) => {
+  if (snap.empty) {
+    tickerEl.innerHTML =
+      `<span class="ticker-item">📢 As melhores ofertas aparecem aqui</span>`;
     return;
   }
 
-  vendidos.slice(0, 20).forEach(ad => {
-    const preco = Number(ad.preco || 0).toLocaleString("pt-BR",{minimumFractionDigits:2});
+  tickerEl.innerHTML = "";
+
+  snap.forEach(d => {
+    const ad = d.data();
+
+    const preco = Number(ad.preco || 0).toLocaleString("pt-BR", {
+      minimumFractionDigits: 2
+    });
+
+    const vendedorNome = ad.vendedorNome || "Vendedor RePhone";
+
     const item = document.createElement("span");
     item.className = "ticker-item";
-    item.innerHTML = `📱 ${ad.marca || ""} ${ad.modelo || ""} • <strong>R$ ${preco}</strong> • ${ad.vendedorNome || "RePhone"}`;
-    ticker.appendChild(item);
+    item.innerHTML = `
+      📱 ${ad.marca || ""} ${ad.modelo || ""}
+      • <strong>R$ ${preco}</strong>
+      • ${vendedorNome}
+    `;
+
+    tickerEl.appendChild(item);
   });
 
-  ticker.innerHTML += ticker.innerHTML;
+  // DUPLICA PARA LOOP PERFEITO
+  tickerEl.innerHTML += tickerEl.innerHTML;
 });
 
-/* ===== LISTAGEM PRINCIPAL ===== */
-let todosAnuncios = [];
-
-onSnapshot(
-  query(collection(db,"anuncios"), where("status","==","aprovado")),
-  snap => {
-    todosAnuncios = snap.docs.map(d => ({ id:d.id, ...d.data() }));
-    renderizar(todosAnuncios);
+        const firebaseConfig = { apiKey: "AIzaSyBiN8FqX8UZeyAh1cG2GHZtQWiQH0xPBV4", authDomain: "rephone-a0a80.firebaseapp.com", projectId: "rephone-a0a80", storageBucket: "rephone-a0a80.firebasestorage.app", appId: "1:431497247030:web:a943715e4acc04b8995b97" };
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+        const auth = getAuth(app);
+     window.buscarManual = () => {
+  if (!todosAnuncios.length) {
+    alert("Carregando anúncios, tente novamente.");
+    return;
   }
-);
+  const marca = document.getElementById('buscaMarca').value.toLowerCase();
+  const modelo = document.getElementById('buscaModelo').value.toLowerCase();
+  const precoMax =
+    parseFloat(document.getElementById('buscaPreco').value.replace(/\D/g, '')) ||
+    Infinity;
+document.getElementById('mText').innerText = "BUSCA MANUAL ATIVA";
+document.getElementById('mCircle').style.background = "#0ea5e9";
+  const filtrados = todosAnuncios.filter(ad => {
+    const okMarca = marca
+      ? (ad.marca || '').toLowerCase().includes(marca)
+      : true;
 
-function renderizar(lista){
-  const grid = document.getElementById("radarGrid");
-  grid.innerHTML = "";
+    const okModelo = modelo
+      ? (ad.modelo || '').toLowerCase().includes(modelo)
+      : true;
 
-  lista.forEach(ad=>{
-    const card = document.createElement("div");
-    card.className = "card";
-    card.innerHTML = `
-      <a href="anuncio.html?id=${ad.id}" style="text-decoration:none;color:inherit">
-        <div class="img-container">
-          <img src="${ad.fotos?.[0] || ""}">
-        </div>
-        <div class="info-top">${ad.marca || ""}</div>
-        <h3>${ad.modelo || ""}</h3>
-        <div class="details">${ad.capacidade || ""} • Bateria ${ad.bateria || "--"}%</div>
-        <div class="price">R$ ${Number(ad.preco).toLocaleString("pt-BR")}</div>
-      </a>
-    `;
-    grid.appendChild(card);
+    const okPreco = parseFloat(ad.preco) <= precoMax;
+
+    return okMarca && okModelo && okPreco;
   });
+
+     if (!filtrados.length) {
+  const circle = document.getElementById('mCircle');
+  document.getElementById('mText').innerText = "NENHUM RESULTADO NA BUSCA";
+  circle.className = "status-circle";
+  circle.style.background = "#ef4444";
+  return;
 }
+
+   renderizar(filtrados);
+
+  // 👉 muda o estado visual do MATCH
+    document.getElementById('mCircle').style.background = "#0ea5e9";
+};
+
+    // --- LOCALIZAÇÃO PADRÃO POR GPS (COM FALLBACK) ---
+async function detectarCidade() {
+    const txtLoc = document.getElementById('txtLocation');
+
+    // Texto imediato (UX)
+    txtLoc.innerHTML = "📍 Localizando ofertas perto de você...";
+
+    // 1️⃣ GPS
+    if ("geolocation" in navigator) {
+        navigator.geolocation.getCurrentPosition(
+            async (pos) => {
+                const lat = pos.coords.latitude;
+                const lon = pos.coords.longitude;
+
+                try {
+                    const res = await fetch(
+                        `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}`
+                    );
+                    const data = await res.json();
+
+                    const cidade =
+                        data.address.city ||
+                        data.address.town ||
+                        data.address.village;
+
+                    if (cidade) {
+                        txtLoc.innerHTML = `Ofertas exclusivas em <strong>📍 ${cidade}</strong>. Faça Match e compre bem pertinho de você!`;
+                        return;
+                    }
+
+                    throw new Error("Cidade não encontrada");
+                } catch {
+                    detectarCidadePorIP();
+                }
+            },
+            () => {
+                // Usuário negou GPS
+                detectarCidadePorIP();
+            },
+            {
+                enableHighAccuracy: false,
+                timeout: 8000,
+                maximumAge: 60000
+            }
+        );
+    } else {
+        detectarCidadePorIP();
+    }
+}
+window.limparBusca = () => {
+  // 🔄 Volta todos os anúncios
+  renderizar(todosAnuncios);
+  const btn = document.querySelector('.toggle-busca');
+if (btn) btn.innerText = "🔍 BUSCA MANUAL";
+
+  // 🧹 Limpa campos
+  document.getElementById('buscaMarca').value = "";
+  document.getElementById('buscaModelo').value = "";
+  document.getElementById('buscaPreco').value = "";
+
+  // 🔵 Status visual padrão
+  document.getElementById('mText').innerText = "MATCH? Faça uma pesquisa!!!...";
+ const circle = document.getElementById('mCircle');
+circle.className = "status-circle";
+circle.style.background = "#cbd5e1";
+
+  // 📱 Fecha busca manual no mobile
+  const box = document.getElementById('buscaManualBox');
+  if (box.classList.contains('open')) {
+    box.classList.remove('open');
+  }
+};
+// Fallback por IP (mesmo comportamento atual)
+async function detectarCidadePorIP() {
+    const txtLoc = document.getElementById('txtLocation');
+    try {
+        const response = await fetch('https://ipapi.co/json/');
+        const data = await response.json();
+        if (data.city) {
+            txtLoc.innerHTML = `Ofertas exclusivas em <strong>📍 ${data.city}</strong>. Faça Match e compre bem pertinho de você!`;
+        } else {
+            throw new Error();
+        }
+    } catch {
+        txtLoc.innerHTML = "Olá! Encontre ofertas em <strong>sua região</strong>. Faça Match e compre pertinho de você!";
+    }
+}
+
+// Executa automaticamente (igual antes)
+detectarCidade();
+
+
+        window.toggleMenu = () => {
+            const menu = document.getElementById('mobileMenu');
+            const overlay = document.getElementById('menuOverlay');
+            menu.classList.toggle('active');
+            overlay.style.display = menu.classList.contains('active') ? 'block' : 'none';
+        };
+      window.toggleBusca = () => {
+  const box = document.getElementById('buscaManualBox');
+  const btn = document.querySelector('.toggle-busca');
+
+  box.classList.toggle('open');
+
+  btn.innerText = box.classList.contains('open')
+    ? "🔵 BUSCA MANUAL ATIVA"
+    : "🔍 BUSCA MANUAL";
+};
+
+
+        onAuthStateChanged(auth, async (user) => {
+            const guest = document.getElementById('menuGuest');
+            const logged = document.getElementById('menuLogged');
+            const greet = document.getElementById('greeting');
+            if (user) {
+                guest.style.display = 'none';
+                logged.style.display = 'flex';
+                try {
+                    const vDoc = await getDoc(doc(db, "vendedores", user.uid));
+                    if(vDoc.exists()) greet.innerText = "OLÁ, " + vDoc.data().nome.toUpperCase();
+                } catch(e) { greet.innerText = "MINHA CONTA"; }
+            } else {
+                guest.style.display = 'flex';
+                logged.style.display = 'none';
+                greet.innerText = "MENU REPHONE";
+            }
+        });
+
+        window.fazerLogout = () => { signOut(auth).then(() => window.location.reload()); };
+
+        let todosAnuncios = [];
+        onSnapshot(query(collection(db, "anuncios"), where("status", "==", "aprovado")), (snap) => {
+            todosAnuncios = snap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+            renderizar(todosAnuncios);
+        });
+
+        function renderizar(lista) {
+            const grid = document.getElementById('radarGrid');
+            grid.innerHTML = "";
+            lista.forEach(ad => {
+                const card = document.createElement('div');
+                card.className = 'card';
+                card.innerHTML = `
+                    <a href="anuncio.html?id=${ad.id}" style="text-decoration:none; color:inherit;">
+                        <div class="img-container"><img src="${ad.fotos ? ad.fotos[0] : ''}"></div>
+                        <div class="info-top">${ad.marca}</div>
+                        <h3>${ad.modelo}</h3>
+                        <div class="status-row">
+                            <span class="badge-condicao">${ad.condicao}</span>
+                            <span class="badge-cor">${ad.cor}</span>
+                        </div>
+                        <div class="details">${ad.capacidade} • Bateria ${ad.bateria}%</div>
+                        <div class="location">📍 ${ad.cidade}</div>
+                        <span class="price">R$ ${parseFloat(ad.preco).toLocaleString('pt-br')}</span>
+                        ${ad.statusVenda === "vendido" ? `
+<div class="badge-tipo" style="background:#2563eb;color:#fff">
+VENDIDO
+</div>` : ``}
+
+${ad.statusVenda === "entregue" ? `
+<div class="badge-tipo" style="background:#16a34a;color:#fff">
+ENTREGUE
+</div>` : ``}
+
+                    </a>
+                `;
+                grid.appendChild(card);
+            });
+        }
+
+        window.fazerMatch = () => {
+  const circle = document.getElementById('mCircle');
+  const mStatus = document.getElementById('mText');
+
+  const mod = document.getElementById('matchModelo').value.toLowerCase();
+  const pMax = parseFloat(
+    document.getElementById('matchPreco').value.replace(/\D/g, '')
+  ) || Infinity;
+
+  if (!mod) {
+    alert("Digite o modelo que deseja.");
+    return;
+  }
+
+  circle.className = "status-circle searching";
+  circle.style.background = "";
+  mStatus.innerText = "CALCULANDO MELHOR VANTAGEM...";
+
+            setTimeout(() => {
+                let candidatos = todosAnuncios.filter(a => a.modelo.toLowerCase().includes(mod));
+                if (candidatos.length === 0) {
+                    circle.className = "status-circle";
+                    circle.style.background = "#ef4444";
+                    mStatus.innerText = "NENHUM MODELO ENCONTRADO.";
+                    return;
+                }
+                let dentroDoPreco = candidatos.filter(a => parseFloat(a.preco) <= pMax);
+                let listaParaProcessar;
+                let ehAlternativa = false;
+                if (dentroDoPreco.length > 0) {
+                    listaParaProcessar = dentroDoPreco;
+                    mStatus.innerText = "MATCH ENCONTRADO!";
+                } else {
+                    listaParaProcessar = candidatos;
+                    ehAlternativa = true;
+                    mStatus.innerText = "EXIBINDO MELHOR ALTERNATIVA...";
+                }
+                listaParaProcessar.forEach(ad => {
+                    let score = 0;
+                    if(ad.condicao === "Novo" || ad.condicao === "Lacrado") score += 1000;
+                    if(ad.estado === "Excelente") score += 500;
+                    if(ad.estado === "Ótimo") score += 300;
+                    const diffPreco = Math.abs(parseFloat(ad.preco) - pMax);
+                    score += (100000 - diffPreco) / 100;
+                    if(ad.tipoVendedor === "lojista") score += 200;
+                    ad.matchScore = score;
+                });
+                listaParaProcessar.sort((a, b) => b.matchScore - a.matchScore);
+                const vencedor = listaParaProcessar[0];
+                const labelPopup = document.querySelector('.match-label');
+                if(labelPopup) labelPopup.innerText = ehAlternativa ? "MELHOR OPÇÃO!" : "MATCH!";
+                showMatchPopup(vencedor);
+                circle.className = "status-circle"; 
+                circle.style.background = "#16a34a";
+            }, 1500);
+        };
+
+        function showMatchPopup(ad) {
+            const data = document.getElementById('matchData');
+            data.innerHTML = `
+                <img src="${ad.fotos[0]}">
+                <div style="flex:1">
+                    <h4 style="font-size:16px">${ad.modelo}</h4>
+                    <p style="font-size:11px; color:#94a3b8">${ad.cidade} • ${ad.condicao}</p>
+                    <div style="color:var(--green-light); font-weight:900; font-size:18px">R$ ${parseFloat(ad.preco).toLocaleString('pt-br')}</div>
+                </div>
+            `;
+            document.getElementById('matchLink').href = `anuncio.html?id=${ad.id}`;
+            document.getElementById('matchPopup').classList.add('active');
+        }     
+  window.fecharMatch = () => {
+  document.getElementById('matchPopup').classList.remove('active');
+
+  // 🔥 GARANTE que overlays não bloqueiem clique
+  const overlay = document.getElementById('menuOverlay');
+  if (overlay) overlay.style.display = 'none';
+
+  document.getElementById('mText').innerText = "MATCH? Faça uma pesquisa!!!...";
+  const circle = document.getElementById('mCircle');
+  circle.className = "status-circle";
+  circle.style.background = "#cbd5e1";
+
+  renderizar(todosAnuncios);
+};
+function aceitarCookies() {
+  localStorage.setItem('lgpd_aceito', 'true');
+
+  const banner = document.getElementById('lgpdBanner');
+  if (banner) {
+    banner.style.display = 'none';
+  }
+
+  iniciarAnalytics();
+}
+
+function iniciarAnalytics() {
+  if (window.gtag) {
+    gtag('consent', 'update', {
+      analytics_storage: 'granted'
+    });
+
+    gtag('config', 'G-LHRJ19C0CW');
+  }
+}
+
+// Mostrar banner apenas se não aceitou
+window.addEventListener('DOMContentLoaded', () => {
+  const banner = document.getElementById('lgpdBanner');
+  if (!banner) return;
+
+  if (!localStorage.getItem('lgpd_aceito')) {
+    banner.style.display = 'flex';
+  } else {
+    banner.style.display = 'none';
+  }
+});
+      </script>
+<footer class="site-footer">
+      <div class="footer-inner">
+
+        <div class="footer-copy">
+          © 2025 RePhone — Aracruz/ES
+        </div>
+
+        <nav class="footer-links">
+          <a href="/v3/sobre.html">Sobre</a>
+          <a href="/v3/termos-de-uso.html">Termos</a>
+          <a href="/v3/termos-vendedores.html">Termos Vendedor</a>
+          <a href="/v3/politica-de-privacidade.html">Privacidade</a>
+          <a href="/v3/contato.html">Contato</a>
+        </nav>
+
+      </div>
+    </footer>
+
+    <!-- Banner LGPD -->
+    <div id="lgpdBanner" class="lgpd-banner">
+      <span>
+        Usamos cookies para melhorar sua experiência e analisar acessos.
+        <a href="/politica-de-privacidade.html" target="_blank">Saiba mais</a>
+      </span>
+      <button onclick="aceitarCookies()">Aceitar</button>
+    </div>
+<script>
+  function aceitarCookies() {
+    localStorage.setItem('lgpdConsent', 'accepted');
+    document.getElementById('lgpdBanner').style.display = 'none';
+
+    // Se estiver usando Google Analytics com consent mode
+    if (typeof gtag === 'function') {
+      gtag('consent', 'update', {
+        analytics_storage: 'granted'
+      });
+    }
+  }
+
+  // Ocultar banner se já aceitou
+  window.addEventListener('load', () => {
+    if (localStorage.getItem('lgpdConsent') === 'accepted') {
+      const banner = document.getElementById('lgpdBanner');
+      if (banner) banner.style.display = 'none';
+    }
+  });
 </script>
 
-</body>
+  </body>
 </html>
