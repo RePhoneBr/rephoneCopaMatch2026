@@ -309,7 +309,7 @@
   text-align: center;
   font-size: 11px;
   font-weight: 900;
-  letter-spacing: .5px;
+  letter-spacing: .6px;
   color: #22c55e;
   margin-bottom: 6px;
   text-transform: uppercase;
@@ -322,16 +322,15 @@
 
 .ticker-content {
   display: inline-flex;
-  gap: 30px;
-  animation: tickerMove 35s linear infinite;
+  gap: 40px;
   padding-left: 100%;
+  animation: tickerMove 40s linear infinite;
 }
 
 .ticker-item {
   font-size: 13px;
   font-weight: 800;
   color: #e5e7eb;
-  opacity: .9;
 }
 
 .ticker-item strong {
@@ -339,12 +338,10 @@
 }
 
 @keyframes tickerMove {
-  from {
-    transform: translateX(0);
-  }
-  to {
-    transform: translateX(-100%);
-  }
+  from { transform: translateX(0); }
+  to { transform: translateX(-100%); }
+}
+
 }
 
 /* Mobile */
@@ -367,15 +364,6 @@
     <div class="location-bar" id="txtLocation">
         Olá, você está em <strong>sua região</strong>
     </div>
-<!-- BARRA ROLANTE DE VENDIDOS -->
-<div class="ticker-wrap">
-  <div class="ticker-title">🔥 Últimos vendidos</div>
-  <div class="ticker">
-    <div class="ticker-content" id="tickerVendidos">
-      <span class="ticker-item">Carregando ofertas...</span>
-    </div>
-  </div>
-</div>
     <div id="menuOverlay" onclick="toggleMenu()"></div>
     <nav id="mobileMenu">
         <div id="greeting" style="color:#94a3b8; font-size:11px; font-weight:800; text-align:center; margin-bottom:10px;">MENU REPHONE</div>
@@ -423,6 +411,13 @@
   <button class="btn-match" onclick="buscarManual()">BUSCAR</button>
 </div>
     </section>
+  
+<div class="ticker-wrap">
+  <div class="ticker-title">🔥 ÚLTIMOS VENDIDOS</div>
+  <div class="ticker">
+    <div class="ticker-content" id="tickerVendidos"></div>
+  </div>
+</div>
 
     <h2 class="section-title">As melhores ofertas RePhone</h2>
     <main id="radarGrid" class="feed"></main>
@@ -440,49 +435,52 @@
         import { initializeApp } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-app.js";
         import { getFirestore, collection, query, where, onSnapshot, doc, getDoc } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-firestore.js";
         import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-auth.js";
-        import { query, collection, where, limit, onSnapshot } 
-from "https://www.gstatic.com/firebasejs/12.7.0/firebase-firestore.js";
+        import { collection, onSnapshot } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-firestore.js";
 
-const tickerEl = document.getElementById("tickerVendidos");
+const ticker = document.getElementById("tickerVendidos");
 
-const qVendidos = query(
-  collection(db, "anuncios"),
-  where("statusVenda", "==", "vendido"),
-  limit(15)
-);
+onSnapshot(collection(db, "anuncios"), (snap) => {
+  ticker.innerHTML = "";
 
-onSnapshot(qVendidos, async (snap) => {
-  if (snap.empty) {
-    tickerEl.innerHTML =
-      `<span class="ticker-item">📢 As melhores ofertas aparecem aqui</span>`;
-    return;
-  }
-
-  tickerEl.innerHTML = "";
+  let vendidos = [];
 
   snap.forEach(d => {
     const ad = d.data();
 
+    const ehVendido =
+      ad.statusVenda === "vendido" ||
+      ad.status === "vendido" ||
+      ad.vendido === true;
+
+    if (ehVendido) vendidos.push(ad);
+  });
+
+  if (vendidos.length === 0) {
+    ticker.innerHTML =
+      `<span class="ticker-item">📢 As melhores ofertas aparecem aqui</span>`;
+    return;
+  }
+
+  vendidos.slice(0, 20).forEach(ad => {
     const preco = Number(ad.preco || 0).toLocaleString("pt-BR", {
       minimumFractionDigits: 2
     });
-
-    const vendedorNome = ad.vendedorNome || "Vendedor RePhone";
 
     const item = document.createElement("span");
     item.className = "ticker-item";
     item.innerHTML = `
       📱 ${ad.marca || ""} ${ad.modelo || ""}
       • <strong>R$ ${preco}</strong>
-      • ${vendedorNome}
+      • ${ad.vendedorNome || "Vendedor RePhone"}
     `;
 
-    tickerEl.appendChild(item);
+    ticker.appendChild(item);
   });
 
-  // DUPLICA PARA LOOP PERFEITO
-  tickerEl.innerHTML += tickerEl.innerHTML;
+  // 🔁 DUPLICAÇÃO PARA LOOP PERFEITO
+  ticker.innerHTML += ticker.innerHTML;
 });
+
 
         const firebaseConfig = { apiKey: "AIzaSyBiN8FqX8UZeyAh1cG2GHZtQWiQH0xPBV4", authDomain: "rephone-a0a80.firebaseapp.com", projectId: "rephone-a0a80", storageBucket: "rephone-a0a80.firebasestorage.app", appId: "1:431497247030:web:a943715e4acc04b8995b97" };
         const app = initializeApp(firebaseConfig);
