@@ -2,7 +2,7 @@
 <html lang="pt-br">
 <head>
   <title>RePhone | Match Inteligente</title>
-
+  
   <link rel="apple-touch-icon" sizes="180x180" href="assets/apple-touch-icon.png">
 <link rel="icon" type="image/png" sizes="32x32" href="assets/favicon-32x32.png">
 <link rel="icon" type="image/png" sizes="16x16" href="assets/favicon-16x16.png">
@@ -432,17 +432,45 @@
     </div>
 
     <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-app.js";
-        import { getFirestore, collection, query, where, onSnapshot, doc, getDoc } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-firestore.js";
-        import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-auth.js";
-        import { collection, onSnapshot } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-firestore.js";
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-app.js";
+import {
+  getFirestore,
+  collection,
+  onSnapshot,
+  query,
+  where,
+  doc,
+  getDoc
+} from "https://www.gstatic.com/firebasejs/12.7.0/firebase-firestore.js";
+import {
+  getAuth,
+  onAuthStateChanged,
+  signOut
+} from "https://www.gstatic.com/firebasejs/12.7.0/firebase-auth.js";
+
+/* 🔥 FIREBASE PRIMEIRO */
+const firebaseConfig = {
+  apiKey: "AIzaSyBiN8FqX8UZeyAh1cG2GHZtQWiQH0xPBV4",
+  authDomain: "rephone-a0a80.firebaseapp.com",
+  projectId: "rephone-a0a80",
+  storageBucket: "rephone-a0a80.firebasestorage.app",
+  appId: "1:431497247030:web:a943715e4acc04b8995b97"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+const auth = getAuth(app);
+
+/* ===========================
+   📊 TICKER PREMIUM VENDIDOS
+   =========================== */
 
 const ticker = document.getElementById("tickerVendidos");
 
 onSnapshot(collection(db, "anuncios"), (snap) => {
   ticker.innerHTML = "";
 
-  let vendidos = [];
+  const vendidos = [];
 
   snap.forEach(d => {
     const ad = d.data();
@@ -455,7 +483,7 @@ onSnapshot(collection(db, "anuncios"), (snap) => {
     if (ehVendido) vendidos.push(ad);
   });
 
-  if (vendidos.length === 0) {
+  if (!vendidos.length) {
     ticker.innerHTML =
       `<span class="ticker-item">📢 As melhores ofertas aparecem aqui</span>`;
     return;
@@ -477,48 +505,11 @@ onSnapshot(collection(db, "anuncios"), (snap) => {
     ticker.appendChild(item);
   });
 
-  // 🔁 DUPLICAÇÃO PARA LOOP PERFEITO
+  /* LOOP INFINITO PERFEITO */
   ticker.innerHTML += ticker.innerHTML;
 });
+</script>
 
-
-        const firebaseConfig = { apiKey: "AIzaSyBiN8FqX8UZeyAh1cG2GHZtQWiQH0xPBV4", authDomain: "rephone-a0a80.firebaseapp.com", projectId: "rephone-a0a80", storageBucket: "rephone-a0a80.firebasestorage.app", appId: "1:431497247030:web:a943715e4acc04b8995b97" };
-        const app = initializeApp(firebaseConfig);
-        const db = getFirestore(app);
-        const auth = getAuth(app);
-     window.buscarManual = () => {
-  if (!todosAnuncios.length) {
-    alert("Carregando anúncios, tente novamente.");
-    return;
-  }
-  const marca = document.getElementById('buscaMarca').value.toLowerCase();
-  const modelo = document.getElementById('buscaModelo').value.toLowerCase();
-  const precoMax =
-    parseFloat(document.getElementById('buscaPreco').value.replace(/\D/g, '')) ||
-    Infinity;
-document.getElementById('mText').innerText = "BUSCA MANUAL ATIVA";
-document.getElementById('mCircle').style.background = "#0ea5e9";
-  const filtrados = todosAnuncios.filter(ad => {
-    const okMarca = marca
-      ? (ad.marca || '').toLowerCase().includes(marca)
-      : true;
-
-    const okModelo = modelo
-      ? (ad.modelo || '').toLowerCase().includes(modelo)
-      : true;
-
-    const okPreco = parseFloat(ad.preco) <= precoMax;
-
-    return okMarca && okModelo && okPreco;
-  });
-
-     if (!filtrados.length) {
-  const circle = document.getElementById('mCircle');
-  document.getElementById('mText').innerText = "NENHUM RESULTADO NA BUSCA";
-  circle.className = "status-circle";
-  circle.style.background = "#ef4444";
-  return;
-}
 
    renderizar(filtrados);
 
