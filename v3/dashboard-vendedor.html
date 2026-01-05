@@ -235,75 +235,82 @@ navigator.geolocation.getCurrentPosition(
         const q = query(collection(db, "anuncios"), where("vendedorId", "==", user.uid));
         
         onSnapshot(q, (snap) => {
-            const container = document.getElementById('listaAnuncios');
-            
-            if (snap.empty) {
-                container.innerHTML = '<div class="empty-state">Você ainda não tem anúncios ativos.</div>';
-                return;
-            }
-            
-            container.innerHTML = "";
-            let vendidos = 0;
-let pendentes = 0;
+  const container = document.getElementById('listaAnuncios');
 
-snap.forEach(d => {
-  const ad = d.data();
+  if (snap.empty) {
+    container.innerHTML =
+      '<div class="empty-state">Você ainda não tem anúncios ativos.</div>';
 
-  if (!ad.statusVenda) ativos++;
-  else if (ad.statusVenda === "vendido") pendentes++;
-  else if (ad.statusVenda === "entregue") vendidos++;
-});
+    document.getElementById("countAtivos").innerText = "Ativos: 0";
+    document.getElementById("countVendidos").innerText = "Vendidos: 0";
+    document.getElementById("countPendentes").innerText = "Pendentes: 0";
+    return;
+  }
 
-document.getElementById("countAtivos").innerText =
-  `Ativos: ${ativos}`;
-document.getElementById("countVendidos").innerText =
-  `Vendidos: ${vendidos}`;
-document.getElementById("countPendentes").innerText =
-  `Pendentes: ${pendentes}`;
-            
-            snap.forEach(d => {
-                const ad = d.data();
-                const item = document.createElement('div');
-                item.className = 'ad-item';
-                let ativos = 0;
+  container.innerHTML = "";
 
-                // Formatando o preço para exibir bonito
-                const precoFormatado = Number(ad.preco || 0).toLocaleString('pt-BR', {
-  minimumFractionDigits: 2
-});
+  // ✅ CONTADORES (DECLARADOS CORRETAMENTE)
+  let ativos = 0;
+  let vendidos = 0;
+  let pendentes = 0;
 
-                item.innerHTML = `
-    <img src="${ad.fotos && ad.fotos[0] ? ad.fotos[0] : 'https://via.placeholder.com/60'}">
-    <div class="ad-info">
+  // 1️⃣ CONTAGEM
+  snap.forEach(d => {
+    const ad = d.data();
+
+    if (!ad.statusVenda) ativos++;
+    else if (ad.statusVenda === "vendido") pendentes++;
+    else if (ad.statusVenda === "entregue") vendidos++;
+  });
+
+  // 2️⃣ ATUALIZA PAINEL
+  document.getElementById("countAtivos").innerText = `Ativos: ${ativos}`;
+  document.getElementById("countVendidos").innerText = `Vendidos: ${vendidos}`;
+  document.getElementById("countPendentes").innerText = `Pendentes: ${pendentes}`;
+
+  // 3️⃣ RENDERIZA ANÚNCIOS
+  snap.forEach(d => {
+    const ad = d.data();
+    const item = document.createElement('div');
+    item.className = 'ad-item';
+
+    const precoFormatado = Number(ad.preco || 0).toLocaleString('pt-BR', {
+      minimumFractionDigits: 2
+    });
+
+    item.innerHTML = `
+      <img src="${ad.fotos?.[0] || 'https://via.placeholder.com/60'}">
+      <div class="ad-info">
         <h3>${ad.modelo}</h3>
         <p>${ad.capacidade || '--'} • Bateria ${ad.bateria || '--'}%</p>
         <span class="price">R$ ${precoFormatado}</span>
 
         ${ad.statusVenda !== "entregue" ? `
-<div class="acoes-venda">
-    ${!ad.statusVenda ? `
-    <button class="btn-status vendido"
-        onclick="marcarVendido('${d.id}')">
-        Vendido
-    </button>` : ``}
+          <div class="acoes-venda">
+            ${!ad.statusVenda ? `
+              <button class="btn-status vendido"
+                onclick="marcarVendido('${d.id}')">
+                Vendido
+              </button>` : ``}
 
-    <button class="btn-status entregue"
-        onclick="marcarEntregue('${d.id}')">
-        Entregue
-    </button>
-</div>` : `
-<p style="font-size:11px;color:#16a34a;font-weight:800;margin-top:6px">
-✔ Entregue
-</p>
-`}
-    </div>
+            <button class="btn-status entregue"
+              onclick="marcarEntregue('${d.id}')">
+              Entregue
+            </button>
+          </div>` : `
+          <p style="font-size:11px;color:#16a34a;font-weight:800;margin-top:6px">
+            ✔ Entregue
+          </p>`
+        }
+      </div>
 
-    <button class="btn-delete" onclick="window.deletarAnuncio('${d.id}')">🗑️</button>
-`;
-                container.appendChild(item);
-            });
-        });
-    });
+      <button class="btn-delete"
+        onclick="deletarAnuncio('${d.id}')">🗑️</button>
+    `;
+
+    container.appendChild(item);
+  });
+});
 
     // Função de deletar atualizada e global
     window.deletarAnuncio = async (id) => {
