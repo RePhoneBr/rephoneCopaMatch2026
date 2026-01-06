@@ -196,7 +196,12 @@
     transform: translateY(-4px);
   }
 }
-
+.btn-zap.vendido {
+    background: #cbd5e1 !important; /* Cinza */
+    color: #64748b !important;
+    cursor: not-allowed;
+    pointer-events: none; /* Impede o clique */
+}
     </style>
 </head>
 <body>
@@ -276,17 +281,26 @@ function primeiraFoto(fotos) {
 
 /* ================= LOAD ================= */
 async function carregarAnuncio() {
-  const snap = await getDoc(doc(db,"anuncios",anuncioId));
+  const snap = await getDoc(doc(db, "anuncios", anuncioId));
   if (!snap.exists()) {
     alert("Anúncio não existe");
     return;
   }
 
   const ad = snap.data();
-  const precoFmt = Number(ad.preco || 0)
-    .toLocaleString("pt-BR",{minimumFractionDigits:2});
+  const precoFmt = Number(ad.preco || 0).toLocaleString("pt-BR", { minimumFractionDigits: 2 });
 
-  /* ===== DADOS ===== */
+  /* ===== VERIFICAÇÃO DE STATUS DE VENDA ===== */
+  const btnZap = document.getElementById("pZap");
+  
+  // Se o status for 'vendido' ou 'entregue', desabilita o botão
+  if (ad.statusVenda === "vendido" || ad.statusVenda === "entregue") {
+    btnZap.innerText = "APARELHO VENDIDO";
+    btnZap.classList.add("vendido");
+    btnZap.href = "javascript:void(0)"; // Remove link
+  }
+
+  /* ===== DADOS (Mantidos) ===== */
   document.getElementById("pImg").src = primeiraFoto(ad.fotos);
   document.getElementById("pModeloHeader").innerText = ad.modelo || "--";
   document.getElementById("pModeloGrid").innerText = ad.modelo || "--";
@@ -299,108 +313,67 @@ async function carregarAnuncio() {
   document.getElementById("pBateria").innerText = ad.bateria || "--";
   document.getElementById("pGarantia").innerText = ad.garantia || "Sem garantia";
   document.getElementById("pDesc").innerText = ad.descricao || "";
-  document.getElementById("pLocal").innerText =
-    `📍 ${ad.cidade || "Local não informado"}`;
+  document.getElementById("pLocal").innerText = `📍 ${ad.cidade || "Local não informado"}`;
 
   document.getElementById("mainPanel").style.display = "grid";
-    /* ===== VENDEDOR ===== */
-let vendedorNome = "Vendedor particular";
-let badgeTxt = "👤 VENDEDOR PARTICULAR";
-let badgeClass = "badge-verificado status-particular";
 
-if (ad.vendedorId || ad.uid) {
-  const vSnap = await getDoc(
-    doc(db,"vendedores", ad.vendedorId || ad.uid)
-  );
+  /* ===== VENDEDOR (Mantido) ===== */
+  let vendedorNome = "Vendedor particular";
+  let badgeTxt = "👤 VENDEDOR PARTICULAR";
+  let badgeClass = "badge-verificado status-particular";
 
-  if (vSnap.exists()) {
-    const v = vSnap.data();
-    vendedorNome = v.nome || vendedorNome;
-
-    if (v.status === "verificado") {
-      badgeTxt = "🏢 LOJISTA VERIFICADO";
-      badgeClass = "badge-verificado status-lojista";
+  if (ad.vendedorId || ad.uid) {
+    const vSnap = await getDoc(doc(db, "vendedores", ad.vendedorId || ad.uid));
+    if (vSnap.exists()) {
+      const v = vSnap.data();
+      vendedorNome = v.nome || vendedorNome;
+      if (v.status === "verificado") {
+        badgeTxt = "🏢 LOJISTA VERIFICADO";
+        badgeClass = "badge-verificado status-lojista";
+      }
     }
   }
-}
 
-document.getElementById("pNomeVendedor").innerText =
-  `Vendedor: ${vendedorNome}`;
+  document.getElementById("pNomeVendedor").innerText = `Vendedor: ${vendedorNome}`;
+  const badge = document.getElementById("pVendedorTipo");
+  badge.innerText = badgeTxt;
+  badge.className = badgeClass;
 
-const badge = document.getElementById("pVendedorTipo");
-badge.innerText = badgeTxt;
-badge.className = badgeClass;
-/* ===== LOCALIZAÇÃO + KM ===== */
-const localEl = document.getElementById("pLocal");
+  /* ================= WHATSAPP (Apenas se não estiver vendido) ================= */
+  if (ad.statusVenda !== "vendido" && ad.statusVenda !== "entregue") {
+    const mensagem = `Olá! Vi seu anúncio do ${ad.marca} ${ad.modelo} no RePhone...`;
 
-if (typeof ad.coords === "string" && ad.coords.includes(",")) {
-  const [lat, lon] = ad.coords.split(",");
+    btnZap.onclick = async (e) => {
+      e.preventDefault();
+      if (!ad.whatsapp) {
+        alert("Vendedor não informou WhatsApp");
+        return;
+      }
 
-  navigator.geolocation.getCurrentPosition(
-    pos => {
-      const km = calcularKM(
-        pos.coords.latitude,
-        pos.coords.longitude,
-        parseFloat(lat),
-        parseFloat(lon)
-      );
+      try {
+        await addDoc(collection(db, "interesses"), {
+          anuncioId,
+          vendedorId: ad.vendedorId || ad.uid || null,
+          compradorId: auth.currentUser ? auth.currentUser.uid : "anonimo",
+          canal: "whatsapp",
+          criadoEm: serverTimestamp(),
+          status: "contato"
+        });
+      } catch (e) { console.warn("Interesse não registrado", e); }
 
-      localEl.innerText =
-        `📍 ${ad.cidade || "Local não informado"} (${km.toFixed(1)} km de você)`;
-    },
-    () => {
-      localEl.innerText =
-        `📍 ${ad.cidade || "Local não informado"}`;
-    }
-  );
-} else {
-  localEl.innerText =
-    `📍 ${ad.cidade || "Local não informado"}`;
-    }
-    
-  /* ================= WHATSAPP ================= */
-  const mensagem = 
-    `Olá! Vi seu anúncio do ${ad.marca} ${ad.modelo} ${ad.capacidade} ` +
-    `no site RePhone.com.br por R$ ${precoFmt}.\n\n` +
-    `Link: ${window.location.href}`;
+      window.open(`https://wa.me/55${ad.whatsapp}?text=${encodeURIComponent(mensagem)}`, "_blank");
+    };
+  }
 
-  document.getElementById("pZap").onclick = async () => {
-
-    if (!ad.whatsapp) {
-      alert("Vendedor não informou WhatsApp");
-      return;
-    }
-
-    try {
-      await addDoc(collection(db,"interesses"),{
-        anuncioId,
-        vendedorId: ad.vendedorId || ad.uid || null,
-        compradorId: auth.currentUser ? auth.currentUser.uid : "anonimo",
-        canal: "whatsapp",
-        criadoEm: serverTimestamp(),
-        status: "contato"
-      });
-    } catch(e){
-      console.warn("Interesse não registrado", e);
-    }
-
-    window.open(
-      `https://wa.me/55${ad.whatsapp}?text=${encodeURIComponent(mensagem)}`,
-      "_blank"
-    );
-  };
-
-  /* ================= SHARE ================= */
+  /* ================= SHARE (Mantido) ================= */
   document.getElementById("pShare").onclick = async () => {
     const shareData = {
       title: `RePhone - ${ad.marca} ${ad.modelo}`,
       text: `📱 ${ad.marca} ${ad.modelo}\n💰 R$ ${precoFmt}\nDisponível no RePhone.com.br`,
       url: window.location.href
     };
-
-    if (navigator.share) {
-      await navigator.share(shareData);
-    } else {
+    if (navigator.share) await navigator.share(shareData);
+    else {
       await navigator.clipboard.writeText(window.location.href);
       alert("Link copiado!");
     }
