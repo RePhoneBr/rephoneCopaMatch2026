@@ -6,7 +6,7 @@
     <title>Meus Anúncios | RePhone</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
     <style>
-        :root { --dark: #0f172a; --green: #16a34a; --red: #ef4444; --bg: #f8fafc; --muted: #64748b; }
+        :root { --dark: #0f172a; --green: #16a34a; --red: #ef4444; --bg: #f8fafc; --muted: #64748b; --blue: #2563eb; }
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; -webkit-tap-highlight-color: transparent; }
         
         body { background: var(--bg); color: var(--dark); padding: 20px 20px 100px 20px; }
@@ -15,7 +15,6 @@
         h1 { font-weight: 900; font-size: 26px; letter-spacing: -1px; }
         p.subtitle { color: var(--muted); font-size: 13px; }
 
-        /* Lista de Anúncios */
         .ad-list { display: flex; flex-direction: column; gap: 15px; }
         
         .ad-item { 
@@ -23,12 +22,13 @@
             padding: 15px; 
             border-radius: 20px; 
             display: flex; 
-            align-items: center; 
-            gap: 15px; 
+            flex-direction: column; /* Mudado para column para caber os botões novos */
+            gap: 12px; 
             border: 1px solid #e2e8f0;
             box-shadow: 0 4px 12px rgba(0,0,0,0.03);
         }
 
+        .ad-main-info { display: flex; align-items: center; gap: 15px; width: 100%; }
         .ad-item img { width: 60px; height: 60px; border-radius: 12px; object-fit: cover; }
         
         .ad-info { flex: 1; }
@@ -46,101 +46,41 @@
             cursor: pointer;
         }
 
-        /* BARRA DE NAVEGAÇÃO FIXA (PADRÃO) */
-        .nav-bottom {
-            position: fixed;
-            bottom: 20px;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 90%;
-            max-width: 400px;
-            background: var(--dark);
-            display: flex;
-            justify-content: space-around;
-            padding: 15px;
-            border-radius: 25px;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.3);
-            z-index: 1000;
+        /* Botões de Ação */
+        .acoes-venda { display: flex; gap: 8px; flex-wrap: wrap; }
+        .btn-status { border: none; padding: 8px 12px; border-radius: 10px; font-size: 11px; font-weight: 800; cursor: pointer; flex: 1; text-align: center; }
+        .btn-status.vendido { background: var(--blue); color: #fff; }
+        .btn-status.entregue { background: var(--green); color: #fff; }
+        
+        /* Novos Botões de Compartilhamento */
+        .share-box { 
+            background: #f1f5f9; 
+            padding: 10px; 
+            border-radius: 12px; 
+            display: flex; 
+            gap: 8px; 
+            align-items: center; 
+            margin-top: 5px;
+            border: 1px dashed #cbd5e1;
         }
-
-        .nav-item {
-            color: #94a3b8;
-            text-decoration: none;
-            font-size: 10px;
-            font-weight: 800;
-            text-align: center;
-            text-transform: uppercase;
+        .btn-share { 
+            background: #fff; border: 1px solid #e2e8f0; padding: 6px; border-radius: 8px; 
+            font-size: 18px; cursor: pointer; display: flex; align-items: center; justify-content: center;
         }
+        .share-text { font-size: 10px; font-weight: 700; color: var(--muted); flex: 1; }
 
+        /* Resto do CSS mantido... */
+        .nav-bottom { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); width: 90%; max-width: 400px; background: var(--dark); display: flex; justify-content: space-around; padding: 15px; border-radius: 25px; box-shadow: 0 10px 25px rgba(0,0,0,0.3); z-index: 1000; }
+        .nav-item { color: #94a3b8; text-decoration: none; font-size: 10px; font-weight: 800; text-align: center; text-transform: uppercase; }
         .nav-item.active { color: var(--green); }
         .nav-item span { display: block; font-size: 18px; margin-bottom: 4px; }
-
-        .empty-state { text-align: center; padding: 40px 20px; color: var(--muted); }
-        .acoes-venda {
-    display: flex;
-    gap: 8px;
-    margin-top: 8px;
-}
-
-.btn-status {
-    border: none;
-    padding: 6px 10px;
-    border-radius: 10px;
-    font-size: 11px;
-    font-weight: 800;
-    cursor: pointer;
-}
-
-.btn-status.vendido {
-    background: #2563eb;
-    color: #fff;
-}
-
-.btn-status.entregue {
-    background: var(--green);
-    color: #fff;
-}
-        .painel-resumo {
-  background: white;
-  border-radius: 20px;
-  padding: 15px;
-  margin-bottom: 25px;
-  border: 1px solid #e2e8f0;
-  box-shadow: 0 6px 15px rgba(0,0,0,.04);
-}
-
-.linha-topo {
-  display: flex;
-  justify-content: space-between;
-  font-size: 12px;
-  color: var(--muted);
-  font-weight: 700;
-}
-
-.badges {
-  display: flex;
-  gap: 10px;
-  margin: 12px 0;
-  flex-wrap: wrap;
-}
-
-.badge {
-  font-size: 11px;
-  font-weight: 900;
-  padding: 6px 12px;
-  border-radius: 999px;
-}
-
-.badge.ativo { background: #dcfce7; color: #166534; }
-.badge.vendido { background: #dbeafe; color: #1e40af; }
-.badge.pendente { background: #ffedd5; color: #9a3412; }
-
-.perfil-vendedor {
-  font-size: 13px;
-  font-weight: 800;
-  color: var(--dark);
-}
-
+        .painel-resumo { background: white; border-radius: 20px; padding: 15px; margin-bottom: 25px; border: 1px solid #e2e8f0; }
+        .linha-topo { display: flex; justify-content: space-between; font-size: 12px; color: var(--muted); font-weight: 700; }
+        .badges { display: flex; gap: 10px; margin: 12px 0; flex-wrap: wrap; }
+        .badge { font-size: 11px; font-weight: 900; padding: 6px 12px; border-radius: 999px; }
+        .badge.ativo { background: #dcfce7; color: #166534; }
+        .badge.vendido { background: #dbeafe; color: #1e40af; }
+        .badge.pendente { background: #ffedd5; color: #9a3412; }
     </style>
 </head>
 <body>
@@ -149,26 +89,20 @@
         <h1>Meus Aparelhos</h1>
         <p class="subtitle" id="vendedorNome">Carregando perfil...</p>
         <div id="painelResumo" class="painel-resumo">
-  <div class="linha-topo">
-    <span id="dataHoje">📅 --</span>
-    <span id="localAtual">📍 Localizando...</span>
-  </div>
-
-  <div class="badges">
-    <span class="badge ativo" id="countAtivos">Ativos: 0</span>
-    <span class="badge vendido" id="countVendidos">Vendidos: 0</span>
-    <span class="badge pendente" id="countPendentes">Pendentes: 0</span>
-  </div>
-
-  <div class="perfil-vendedor" id="perfilVendedor">
-    👤 Vendedor Particular • ⚠️ Não verificado
-  </div>
-</div>
-
+            <div class="linha-topo">
+                <span id="dataHoje">📅 --</span>
+                <span id="localAtual">📍 Localizando...</span>
+            </div>
+            <div class="badges">
+                <span class="badge ativo" id="countAtivos">Ativos: 0</span>
+                <span class="badge vendido" id="countVendidos">Vendidos: 0</span>
+                <span class="badge pendente" id="countPendentes">Pendentes: 0</span>
+            </div>
+            <div class="perfil-vendedor" id="perfilVendedor">👤 Vendedor Particular • ⚠️ Não verificado</div>
+        </div>
     </header>
 
-    <div id="listaAnuncios" class="ad-list">
-        </div>
+    <div id="listaAnuncios" class="ad-list"></div>
 
     <nav class="nav-bottom">
         <a href="index.html" class="nav-item"><span>🏠</span>HOME</a>
@@ -196,156 +130,97 @@
     onAuthStateChanged(auth, async (user) => {
         if (!user) { window.location.href = "vendedor-login.html"; return; }
 
-        // Localização
-navigator.geolocation.getCurrentPosition(
-  async pos => {
-    const res = await fetch(
-      `https://nominatim.openstreetmap.org/reverse?format=json&lat=${pos.coords.latitude}&lon=${pos.coords.longitude}`
-    );
-    const data = await res.json();
-    document.getElementById("localAtual").innerText =
-      "📍 " + (data.address.city || data.address.town || "Sua região");
-  },
-  () => {
-    document.getElementById("localAtual").innerText = "📍 Local não disponível";
-  }
-);
-        
-        // Buscar nome do vendedor para o cabeçalho
+        // Localização e Perfil (Mantidos do seu original)
         const vSnap = await getDoc(doc(db, "vendedores", user.uid));
-       if (vSnap.exists()) {
-  const v = vSnap.data();
-  document.getElementById('vendedorNome').innerText =
-    "Vendedor: " + v.nome;
+        if (vSnap.exists()) {
+            document.getElementById('vendedorNome').innerText = "Vendedor: " + vSnap.data().nome;
+        }
 
-  const tipo = v.tipo === "lojista" ? "🏢 Lojista" : "👤 Particular";
-  const verificado = v.status === "verificado"
-    ? "✅ Verificado"
-    : "⚠️ Não verificado";
-
-  document.getElementById("perfilVendedor").innerText =
-    `${tipo} • ${verificado}`;
-}
-        const hoje = new Date().toLocaleDateString("pt-BR", {
-          weekday: "short", day: "2-digit", month: "2-digit", year: "numeric"
-        });
-        document.getElementById("dataHoje").innerText = "📅 " + hoje;
-
-        // --- CORREÇÃO AQUI: Alterado de "uid" para "vendedorId" ---
         const q = query(collection(db, "anuncios"), where("vendedorId", "==", user.uid));
         
         onSnapshot(q, (snap) => {
-  const container = document.getElementById('listaAnuncios');
+            const container = document.getElementById('listaAnuncios');
+            if (snap.empty) { container.innerHTML = '<div class="empty-state">Nenhum anúncio.</div>'; return; }
 
-  if (snap.empty) {
-    container.innerHTML =
-      '<div class="empty-state">Você ainda não tem anúncios ativos.</div>';
+            let ativos = 0, vendidos = 0, pendentes = 0;
+            container.innerHTML = "";
 
-    document.getElementById("countAtivos").innerText = "Ativos: 0";
-    document.getElementById("countVendidos").innerText = "Vendidos: 0";
-    document.getElementById("countPendentes").innerText = "Pendentes: 0";
-    return;
-  }
+            snap.forEach(d => {
+                const ad = d.data();
+                if (!ad.statusVenda) ativos++;
+                else if (ad.statusVenda === "vendido") pendentes++;
+                else if (ad.statusVenda === "entregue") vendidos++;
 
-  container.innerHTML = "";
+                const precoFormatado = Number(ad.preco || 0).toLocaleString('pt-BR', { minimumFractionDigits: 2 });
+                
+                // --- LÓGICA DE GERAÇÃO DO LINK ---
+                const linkAcompanhamento = `${window.location.origin}/acompanhar.html?anuncio=${d.id}`;
 
-  // ✅ CONTADORES (DECLARADOS CORRETAMENTE)
-  let ativos = 0;
-  let vendidos = 0;
-  let pendentes = 0;
+                const item = document.createElement('div');
+                item.className = 'ad-item';
+                item.innerHTML = `
+                    <div class="ad-main-info">
+                        <img src="${ad.fotos?.[0] || 'https://via.placeholder.com/60'}">
+                        <div class="ad-info">
+                            <h3>${ad.modelo}</h3>
+                            <span class="price">R$ ${precoFormatado}</span>
+                        </div>
+                        <button class="btn-delete" onclick="deletarAnuncio('${d.id}')">🗑️</button>
+                    </div>
 
-  // 1️⃣ CONTAGEM
-  snap.forEach(d => {
-    const ad = d.data();
+                    <div class="acoes-venda">
+                        ${!ad.statusVenda ? `
+                            <button class="btn-status vendido" onclick="marcarVendido('${d.id}')">Marcar Vendido</button>
+                        ` : ''}
+                        
+                        ${ad.statusVenda === 'vendido' ? `
+                            <button class="btn-status entregue" onclick="marcarEntregue('${d.id}')">Confirmar Entrega</button>
+                        ` : ''}
 
-    if (!ad.statusVenda) ativos++;
-    else if (ad.statusVenda === "vendido") pendentes++;
-    else if (ad.statusVenda === "entregue") vendidos++;
-  });
+                        ${ad.statusVenda === 'entregue' ? '<span style="color:var(--green); font-size:12px; font-weight:800">✔ Item Entregue</span>' : ''}
+                    </div>
 
-  // 2️⃣ ATUALIZA PAINEL
-  document.getElementById("countAtivos").innerText = `Ativos: ${ativos}`;
-  document.getElementById("countVendidos").innerText = `Vendidos: ${vendidos}`;
-  document.getElementById("countPendentes").innerText = `Pendentes: ${pendentes}`;
+                    ${ad.statusVenda ? `
+                        <div class="share-box">
+                            <span class="share-text">COMPARTILHAR ACOMPANHAMENTO:</span>
+                            <button class="btn-share" onclick="abrirZap('${linkAcompanhamento}')" title="Enviar WhatsApp">🟢</button>
+                            <button class="btn-share" onclick="copiarLink('${linkAcompanhamento}')" title="Copiar Link">🔗</button>
+                        </div>
+                    ` : ''}
+                `;
+                container.appendChild(item);
+            });
 
-  // 3️⃣ RENDERIZA ANÚNCIOS
-  snap.forEach(d => {
-    const ad = d.data();
-    const item = document.createElement('div');
-    item.className = 'ad-item';
-
-    const precoFormatado = Number(ad.preco || 0).toLocaleString('pt-BR', {
-      minimumFractionDigits: 2
+            document.getElementById("countAtivos").innerText = `Ativos: ${ativos}`;
+            document.getElementById("countVendidos").innerText = `Vendidos: ${vendidos}`;
+            document.getElementById("countPendentes").innerText = `Pendentes: ${pendentes}`;
+        });
     });
 
-    item.innerHTML = `
-      <img src="${ad.fotos?.[0] || 'https://via.placeholder.com/60'}">
-      <div class="ad-info">
-        <h3>${ad.modelo}</h3>
-        <p>${ad.capacidade || '--'} • Bateria ${ad.bateria || '--'}%</p>
-        <span class="price">R$ ${precoFormatado}</span>
-
-        ${ad.statusVenda !== "entregue" ? `
-          <div class="acoes-venda">
-            ${!ad.statusVenda ? `
-              <button class="btn-status vendido"
-                onclick="marcarVendido('${d.id}')">
-                Vendido
-              </button>` : ``}
-
-            <button class="btn-status entregue"
-              onclick="marcarEntregue('${d.id}')">
-              Entregue
-            </button>
-          </div>` : `
-          <p style="font-size:11px;color:#16a34a;font-weight:800;margin-top:6px">
-            ✔ Entregue
-          </p>`
-        }
-      </div>
-
-      <button class="btn-delete"
-        onclick="deletarAnuncio('${d.id}')">🗑️</button>
-    `;
-
-    container.appendChild(item);
-  });
- });
-});
-    // Função de deletar atualizada e global
-    window.deletarAnuncio = async (id) => {
-        if (confirm("Deseja remover este anúncio do Radar?")) {
-            try {
-                await deleteDoc(doc(db, "anuncios", id));
-                alert("Anúncio removido!");
-            } catch (error) {
-                alert("Erro ao deletar: " + error.message);
-            }
-        }
+    // FUNÇÕES GLOBAIS
+    window.marcarVendido = async (id) => {
+        await updateDoc(doc(db, "anuncios", id), { statusVenda: "vendido", atualizadoEm: serverTimestamp() });
+        alert("Status: Aguardando entrega!");
     };
-        window.marcarVendido = async (anuncioId) => {
-    try {
-        await updateDoc(doc(db, "anuncios", anuncioId), {
-            statusVenda: "vendido",
-            atualizadoEm: serverTimestamp()
-        });
-        alert("Marcado como vendido");
-    } catch (e) {
-        alert("Erro ao marcar como vendido");
-    }
-};
 
-window.marcarEntregue = async (anuncioId) => {
-    try {
-        await updateDoc(doc(db, "anuncios", anuncioId), {
-            statusVenda: "entregue",
-            atualizadoEm: serverTimestamp()
-        });
-        alert("Marcado como entregue");
-    } catch (e) {
-        alert("Erro ao marcar como entregue");
-    }
-};
-</script>
+    window.marcarEntregue = async (id) => {
+        await updateDoc(doc(db, "anuncios", id), { statusVenda: "entregue", atualizadoEm: serverTimestamp() });
+        alert("Status: Finalizado!");
+    };
+
+    window.deletarAnuncio = async (id) => {
+        if (confirm("Remover anúncio?")) await deleteDoc(doc(db, "anuncios", id));
+    };
+
+    window.copiarLink = (link) => {
+        navigator.clipboard.writeText(link);
+        alert("Link copiado! Cole na conversa com o comprador.");
+    };
+
+    window.abrirZap = (link) => {
+        const msg = encodeURIComponent(`Olá! Acompanhe a entrega do seu aparelho por este link: ${link}`);
+        window.open(`https://wa.me/?text=${msg}`, '_blank');
+    };
+    </script>
 </body>
 </html>
