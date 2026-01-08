@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+<meta charset="UTF-8">
+<title>Solicitar Assistência | RePhone</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+
+<style>
+body{background:#0d1324;color:#fff;font-family:'Poppins';margin:0}
+header{background:#0b0f1a;padding:20px;box-shadow:0 0 25px rgba(0,0,0,.6)}
+.container{max-width:900px;margin:40px auto;padding:30px;background:#12182b;border-radius:12px;box-shadow:0 0 25px rgba(0,0,0,.6)}
+label{display:block;margin:10px 0 5px}
+input,select,textarea{
+width:100%;padding:12px;border-radius:8px;border:none;background:#0b0f1a;color:#fff;margin-bottom:10px
+}
+button{
+background:#00c2ff;border:none;padding:12px 18px;border-radius:8px;font-weight:600;cursor:pointer
+}
+button:hover{background:#0088ff}
+.card{background:#0b0f1a;padding:15px;border-radius:8px;margin-top:15px;border-left:4px solid #00c2ff}
+</style>
+</head>
+
+<body>
+
+<header><h2>RePhone Assistência Técnica</h2></header>
+
+<div class="container">
+
+<h2>Solicitação de Assistência</h2>
+
+<div id="userEmail"></div>
+
+<label>Marca / Modelo</label>
+<input id="modelo">
+
+<label>Problema relatado</label>
+<textarea id="problema"></textarea>
+
+<label>Forma de atendimento</label>
+<select id="entrega">
+<option value="levar_loja">Cliente leva na assistência</option>
+<option value="recolha_entrega_motoboy">Recolha e entrega com motoboy</option>
+<option value="apenas_recolha_motoboy">Somente recolha motoboy</option>
+<option value="apenas_entrega_motoboy">Somente entrega motoboy</option>
+</select>
+
+<div class="card">
+<b>Pagamento do Sinal</b><br>
+O sinal de 50% é fundamental para dar andamento no serviço.  
+Entendemos que alguns clientes podem estar sem acesso a apps bancários por conta do celular danificado.  
+Nestes casos, trabalhamos com **flexibilidade**, porém priorizando o pagamento do sinal sempre que possível.
+</div>
+
+<label>Forma de pagamento pretendida</label>
+<select id="pagamento">
+<option value="pix">PIX</option>
+<option value="cartao">Cartão</option>
+<option value="dinheiro">Dinheiro</option>
+<option value="negociar_sem_sinal">Desejo negociar sem sinal</option>
+</select>
+
+<div class="card">
+<b>Política Motoboy & Devolução do Sinal</b><br>
+Caso a manutenção não seja possível ou não seja viável, o sinal é 100% devolvido.  
+A devolução é feita na loja, mediante retirada do aparelho.
+Custos de motoboy quando escolhido são de responsabilidade do cliente.
+</div>
+
+<button onclick="enviarPedido()">Enviar Pedido</button>
+<p id="msg"></p>
+
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js"></script>
+
+<script>
+// 🔥 CONFIG FIREBASE
+const firebaseConfig = {
+ apiKey:"SUA_API_KEY",
+ authDomain:"SEU_AUTH_DOMAIN",
+ projectId:"SEU_PROJECT",
+};
+
+firebase.initializeApp(firebaseConfig);
+const auth = firebase.auth();
+const db = firebase.firestore();
+
+// 🔐 Proteção
+auth.onAuthStateChanged(user=>{
+ if(!user){ window.location.href="login.html"; return; }
+ document.getElementById("userEmail").innerText="Cliente: "+user.email;
+});
+
+function enviarPedido(){
+ const user = auth.currentUser;
+ if(!user) return;
+
+ const pedido = {
+  clienteId:user.uid,
+  email:user.email,
+  modelo:document.getElementById("modelo").value,
+  problema:document.getElementById("problema").value,
+  entrega:document.getElementById("entrega").value,
+  pagamento:document.getElementById("pagamento").value,
+  status:"Aguardando análise",
+  data:Date.now()
+ }
+
+ db.collection("assistencias_pedidos").add(pedido)
+ .then(()=>{
+   document.getElementById("msg").innerText="Pedido enviado com sucesso!";
+ })
+ .catch(e=>{
+   document.getElementById("msg").innerText="Erro: "+e.message;
+ })
+}
+</script>
+
+</body>
+</html>
