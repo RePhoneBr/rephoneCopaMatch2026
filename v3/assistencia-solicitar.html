@@ -1,229 +1,112 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="pt-br">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>RePhone Assistência Técnica - Solicitar Orçamento</title>
+  <title>RePhone Assistência Técnica</title>
 
-<style>
-body{
-  background:#0e0e11;
-  color:white;
-  font-family:Arial;
-  margin:0;
-}
+  <!-- MANTÉM TUDO IGUAL AO INDEX -->
+  <link rel="apple-touch-icon" sizes="180x180" href="assets/apple-touch-icon.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="assets/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="assets/favicon-16x16.png">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, maximum-scale=1.0, user-scalable=no">
 
-header{
-  background:#111827;
-  padding:20px;
-  text-align:center;
-  border-bottom:2px solid #1f2937;
-}
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap" rel="stylesheet">
 
-.container{
-  max-width:900px;
-  margin:auto;
-  padding:20px;
-}
-
-.card{
-  background:#111827;
-  border:1px solid #1f2937;
-  border-radius:10px;
-  padding:20px;
-  margin-top:10px;
-}
-
-.card h2{
-  margin-top:0;
-  color:#38bdf8;
-}
-
-label{
-  display:block;
-  margin-top:12px;
-  font-size:14px;
-}
-
-input,select,textarea{
-  width:100%;
-  padding:10px;
-  border-radius:6px;
-  border:1px solid #374151;
-  background:#0b1220;
-  color:white;
-  margin-top:4px;
-}
-
-textarea{
-  height:100px;
-  resize:none;
-}
-
-button{
-  width:100%;
-  padding:14px;
-  background:#38bdf8;
-  color:#000;
-  font-weight:bold;
-  border:none;
-  border-radius:8px;
-  margin-top:18px;
-  cursor:pointer;
-  font-size:16px;
-}
-
-button:hover{
-  background:#67e8f9;
-}
-
-.info{
-  font-size:13px;
-  color:#9ca3af;
-  margin-top:6px;
-}
-
-.ok{
-  display:none;
-  background:#022c22;
-  border:1px solid #10b981;
-  padding:10px;
-  border-radius:8px;
-  margin-top:10px;
-}
-
-.error{
-  display:none;
-  background:#4c0519;
-  border:1px solid #be123c;
-  padding:10px;
-  border-radius:8px;
-  margin-top:10px;
-}
-</style>
+  <!-- COPIE A MESMA CSS DA INDEX AQUI (exatamente igual) -->
+  <style>
+    /* COLE AQUI TODO O CSS DA SUA INDEX (NÃO ALTERE NADA) */
+  </style>
 </head>
-
 <body>
 
-<header>
-<h1>RePhone Assistência Técnica</h1>
-<p>Peça seu orçamento de forma rápida, segura e privada 🔐</p>
+<header class="main-header">
+  <div class="brand-container">
+      <a href="index.html" class="logo">Re<span>Phone</span></a>
+      <span class="slogan">Assistência Técnica Oficial</span>
+  </div>
+  <button class="btn-menu-icon" onclick="toggleMenu()">☰</button>
 </header>
 
-<div class="container">
-
-<div class="card">
-<h2>📱 Dados do Aparelho</h2>
-
-<label>Marca</label>
-<input id="marca" placeholder="Ex: Samsung, Apple, Motorola">
-
-<label>Modelo</label>
-<input id="modelo" placeholder="Ex: iPhone 12, S22, Moto G54">
-
-<label>Descreva o problema</label>
-<textarea id="problema" placeholder="Ex: Tela quebrada, celular não liga, troca de bateria..."></textarea>
+<div class="location-bar" id="txtLocation">
+  Olá, você está em <strong>sua região</strong>
 </div>
 
+<!-- MENU IGUAL AO INDEX -->
+<div id="menuOverlay" onclick="toggleMenu()"></div>
+<nav id="mobileMenu">
+  <div id="greeting" style="color:#94a3b8; font-size:11px; font-weight:800; text-align:center; margin-bottom:10px;">MENU REPHONE</div>
 
-<div class="card">
-<h2>📍 Localização</h2>
+  <div id="menuGuest" style="display:flex; flex-direction:column; gap:12px;">
+      <a href="vendedor-login.html" class="menu-link destaque">Entrar / Vender</a>
+      <a href="registro-vendedor.html" class="menu-link">Criar Conta Vendedor</a>
+  </div>
 
-<label>Cidade</label>
-<input id="cidade">
+  <div id="menuLogged" style="display:none; flex-direction:column; gap:12px;">
+      <a href="vendedor-anuncio.html" class="menu-link destaque">+ Novo Anúncio</a>
+      <a href="dashboard-vendedor.html" class="menu-link">Meus Anúncios</a>
+      <button class="btn-logout-menu" onclick="fazerLogout()">SAIR DA CONTA</button>
+  </div>
+</nav>
 
-<label>Estado</label>
-<input id="estado" maxlength="2" placeholder="UF">
-</div>
+<section class="hero">
+  <div class="match-card">
 
+      <div class="match-status-container">
+        <div class="status-circle searching"></div>
+        <div style="font-size:11px;font-weight:800;color:#64748b;">
+          Solicite seu orçamento inteligente
+        </div>
+      </div>
 
-<div class="card">
-<h2>🚚 Entrega & Motoboy</h2>
+      <h2 style="font-size:20px;font-weight:900;margin-bottom:10px;">
+        RePhone Assistência Técnica
+      </h2>
 
-<label>Como deseja enviar / receber seu aparelho?</label>
-<select id="entrega">
-<option value="">Selecione...</option>
-<option value="loja">Levarei até a assistência técnica</option>
-<option value="motoboy_ida">Recolha por motoboy</option>
-<option value="motoboy_volta">Entrega por motoboy</option>
-<option value="motoboy_ida_volta">Recolha e entrega por motoboy</option>
-</select>
+      <label>Modelo do aparelho</label>
+      <input type="text" id="assistModelo" placeholder="Ex: iPhone 13, Samsung S21">
 
-<p class="info">
-Motoboy é opcional e pode ter custo adicional, informado no orçamento.
-</p>
-</div>
+      <label>Problema apresentado</label>
+      <input type="text" id="assistProblema" placeholder="Ex: troca de tela, sem sinal, bateria">
 
+      <label>Forma de atendimento</label>
+      <select id="assistEntrega" style="width:100%;padding:16px;border-radius:15px;border:1px solid #e2e8f0;background:#f8fafc;margin-bottom:15px;">
+        <option>Levarei até a assistência</option>
+        <option>Retirada e entrega por motoboy</option>
+        <option>Somente retirada</option>
+        <option>Somente entrega</option>
+      </select>
 
-<div class="card">
-<h2>💳 Pagamento</h2>
+      <button class="btn-match" onclick="enviarPedidoAssistencia()">
+        Solicitar Orçamento
+      </button>
 
-<label>Forma de pagamento pretendida</label>
-<select id="pagamento">
-<option value="">Selecione...</option>
-<option>PIX</option>
-<option>Cartão de crédito</option>
-<option>Dinheiro</option>
-<option>Combinar com a assistência</option>
-</select>
+  </div>
+</section>
 
-<label>Sinal de 50% para iniciar o serviço</label>
-<select id="sinal">
-<option value="">Selecione...</option>
-<option value="sim">Pretendo pagar sinal</option>
-<option value="flexivel">Quero negociar o sinal</option>
-<option value="nao">Não posso pagar sinal agora</option>
-</select>
+<h2 class="section-title">Profissionais próximos de você</h2>
+<main id="listaAssistencias" class="feed">
+  <!-- Aqui você poderá listar techs futuramente -->
+</main>
 
-<p class="info">
-O sinal é preferencial para garantir prioridade e compra de peças.
-Caso o reparo não seja possível, o sinal é 100% devolvido na retirada do aparelho.
-</p>
-</div>
+<!-- FOOTER ORIGINAL DO SITE -->
+<footer class="site-footer">
+  <div class="footer-inner">
+    <div class="footer-links">
+      <a href="#">Termos</a>
+      <a href="#">Privacidade</a>
+      <a href="#">Contato</a>
+    </div>
+    <div class="footer-copy">RePhone © 2026</div>
+  </div>
+</footer>
 
-
-<div class="card">
-<h2>👤 Seus Dados</h2>
-
-<label>Seu nome</label>
-<input id="nome">
-
-<label>WhatsApp</label>
-<input id="whatsapp" placeholder="Somente números">
-</div>
-
-
-<div id="success" class="ok">✔ Pedido enviado com sucesso! Técnicos da sua região irão responder individualmente.</div>
-<div id="fail" class="error">❌ Preencha todos os campos corretamente.</div>
-
-<button onclick="enviarOrcamento()">📨 Solicitar Orçamento</button>
-
-</div>
-
-
-<script>
-function enviarOrcamento(){
-
-const campos = [
-  'marca','modelo','problema',
-  'cidade','estado',
-  'entrega','pagamento','sinal',
-  'nome','whatsapp'
-];
-
-for(let c of campos){
-  if(!document.getElementById(c).value.trim()){
-    document.getElementById('fail').style.display='block';
-    return;
+<script type="module">
+  // IMPORTS DO FIREBASE IGUAIS AO INDEX
+  // + sua lógica futura aqui
+  function toggleMenu(){ document.getElementById("mobileMenu").classList.toggle("active"); }
+  function enviarPedidoAssistencia(){
+      alert("Em breve vamos integrar ao Firestore 👍");
   }
-}
-
-document.getElementById('fail').style.display='none';
-document.getElementById('success').style.display='block';
-
-// 🔥 Aqui depois entra integração Firestore
-// cria doc em orcamentos
-}
 </script>
 
 </body>
