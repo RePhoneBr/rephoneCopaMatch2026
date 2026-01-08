@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Chat</title>
+<style>
+body{background:#0d1324;color:#fff;font-family:Poppins}
+.container{max-width:700px;margin:40px auto;background:#12182b;padding:20px;border-radius:12px}
+.msg{padding:10px;margin:10px 0;background:#0b0f1a;border-radius:8px}
+</style>
+</head>
+<body>
+
+<div class="container">
+<h2>Chat do Pedido</h2>
+<div id="chat"></div>
+
+<input id="texto" placeholder="Digite uma mensagem">
+<button onclick="enviar()">Enviar</button>
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js"></script>
+
+<script>
+const firebaseConfig = {
+ apiKey:"SUA_API_KEY",
+ authDomain:"SEU_AUTH_DOMAIN",
+ projectId:"SEU_PROJECT",
+};
+
+firebase.initializeApp(firebaseConfig);
+const auth = firebase.auth();
+const db = firebase.firestore();
+
+const params = new URLSearchParams(window.location.search);
+const id = params.get("id");
+
+auth.onAuthStateChanged(user=>{
+ if(!user) window.location.href="login.html";
+
+ db.collection("assistencias_pedidos").doc(id).collection("chat")
+ .orderBy("time")
+ .onSnapshot(s=>{
+   let html="";
+   s.forEach(m=>{
+     let d=m.data();
+     html += `<div class="msg"><b>${d.user}</b><br>${d.texto}</div>`;
+   });
+   document.getElementById("chat").innerHTML=html;
+ });
+});
+
+function enviar(){
+ const user = auth.currentUser;
+ db.collection("assistencias_pedidos").doc(id).collection("chat").add({
+  user:user.email,
+  texto:document.getElementById("texto").value,
+  time:Date.now()
+ });
+ document.getElementById("texto").value="";
+}
+</script>
+
+</body>
+</html>
