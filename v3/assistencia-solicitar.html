@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RePhone Assistência Técnica - Solicitar Orçamento</title>
+
+<style>
+body{
+  background:#0e0e11;
+  color:white;
+  font-family:Arial;
+  margin:0;
+}
+
+header{
+  background:#111827;
+  padding:20px;
+  text-align:center;
+  border-bottom:2px solid #1f2937;
+}
+
+.container{
+  max-width:900px;
+  margin:auto;
+  padding:20px;
+}
+
+.card{
+  background:#111827;
+  border:1px solid #1f2937;
+  border-radius:10px;
+  padding:20px;
+  margin-top:10px;
+}
+
+.card h2{
+  margin-top:0;
+  color:#38bdf8;
+}
+
+label{
+  display:block;
+  margin-top:12px;
+  font-size:14px;
+}
+
+input,select,textarea{
+  width:100%;
+  padding:10px;
+  border-radius:6px;
+  border:1px solid #374151;
+  background:#0b1220;
+  color:white;
+  margin-top:4px;
+}
+
+textarea{
+  height:100px;
+  resize:none;
+}
+
+button{
+  width:100%;
+  padding:14px;
+  background:#38bdf8;
+  color:#000;
+  font-weight:bold;
+  border:none;
+  border-radius:8px;
+  margin-top:18px;
+  cursor:pointer;
+  font-size:16px;
+}
+
+button:hover{
+  background:#67e8f9;
+}
+
+.info{
+  font-size:13px;
+  color:#9ca3af;
+  margin-top:6px;
+}
+
+.ok{
+  display:none;
+  background:#022c22;
+  border:1px solid #10b981;
+  padding:10px;
+  border-radius:8px;
+  margin-top:10px;
+}
+
+.error{
+  display:none;
+  background:#4c0519;
+  border:1px solid #be123c;
+  padding:10px;
+  border-radius:8px;
+  margin-top:10px;
+}
+</style>
+</head>
+
+<body>
+
+<header>
+<h1>RePhone Assistência Técnica</h1>
+<p>Peça seu orçamento de forma rápida, segura e privada 🔐</p>
+</header>
+
+<div class="container">
+
+<div class="card">
+<h2>📱 Dados do Aparelho</h2>
+
+<label>Marca</label>
+<input id="marca" placeholder="Ex: Samsung, Apple, Motorola">
+
+<label>Modelo</label>
+<input id="modelo" placeholder="Ex: iPhone 12, S22, Moto G54">
+
+<label>Descreva o problema</label>
+<textarea id="problema" placeholder="Ex: Tela quebrada, celular não liga, troca de bateria..."></textarea>
+</div>
+
+
+<div class="card">
+<h2>📍 Localização</h2>
+
+<label>Cidade</label>
+<input id="cidade">
+
+<label>Estado</label>
+<input id="estado" maxlength="2" placeholder="UF">
+</div>
+
+
+<div class="card">
+<h2>🚚 Entrega & Motoboy</h2>
+
+<label>Como deseja enviar / receber seu aparelho?</label>
+<select id="entrega">
+<option value="">Selecione...</option>
+<option value="loja">Levarei até a assistência técnica</option>
+<option value="motoboy_ida">Recolha por motoboy</option>
+<option value="motoboy_volta">Entrega por motoboy</option>
+<option value="motoboy_ida_volta">Recolha e entrega por motoboy</option>
+</select>
+
+<p class="info">
+Motoboy é opcional e pode ter custo adicional, informado no orçamento.
+</p>
+</div>
+
+
+<div class="card">
+<h2>💳 Pagamento</h2>
+
+<label>Forma de pagamento pretendida</label>
+<select id="pagamento">
+<option value="">Selecione...</option>
+<option>PIX</option>
+<option>Cartão de crédito</option>
+<option>Dinheiro</option>
+<option>Combinar com a assistência</option>
+</select>
+
+<label>Sinal de 50% para iniciar o serviço</label>
+<select id="sinal">
+<option value="">Selecione...</option>
+<option value="sim">Pretendo pagar sinal</option>
+<option value="flexivel">Quero negociar o sinal</option>
+<option value="nao">Não posso pagar sinal agora</option>
+</select>
+
+<p class="info">
+O sinal é preferencial para garantir prioridade e compra de peças.
+Caso o reparo não seja possível, o sinal é 100% devolvido na retirada do aparelho.
+</p>
+</div>
+
+
+<div class="card">
+<h2>👤 Seus Dados</h2>
+
+<label>Seu nome</label>
+<input id="nome">
+
+<label>WhatsApp</label>
+<input id="whatsapp" placeholder="Somente números">
+</div>
+
+
+<div id="success" class="ok">✔ Pedido enviado com sucesso! Técnicos da sua região irão responder individualmente.</div>
+<div id="fail" class="error">❌ Preencha todos os campos corretamente.</div>
+
+<button onclick="enviarOrcamento()">📨 Solicitar Orçamento</button>
+
+</div>
+
+
+<script>
+function enviarOrcamento(){
+
+const campos = [
+  'marca','modelo','problema',
+  'cidade','estado',
+  'entrega','pagamento','sinal',
+  'nome','whatsapp'
+];
+
+for(let c of campos){
+  if(!document.getElementById(c).value.trim()){
+    document.getElementById('fail').style.display='block';
+    return;
+  }
+}
+
+document.getElementById('fail').style.display='none';
+document.getElementById('success').style.display='block';
+
+// 🔥 Aqui depois entra integração Firestore
+// cria doc em orcamentos
+}
+</script>
+
+</body>
+</html>
