@@ -1,112 +1,161 @@
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
-  <title>RePhone Assistência Técnica</title>
-
-  <!-- MANTÉM TUDO IGUAL AO INDEX -->
-  <link rel="apple-touch-icon" sizes="180x180" href="assets/apple-touch-icon.png">
-  <link rel="icon" type="image/png" sizes="32x32" href="assets/favicon-32x32.png">
-  <link rel="icon" type="image/png" sizes="16x16" href="assets/favicon-16x16.png">
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, maximum-scale=1.0, user-scalable=no">
-
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap" rel="stylesheet">
-
-  <!-- COPIE A MESMA CSS DA INDEX AQUI (exatamente igual) -->
-  <style>
-    /* COLE AQUI TODO O CSS DA SUA INDEX (NÃO ALTERE NADA) */
-  </style>
+  <title>RePhone Assistência Técnica</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
 </head>
+
 <body>
 
-<header class="main-header">
-  <div class="brand-container">
-      <a href="index.html" class="logo">Re<span>Phone</span></a>
-      <span class="slogan">Assistência Técnica Oficial</span>
-  </div>
-  <button class="btn-menu-icon" onclick="toggleMenu()">☰</button>
+<header>
+  <h1>RePhone</h1>
+  <h2>Assistência Técnica</h2>
+
+  <nav>
+    <a href="index.html">Início</a> |
+    <a href="assistencia.html">Assistência Técnica</a> |
+    <a href="vendedor-anuncio.html">Anunciar</a> |
+    <a href="dashboard-vendedor.html">Painel do Vendedor</a>
+  </nav>
+
+  <hr>
 </header>
 
-<div class="location-bar" id="txtLocation">
-  Olá, você está em <strong>sua região</strong>
-</div>
 
-<!-- MENU IGUAL AO INDEX -->
-<div id="menuOverlay" onclick="toggleMenu()"></div>
-<nav id="mobileMenu">
-  <div id="greeting" style="color:#94a3b8; font-size:11px; font-weight:800; text-align:center; margin-bottom:10px;">MENU REPHONE</div>
+<h2>Solicitação de Orçamento</h2>
 
-  <div id="menuGuest" style="display:flex; flex-direction:column; gap:12px;">
-      <a href="vendedor-login.html" class="menu-link destaque">Entrar / Vender</a>
-      <a href="registro-vendedor.html" class="menu-link">Criar Conta Vendedor</a>
-  </div>
+<p>
+  Preencha os dados abaixo para enviar um pedido de orçamento para técnicos cadastrados.
+</p>
 
-  <div id="menuLogged" style="display:none; flex-direction:column; gap:12px;">
-      <a href="vendedor-anuncio.html" class="menu-link destaque">+ Novo Anúncio</a>
-      <a href="dashboard-vendedor.html" class="menu-link">Meus Anúncios</a>
-      <button class="btn-logout-menu" onclick="fazerLogout()">SAIR DA CONTA</button>
-  </div>
-</nav>
+<form id="formAssistencia">
 
-<section class="hero">
-  <div class="match-card">
+  <p>
+    <label>Modelo do aparelho:</label><br>
+    <input type="text" id="modelo" placeholder="Ex: iPhone 13, Samsung S21">
+  </p>
 
-      <div class="match-status-container">
-        <div class="status-circle searching"></div>
-        <div style="font-size:11px;font-weight:800;color:#64748b;">
-          Solicite seu orçamento inteligente
-        </div>
-      </div>
+  <p>
+    <label>Problema apresentado:</label><br>
+    <input type="text" id="problema" placeholder="Ex: Tela quebrada, bateria fraca, sem sinal">
+  </p>
 
-      <h2 style="font-size:20px;font-weight:900;margin-bottom:10px;">
-        RePhone Assistência Técnica
-      </h2>
+  <p>
+    <label>Forma de atendimento:</label><br>
+    <select id="atendimento">
+      <option>Levarei até a assistência</option>
+      <option>Retirada e entrega por motoboy</option>
+      <option>Somente retirada</option>
+      <option>Somente entrega</option>
+    </select>
+  </p>
 
-      <label>Modelo do aparelho</label>
-      <input type="text" id="assistModelo" placeholder="Ex: iPhone 13, Samsung S21">
+  <p>
+    <label>Forma de pagamento pretendida:</label><br>
+    <select id="pagamento">
+      <option>Pix</option>
+      <option>Dinheiro</option>
+      <option>Cartão</option>
+      <option>Decidir na loja</option>
+    </select>
+  </p>
 
-      <label>Problema apresentado</label>
-      <input type="text" id="assistProblema" placeholder="Ex: troca de tela, sem sinal, bateria">
+  <p>
+    <button type="button" onclick="enviarOrcamento()">Solicitar Orçamento</button>
+  </p>
 
-      <label>Forma de atendimento</label>
-      <select id="assistEntrega" style="width:100%;padding:16px;border-radius:15px;border:1px solid #e2e8f0;background:#f8fafc;margin-bottom:15px;">
-        <option>Levarei até a assistência</option>
-        <option>Retirada e entrega por motoboy</option>
-        <option>Somente retirada</option>
-        <option>Somente entrega</option>
-      </select>
+</form>
 
-      <button class="btn-match" onclick="enviarPedidoAssistencia()">
-        Solicitar Orçamento
-      </button>
+<hr>
 
-  </div>
-</section>
+<h3>Importante</h3>
 
-<h2 class="section-title">Profissionais próximos de você</h2>
-<main id="listaAssistencias" class="feed">
-  <!-- Aqui você poderá listar techs futuramente -->
-</main>
+<p>
+• O sinal poderá ser solicitado para confirmar o serviço.<br>
+• O sinal é devolvido caso o reparo não seja possível ou inviável.<br>
+• Em caso de devolução, o aparelho deve ser retirado na loja juntamente com a devolução do valor.
+</p>
 
-<!-- FOOTER ORIGINAL DO SITE -->
-<footer class="site-footer">
-  <div class="footer-inner">
-    <div class="footer-links">
-      <a href="#">Termos</a>
-      <a href="#">Privacidade</a>
-      <a href="#">Contato</a>
-    </div>
-    <div class="footer-copy">RePhone © 2026</div>
-  </div>
+<hr>
+
+<footer>
+  <p>
+    <a href="sobre.html">Sobre</a> |
+    <a href="termos-de-uso.html">Termos</a> |
+    <a href="politica-de-privacidade.html">Privacidade</a> |
+    <a href="contato.html">Contato</a>
+  </p>
+  <p>RePhone © 2026</p>
 </footer>
 
+
 <script type="module">
-  // IMPORTS DO FIREBASE IGUAIS AO INDEX
-  // + sua lógica futura aqui
-  function toggleMenu(){ document.getElementById("mobileMenu").classList.toggle("active"); }
-  function enviarPedidoAssistencia(){
-      alert("Em breve vamos integrar ao Firestore 👍");
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-app.js";
+import { getFirestore, collection, addDoc, serverTimestamp } 
+  from "https://www.gstatic.com/firebasejs/12.7.0/firebase-firestore.js";
+import { getAuth, onAuthStateChanged }
+  from "https://www.gstatic.com/firebasejs/12.7.0/firebase-auth.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyBiN8FqX8UZeyAh1cG2GHZtQWiQH0xPBV4",
+  authDomain: "rephone-a0a80.firebaseapp.com",
+  projectId: "rephone-a0a80",
+  storageBucket: "rephone-a0a80.firebasestorage.app",
+  messagingSenderId: "431497247030",
+  appId: "1:431497247030:web:a943715e4acc04b8995b97"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+const auth = getAuth(app);
+
+let usuario = null;
+
+onAuthStateChanged(auth, (user) => {
+  if (!user) {
+    alert("Você precisa estar logado para solicitar assistência.");
+    window.location.href = "login.html";
+  } else {
+    usuario = user;
   }
+});
+
+window.enviarOrcamento = async () => {
+  if (!usuario) {
+    alert("Você precisa estar logado.");
+    return;
+  }
+
+  const modelo = document.getElementById("modelo").value.trim();
+  const problema = document.getElementById("problema").value.trim();
+  const atendimento = document.getElementById("atendimento").value;
+  const pagamento = document.getElementById("pagamento").value;
+
+  if (!modelo || !problema) {
+    alert("Preencha modelo e problema do aparelho.");
+    return;
+  }
+
+  try {
+    await addDoc(collection(db, "orcamentos"), {
+      clienteId: usuario.uid,
+      modelo: modelo,
+      problema: problema,
+      atendimento: atendimento,
+      pagamento: pagamento,
+      status: "pendente",
+      criadoEm: serverTimestamp()
+    });
+
+    alert("Solicitação enviada com sucesso! Os técnicos da sua região receberão seu pedido.");
+    document.getElementById("formAssistencia").reset();
+
+  } catch (e) {
+    console.error(e);
+    alert("Erro ao enviar orçamento.");
+  }
+};
 </script>
 
 </body>
