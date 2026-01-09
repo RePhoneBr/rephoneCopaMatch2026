@@ -344,23 +344,32 @@ async function carregarAnuncio() {
     const mensagem = `Olá! Vi seu anúncio do ${ad.marca} ${ad.modelo} no RePhone...`;
 
     btnZap.onclick = async (e) => {
-      e.preventDefault();
-      if (!ad.whatsapp) {
-        alert("Vendedor não informou WhatsApp");
-        return;
-      }
+  e.preventDefault();
+  if (!ad.whatsapp) {
+    alert("Vendedor não informou WhatsApp");
+    return;
+  }
 
-      try {
-        await addDoc(collection(db, "interesses"), {
-          anuncioId,
-          vendedorId: ad.vendedorId || ad.uid || null,
-          compradorId: auth.currentUser ? auth.currentUser.uid : "anonimo",
-          canal: "whatsapp",
-          criadoEm: serverTimestamp(),
-          status: "contato"
-        });
-      } catch (e) { console.warn("Interesse não registrado", e); }
+  const mensagem = `Olá! Vi seu anúncio do ${ad.marca} ${ad.modelo} no RePhone...`;
+  const zapUrl = `https://wa.me/55${ad.whatsapp}?text=${encodeURIComponent(mensagem)}`;
 
+  // Abre imediatamente (iOS precisa disso)
+  window.location.href = zapUrl;
+
+  // Registra interesse (sem travar o clique)
+  try {
+    addDoc(collection(db, "interesses"), {
+      anuncioId,
+      vendedorId: ad.vendedorId || ad.uid || null,
+      compradorId: auth.currentUser ? auth.currentUser.uid : "anonimo",
+      canal: "whatsapp",
+      criadoEm: serverTimestamp(),
+      status: "contato"
+    });
+  } catch (e) {
+    console.warn("Interesse não registrado", e);
+  }
+};
       window.open(`https://wa.me/55${ad.whatsapp}?text=${encodeURIComponent(mensagem)}`, "_blank");
     };
   }
