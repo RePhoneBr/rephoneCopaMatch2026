@@ -7,10 +7,14 @@
 <link rel="icon" type="image/png" sizes="32x32" href="assets/favicon-32x32.png">
 <link rel="icon" type="image/png" sizes="16x16" href="assets/favicon-16x16.png">
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0
   <!-- Google Analytics -->
   <script async src="https://www.googletagmanager.com/gtag/js?id=G-LHRJ19C0CW"></script>
   <script>
+    <script>
+    let userLat = null;
+    let userLng = null;
+    </script>
   window.dataLayer = window.dataLayer || [];
   function gtag(){dataLayer.push(arguments);}
   gtag('js', new Date());
@@ -295,6 +299,17 @@
     gap: 6px;
   }
 }
+      .badge-near {
+  display: inline-block;
+  background: #10b981;
+  color: #fff;
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 700;
+  margin-left: 8px;
+}
+
 /* ======================================================
    🔥 REPHONE PREMIUM UI PACK (DROP-IN)
    Não altera funcionamento
@@ -472,8 +487,15 @@ body.android .price {
     </div>
 
     <script type="module">
+      navigator.geolocation.getCurrentPosition(pos => {
+  userLat = pos.coords.latitude;
+  userLng = pos.coords.longitude;
+}, err => {
+  console.log("Localização negada");
+});
         import { initializeApp } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-app.js";
-        import { getFirestore, collection, query, where, onSnapshot, doc, getDoc } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-firestore.js";
+        import {getFirestore, collection, query, where, onSnapshot, doc, getDoc
+} from "https://www.gstatic.com/firebasejs/12.7.0/firebase-firestore.js";
         import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-auth.js";
 
         const firebaseConfig = { apiKey: "AIzaSyBiN8FqX8UZeyAh1cG2GHZtQWiQH0xPBV4", authDomain: "rephone-a0a80.firebaseapp.com", projectId: "rephone-a0a80", storageBucket: "rephone-a0a80.firebasestorage.app", appId: "1:431497247030:web:a943715e4acc04b8995b97" };
@@ -523,7 +545,10 @@ document.getElementById('mCircle').style.background = "#0ea5e9";
     // --- LOCALIZAÇÃO PADRÃO POR GPS (COM FALLBACK) ---
 async function detectarCidade() {
     const txtLoc = document.getElementById('txtLocation');
-
+navigator.geolocation.getCurrentPosition(pos => {
+  userLat = pos.coords.latitude;
+  userLng = pos.coords.longitude;
+});
     // Texto imediato (UX)
     txtLoc.innerHTML = "📍 Localizando ofertas perto de você...";
 
@@ -568,6 +593,21 @@ async function detectarCidade() {
     } else {
         detectarCidadePorIP();
     }
+}
+      function calcularDistancia(lat1, lon1, lat2, lon2) {
+  const R = 6371;
+  const dLat = (lat2 - lat1) * Math.PI / 180;
+  const dLon = (lon2 - lon1) * Math.PI / 180;
+
+  const a =
+    Math.sin(dLat/2) * Math.sin(dLat/2) +
+    Math.cos(lat1 * Math.PI / 180) *
+    Math.cos(lat2 * Math.PI / 180) *
+    Math.sin(dLon/2) *
+    Math.sin(dLon/2);
+
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+  return Number(R * c).toFixed(1);
 }
 window.limparBusca = () => {
   // 🔄 Volta todos os anúncios
@@ -653,6 +693,21 @@ detectarCidade();
         let todosAnuncios = [];
         onSnapshot(query(collection(db, "anuncios"), where("status", "==", "aprovado")), (snap) => {
             todosAnuncios = snap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+          function calcularDistancia(lat1, lon1, lat2, lon2) {
+  const R = 6371;
+  const dLat = (lat2 - lat1) * Math.PI / 180;
+  const dLon = (lon2 - lon1) * Math.PI / 180;
+
+  const a =
+    Math.sin(dLat/2) * Math.sin(dLat/2) +
+    Math.cos(lat1 * Math.PI / 180) *
+    Math.cos(lat2 * Math.PI / 180) *
+    Math.sin(dLon/2) *
+    Math.sin(dLon/2);
+
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+  return (R * c).toFixed(1);
+}
             renderizar(todosAnuncios);
         });
 
@@ -672,7 +727,17 @@ detectarCidade();
                             <span class="badge-cor">${ad.cor}</span>
                         </div>
                         <div class="details">${ad.capacidade} • Bateria ${ad.bateria}%</div>
-                        <div class="location">📍 ${ad.cidade}</div>
+                        <div class="location">
+📍 ${ad.cidade}
+${
+(userLat && userLng && ad.lat && ad.lng)
+? ` • ${(() => {
+    const d = calcularDistancia(userLat, userLng, ad.lat, ad.lng);
+    return `${d} km` + (d <= 5 ? ` <span class="badge-near">MUITO PERTO DE VOCÊ</span>` : "");
+  })()}`
+: ""
+}
+</div>
                         <span class="price">R$ ${parseFloat(ad.preco).toLocaleString('pt-br')}</span>
                         ${ad.statusVenda === "vendido" ? `
 <div class="badge-tipo" style="background:#2563eb;color:#fff">
