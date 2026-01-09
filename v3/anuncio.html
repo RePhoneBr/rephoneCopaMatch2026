@@ -351,8 +351,16 @@ if (ad.statusVenda !== "vendido" && ad.statusVenda !== "entregue") {
             return;
         }
 
-        const mensagem = `Olá! Vi seu anúncio do ${ad.marca} ${ad.modelo} no RePhone...`;
+        const nome = vendedorNome || "vendedor";
+const linkAnuncio = window.location.href;
+
+const mensagem = 
+`Olá ${nome}! Vi seu anúncio do ${ad.marca} ${ad.modelo} no RePhone e me interessei.
+Está disponível? Pode me confirmar as condições do aparelho e se há possibilidade de negociação?
+
+Link do anúncio: ${linkAnuncio}`;
         const zapUrl = `https://wa.me/55${ad.whatsapp}?text=${encodeURIComponent(mensagem)}`;
+window.location.href = zapUrl;
 
         /* iPhone só funciona assim */
         window.location.href = zapUrl;
