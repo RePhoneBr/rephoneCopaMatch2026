@@ -340,40 +340,37 @@ async function carregarAnuncio() {
   badge.className = badgeClass;
 
   /* ================= WHATSAPP (Apenas se não estiver vendido) ================= */
-  if (ad.statusVenda !== "vendido" && ad.statusVenda !== "entregue") {
+if (ad.statusVenda !== "vendido" && ad.statusVenda !== "entregue") {
     const mensagem = `Olá! Vi seu anúncio do ${ad.marca} ${ad.modelo} no RePhone...`;
 
     btnZap.onclick = async (e) => {
-  e.preventDefault();
-  if (!ad.whatsapp) {
-    alert("Vendedor não informou WhatsApp");
-    return;
-  }
+        e.preventDefault();
 
-  const mensagem = `Olá! Vi seu anúncio do ${ad.marca} ${ad.modelo} no RePhone...`;
-  const zapUrl = `https://wa.me/55${ad.whatsapp}?text=${encodeURIComponent(mensagem)}`;
+        if (!ad.whatsapp) {
+            alert("Vendedor não informou WhatsApp");
+            return;
+        }
 
-  // Abre imediatamente (iOS precisa disso)
-  window.location.href = zapUrl;
+        const mensagem = `Olá! Vi seu anúncio do ${ad.marca} ${ad.modelo} no RePhone...`;
+        const zapUrl = `https://wa.me/55${ad.whatsapp}?text=${encodeURIComponent(mensagem)}`;
 
-  // Registra interesse (sem travar o clique)
-  try {
-    addDoc(collection(db, "interesses"), {
-      anuncioId,
-      vendedorId: ad.vendedorId || ad.uid || null,
-      compradorId: auth.currentUser ? auth.currentUser.uid : "anonimo",
-      canal: "whatsapp",
-      criadoEm: serverTimestamp(),
-      status: "contato"
-    });
-  } catch (e) {
-    console.warn("Interesse não registrado", e);
-  }
-};
-      window.open(`https://wa.me/55${ad.whatsapp}?text=${encodeURIComponent(mensagem)}`, "_blank");
+        /* iPhone só funciona assim */
+        window.location.href = zapUrl;
+
+        try {
+            await addDoc(collection(db, "interesses"), {
+                anuncioId,
+                vendedorId: ad.vendedorId || ad.uid || null,
+                compradorId: auth.currentUser ? auth.currentUser.uid : "anonimo",
+                canal: "whatsapp",
+                criadoEm: serverTimestamp(),
+                status: "contato"
+            });
+        } catch (e) {
+            console.warn("Interesse não registrado", e);
+        }
     };
-  }
-
+}
   /* ================= SHARE (Mantido) ================= */
   document.getElementById("pShare").onclick = async () => {
     const shareData = {
