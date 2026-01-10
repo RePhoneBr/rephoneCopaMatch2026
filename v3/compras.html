@@ -6,24 +6,101 @@
 <title>Minhas Compras | RePhone</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
 <style>
-  body { font-family:'Inter', sans-serif; background:#f8fafc; padding:20px; color:#1e293b; }
-  h1 { font-weight:900; font-size:24px; margin-bottom:10px; }
-  .subtitle { color:#64748b; font-size:13px; margin-bottom:20px; }
-  .card { background:#fff; padding:20px; border-radius:20px; box-shadow:0 4px 12px rgba(0,0,0,0.05); margin-bottom:15px; }
-  .card h2 { margin:0 0 10px 0; font-size:16px; font-weight:800; }
-  .status { font-weight:700; margin-bottom:10px; color:#3b82f6; }
-  .field { font-size:13px; margin:3px 0; color:#64748b; }
-  .btn { padding:12px; width:100%; border:none; border-radius:12px; font-weight:800; cursor:pointer; margin-top:10px; transition:0.2s; }
-  .btn-confirm { background-color:#10b981; color:white; }
-  .btn-confirm:hover { background-color:#059669; }
-  .btn-disabled { background-color:#9ca3af; cursor:not-allowed; }
-  textarea { width:100%; padding:10px; border:1px solid #cbd5e1; border-radius:8px; resize:vertical; min-height:60px; margin-top:8px; }
+  body {
+    font-family: 'Inter', sans-serif;
+    background: #f8fafc;
+    padding: 20px;
+    color: #1e293b;
+  }
+  h1 {
+    font-weight: 900;
+    font-size: 24px;
+    margin-bottom: 5px;
+  }
+  .subtitle {
+    color: #64748b;
+    font-size: 13px;
+    margin-bottom: 20px;
+  }
+  .card {
+    background: #fff;
+    padding: 20px;
+    border-radius: 20px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+    margin-bottom: 20px;
+  }
+  .card h2 {
+    margin: 0 0 10px 0;
+    font-size: 16px;
+    font-weight: 800;
+  }
+  .timeline {
+    list-style: none;
+    padding-left: 0;
+    margin-top: 10px;
+  }
+  .timeline li {
+    position: relative;
+    padding-left: 30px;
+    margin-bottom: 15px;
+    font-size: 14px;
+    color: #1e293b;
+  }
+  .timeline li::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 2px;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: #3b82f6;
+  }
+  .timeline li.done::before {
+    background: #10b981;
+  }
+  .timeline li span.time {
+    display: block;
+    font-size: 11px;
+    color: #64748b;
+    margin-top: 2px;
+  }
+  textarea {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #cbd5e1;
+    border-radius: 8px;
+    resize: vertical;
+    min-height: 60px;
+    margin-top: 8px;
+  }
+  .btn {
+    padding: 12px;
+    width: 100%;
+    border: none;
+    border-radius: 12px;
+    font-weight: 800;
+    cursor: pointer;
+    margin-top: 10px;
+    transition: 0.2s;
+  }
+  .btn-confirm {
+    background-color: #10b981;
+    color: white;
+  }
+  .btn-confirm:hover {
+    background-color: #059669;
+  }
+  .btn-disabled {
+    background-color: #9ca3af;
+    cursor: not-allowed;
+  }
 </style>
 </head>
 <body>
 
 <h1>Minhas Compras</h1>
-<p class="subtitle">Acompanhe suas compras, atualize informações e confirme recebimento.</p>
+<p class="subtitle">Acompanhe todas as etapas de suas compras em tempo real.</p>
 
 <div id="listaCompras">Carregando compras...</div>
 
@@ -32,7 +109,7 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/12.7.0/firebas
 import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-auth.js";
 import { getFirestore, collection, query, where, onSnapshot, doc, updateDoc } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-firestore.js";
 
-// ⚠️ SUBSTITUA COM SUA CONFIGURAÇÃO
+// 🔑 Configuração do Firebase
 const firebaseConfig = {
   apiKey: "AIzaSyBiN8FqX8UZeyAh1cG2GHZtQWiQH0xPBV4",
   authDomain: "rephone-a0a80.firebaseapp.com",
@@ -48,15 +125,15 @@ const auth = getAuth(app);
 
 const container = document.getElementById("listaCompras");
 
-onAuthStateChanged(auth, async (user) => {
+// 🔒 Garante que só usuários logados acessem
+onAuthStateChanged(auth, (user) => {
     if (!user) {
-        window.location.href = "login-cliente.html"; // página de login do comprador
+        window.location.href = "login-cliente.html";
         return;
     }
 
-    // Consulta todas as compras do usuário
+    // 🔄 Escuta compras do usuário em tempo real
     const q = query(collection(db, "compras"), where("compradorId", "==", user.uid));
-
     onSnapshot(q, (snap) => {
         if (snap.empty) {
             container.innerHTML = '<p>Nenhuma compra encontrada.</p>';
@@ -64,19 +141,38 @@ onAuthStateChanged(auth, async (user) => {
         }
 
         container.innerHTML = "";
-        snap.forEach(d => {
-            const c = d.data();
+
+        snap.forEach(docSnap => {
+            const c = docSnap.data();
             const card = document.createElement("div");
             card.className = "card";
 
-            card.innerHTML = `
-                <h2>${c.modelo || 'Aparelho'} - R$ ${(c.preco || 0).toLocaleString('pt-BR', {minimumFractionDigits:2})}</h2>
-                <p class="status">Status: ${c.status || 'Aguardando'}</p>
-                <p class="field">Data da compra: ${c.dataCompra?.toDate ? c.dataCompra.toDate().toLocaleString('pt-BR') : '---'}</p>
-                <p class="field">Forma de pagamento: ${c.formaPagamento || 'Não definida'}</p>
-                <p class="field">Forma de entrega: ${c.formaEntrega || 'Não definida'}</p>
-            `;
+            const precoFormatado = (c.preco || 0).toLocaleString('pt-BR', {minimumFractionDigits:2});
+            card.innerHTML = `<h2>${c.modelo || 'Aparelho'} - R$ ${precoFormatado}</h2>`;
 
+            const etapas = [
+                { nome: "Compra realizada", status: !!c.dataCompra, data: c.dataCompra },
+                { nome: "Contato com vendedor", status: !!c.contatoVendedor, data: c.contatoVendedor },
+                { nome: "Forma de pagamento definida", status: !!c.formaPagamento, data: c.dataPagamento },
+                { nome: "Forma de entrega definida", status: !!c.formaEntrega, data: c.dataEntrega },
+                { nome: "Entrega confirmada", status: !!c.confirmacaoComprador, data: c.dataConfirmacao },
+                { nome: "Negociação finalizada", status: !!c.confirmacaoComprador, data: c.dataConfirmacao }
+            ];
+
+            const ul = document.createElement("ul");
+            ul.className = "timeline";
+
+            etapas.forEach(etapa => {
+                const li = document.createElement("li");
+                if (etapa.status) li.classList.add("done");
+                li.innerHTML = etapa.nome;
+                if (etapa.data?.toDate) li.innerHTML += `<span class="time">${etapa.data.toDate().toLocaleString('pt-BR')}</span>`;
+                ul.appendChild(li);
+            });
+
+            card.appendChild(ul);
+
+            // ✅ Avaliação e confirmação de recebimento
             if (!c.confirmacaoComprador) {
                 const textarea = document.createElement("textarea");
                 textarea.placeholder = "Avaliação do vendedor (opcional)";
@@ -85,13 +181,14 @@ onAuthStateChanged(auth, async (user) => {
                 const btn = document.createElement("button");
                 btn.className = "btn btn-confirm";
                 btn.innerText = "Confirmar Recebimento";
+
                 btn.onclick = async () => {
                     btn.disabled = true;
                     btn.innerText = "Enviando...";
                     try {
-                        await updateDoc(doc(db, "compras", d.id), {
+                        await updateDoc(doc(db, "compras", docSnap.id), {
                             confirmacaoComprador: true,
-                            status: "Entregue",
+                            status: "entregue",
                             avaliacaoComprador: textarea.value,
                             dataConfirmacao: new Date()
                         });
@@ -114,6 +211,5 @@ onAuthStateChanged(auth, async (user) => {
     });
 });
 </script>
-
 </body>
 </html>
