@@ -7,6 +7,49 @@
 
 <link rel="stylesheet" href="assets/style.css">
 
+<style>
+.timeline {
+  border-left: 4px solid #0099FF;
+  padding-left: 14px;
+  margin: 10px 0;
+}
+
+.step {
+  margin-bottom: 18px;
+  padding-bottom: 10px;
+  border-bottom: 1px dashed #e2e8f0;
+}
+
+.step strong {
+  font-size: 14px;
+}
+
+.step small {
+  display: block;
+  color: #64748b;
+  margin-top: 3px;
+}
+
+.status-tag {
+  display: inline-block;
+  padding: 6px 10px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.ok { background:#10b98122; color:#059669; }
+.wait { background:#fffae6; color:#b45309; }
+.error { background:#fee2e2; color:#dc2626; }
+
+.box-option {
+  margin-top: 10px;
+  padding: 12px;
+  border-radius: 12px;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+}
+</style>
 </head>
 <body>
 
@@ -15,8 +58,8 @@
 
   <nav>
     <a href="index.html">Início</a>
-    <a href="#">Entrar</a>
-    <a href="#">Vender</a>
+    <a href="#">Minhas Compras</a>
+    <a href="#">Perfil</a>
   </nav>
 </header>
 
@@ -26,8 +69,102 @@
   <h1 class="page-title">Acompanhar Compra</h1>
   <p class="page-sub">Veja o andamento completo da sua negociação.</p>
 
+
+  <!-- CARD DO PRODUTO -->
   <div class="card">
-    Conteúdo da página aqui…
+    <h3>📱 iPhone 12 — 128GB</h3>
+    <p class="page-sub">Anúncio #982377 — vendedor: João Silva</p>
+  </div>
+
+
+
+  <!-- TIMELINE -->
+  <div class="card">
+    <h3 style="margin-bottom:10px;">Histórico da Negociação</h3>
+
+    <div class="timeline">
+
+      <div class="step">
+        <strong>Cliente acessou o anúncio</strong>
+        <span class="status-tag ok">Concluído</span>
+        <small>12/02/2026 — 14:22</small>
+      </div>
+
+      <div class="step">
+        <strong>Cliente entrou em contato com o vendedor</strong>
+        <span class="status-tag ok">Concluído</span>
+        <small>12/02/2026 — 14:24</small>
+      </div>
+
+      <div class="step">
+        <strong>Venda confirmada</strong>
+        <span class="status-tag wait">Aguardando vendedor</span>
+        <small>—</small>
+      </div>
+
+      <div class="step">
+        <strong>Forma de pagamento escolhida</strong>
+        <span class="status-tag wait">Aguardando comprador</span>
+
+        <div class="box-option">
+          <label>
+            <input type="radio" name="pagamento"> Pix
+          </label><br>
+
+          <label>
+            <input type="radio" name="pagamento"> Dinheiro
+          </label><br>
+
+          <label>
+            <input type="radio" name="pagamento"> Transferência bancária
+          </label>
+        </div>
+
+        <small>Selecione uma opção para registrar</small>
+      </div>
+
+
+      <div class="step">
+        <strong>Forma de entrega definida</strong>
+        <span class="status-tag wait">Aguardando comprador</span>
+
+        <div class="box-option">
+          <label>
+            <input type="radio" name="entrega"> Retirada em mãos
+          </label><br>
+
+          <label>
+            <input type="radio" name="entrega"> Entrega combinada
+          </label>
+        </div>
+
+        <small>Selecione uma opção para registrar</small>
+      </div>
+
+
+      <div class="step">
+        <strong>Confirmação de Recebimento</strong>
+        <span class="status-tag wait">Aguardando comprador</span>
+
+        <button class="btn-success" style="margin-top:10px;">
+          Confirmar que recebi o produto
+        </button>
+      </div>
+
+
+      <div class="step">
+        <strong>Avaliação do Vendedor</strong>
+        <span class="status-tag wait">Pendente</span>
+
+        <textarea style="width:100%; margin-top:10px; border-radius:12px; padding:10px; border:1px solid #cbd5e1;"
+        placeholder="Conte como foi a negociação..."></textarea>
+
+        <button class="btn-primary" style="margin-top:10px;">
+          Enviar avaliação
+        </button>
+      </div>
+
+    </div>
   </div>
 
 </div>
