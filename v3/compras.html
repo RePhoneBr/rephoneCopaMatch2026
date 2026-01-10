@@ -2,120 +2,104 @@
 <html lang="pt-br">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Minhas Compras | RePhone</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
 <style>
-:root {
-    --dark: #0f172a;
-    --green: #16a34a;
-    --blue: #2563eb;
-    --red: #ef4444;
-    --bg: #f8fafc;
-    --muted: #64748b;
-}
-* { margin:0; padding:0; box-sizing:border-box; font-family:'Inter', sans-serif; }
-body { background: var(--bg); color: var(--dark); padding: 20px 20px 120px 20px; }
-h1 { font-weight: 900; font-size: 26px; margin-bottom:5px; }
-.subtitle { color: var(--muted); font-size: 13px; margin-bottom:15px; }
-.card { background:white; border-radius:20px; padding:20px; margin-bottom:15px; border:1px solid #e2e8f0; box-shadow:0 4px 12px rgba(0,0,0,0.03); }
-.timeline-step { display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; font-size:13px; }
-.timeline-step span { font-weight:700; }
-.status { font-weight:900; font-size:14px; color: var(--blue); }
-textarea { width:100%; padding:10px; margin-top:10px; border-radius:12px; border:1px solid #cbd5e1; resize:vertical; min-height:60px; font-size:14px; }
-button { width:100%; padding:14px; border:none; border-radius:12px; font-weight:800; font-size:14px; background: var(--green); color:white; cursor:pointer; margin-top:10px; transition:0.2s; }
-button:hover { background: #059669; }
-button:disabled { background:#9ca3af; cursor:not-allowed; }
-.empty { text-align:center; color: var(--muted); font-size:14px; margin-top:20px; }
+body { font-family:'Inter',sans-serif; background:#f8fafc; padding:20px; color:#1e293b; }
+.card { background:white; padding:24px; border-radius:20px; box-shadow:0 4px 6px -1px rgb(0 0 0 / 0.1); max-width:600px; margin:0 auto 20px auto; }
+h2 { margin-top:0; }
+.status { font-weight:900; margin-bottom:10px; color:#3b82f6; }
+.timeline { font-size:14px; margin-top:10px; }
+.timeline div { margin-bottom:8px; }
+button { padding:12px; width:100%; border:none; border-radius:12px; font-weight:800; background-color:#10b981; color:white; cursor:pointer; transition:.2s; }
+button:hover { background-color:#059669; }
+button:disabled { background-color:#9ca3af; cursor:not-allowed; }
+textarea { width:100%; box-sizing:border-box; margin-top:10px; padding:10px; border:1px solid #cbd5e1; border-radius:8px; resize:vertical; min-height:80px; }
 </style>
 </head>
 <body>
 
-<h1>Minhas Compras</h1>
-<p class="subtitle">Acompanhe todas as suas compras e confirme recebimento.</p>
-
+<h2>Minhas Compras</h2>
 <div id="comprasContainer"></div>
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-app.js";
+import { getFirestore, collection, query, where, onSnapshot, doc, updateDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-firestore.js";
 import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-auth.js";
-import { getFirestore, collection, query, where, onSnapshot, updateDoc, doc } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-firestore.js";
 
-const firebaseConfig = {
-    apiKey: "SUA_API_KEY",
-    authDomain: "SEU_PROJETO.firebaseapp.com",
-    projectId: "SEU_PROJETO",
-    storageBucket: "SEU_PROJETO.appspot.com",
-    appId: "1:123456:web:xxxx"
+// 🔹 Firebase Config atualizado
+const firebaseConfig = { 
+    apiKey: "AIzaSyBiN8FqX8UZeyAh1cG2GHZtQWiQH0xPBV4", 
+    authDomain: "rephone-a0a80.firebaseapp.com", 
+    projectId: "rephone-a0a80", 
+    storageBucket: "rephone-a0a80.firebasestorage.app", 
+    messagingSenderId: "431497247030", 
+    appId: "1:431497247030:web:a943715e4acc04b8995b97"  
 };
 
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 const auth = getAuth(app);
+
 const container = document.getElementById("comprasContainer");
 
-onAuthStateChanged(auth, user => {
-    if(!user) return window.location.href = "login-cliente.html";
+onAuthStateChanged(auth, (user)=>{
+    if(!user) { window.location.href="login-cliente.html"; return; }
 
-    const q = query(collection(db, "compras"), where("clienteId", "==", user.uid));
+    const q = query(collection(db, "compras"), where("clienteId","==",user.uid));
 
-    onSnapshot(q, snap => {
+    onSnapshot(q, (snap)=>{
         container.innerHTML = "";
-        if(snap.empty){
-            container.innerHTML = '<div class="empty">Você ainda não realizou compras.</div>';
-            return;
-        }
+        if(snap.empty){ container.innerHTML="<p>Você ainda não realizou nenhuma compra.</p>"; return; }
 
-        snap.forEach(d => {
-            const compra = d.data();
-            const compraId = d.id;
-            const card = document.createElement('div');
-            card.className = "card";
+        snap.forEach(docSnap=>{
+            const data = docSnap.data();
+            const card = document.createElement("div");
+            card.className="card";
 
-            // Construção da timeline
-            let timelineHTML = `
-                <div class="timeline-step"><span>📦 Pedido realizado:</span> ${compra.dataPedido ? new Date(compra.dataPedido.seconds*1000).toLocaleString() : 'Aguardando'}</div>
-                <div class="timeline-step"><span>📲 Contato com vendedor:</span> ${compra.contatoVendedor ? new Date(compra.contatoVendedor.seconds*1000).toLocaleString() : 'Aguardando'}</div>
-                <div class="timeline-step"><span>💰 Forma de pagamento:</span> ${compra.pagamento || 'A definir'}</div>
-                <div class="timeline-step"><span>🚚 Forma de entrega:</span> ${compra.entrega || 'A definir'}</div>
+            const timeline = `
+                <div class="timeline">
+                    <div>📦 Produto: ${data.produto || '-'}</div>
+                    <div>💰 Valor: R$ ${Number(data.preco || 0).toLocaleString('pt-BR', {minimumFractionDigits:2})}</div>
+                    <div>📅 Data do pedido: ${data.dataCompra?.toDate ? data.dataCompra.toDate().toLocaleString('pt-BR') : '-'}</div>
+                    <div>💳 Forma de pagamento: ${data.pagamento || 'Aguardando'}</div>
+                    <div>🚚 Forma de entrega: ${data.entrega || 'Aguardando'}</div>
+                    <div>✅ Recebimento: ${data.confirmacaoComprador ? 'Confirmado' : 'Pendente'}</div>
+                    <div>📝 Avaliação: ${data.avaliacaoComprador || '-'}</div>
+                </div>
             `;
 
-            // Status final
-            let statusText = compra.confirmacaoComprador ? "✅ Compra Finalizada" : "⏳ Em andamento";
+            const btn = `<textarea id="avaliacao_${docSnap.id}" placeholder="Como foi sua experiência? (Opcional)"></textarea>
+                         <button id="btnConfirm_${docSnap.id}" ${data.confirmacaoComprador ? "disabled" : ""}>Confirmar Recebimento</button>`;
 
-            card.innerHTML = `
-                <div class="status">${statusText}</div>
-                ${timelineHTML}
-                ${!compra.confirmacaoComprador ? `<textarea placeholder="Avaliação do vendedor (opcional)" id="av-${compraId}">${compra.avaliacaoComprador || ''}</textarea>
-                <button onclick="confirmarCompra('${compraId}')">Confirmar Recebimento</button>` : `<div>⭐ Avaliação enviada: ${compra.avaliacaoComprador || 'Nenhuma'}</div>`}
-            `;
+            card.innerHTML = `<h3 class="status">${data.status || 'Em andamento'}</h3>${timeline}${btn}`;
             container.appendChild(card);
+
+            if(!data.confirmacaoComprador){
+                const btnEl = document.getElementById(`btnConfirm_${docSnap.id}`);
+                const textEl = document.getElementById(`avaliacao_${docSnap.id}`);
+
+                btnEl.addEventListener("click", async ()=>{
+                    btnEl.disabled=true;
+                    btnEl.innerText="Enviando...";
+                    try{
+                        await updateDoc(doc(db, "compras", docSnap.id), {
+                            confirmacaoComprador:true,
+                            avaliacaoComprador:textEl.value,
+                            status:"Entregue",
+                            dataConfirmacao:serverTimestamp()
+                        });
+                    }catch(e){
+                        alert("Erro ao confirmar. Tente novamente.");
+                        btnEl.disabled=false;
+                        btnEl.innerText="Confirmar Recebimento";
+                    }
+                });
+            }
         });
     });
 });
-
-// Função de confirmação
-window.confirmarCompra = async (id) => {
-    const textarea = document.getElementById(`av-${id}`);
-    const avaliacao = textarea ? textarea.value : '';
-    const btn = textarea ? textarea.nextElementSibling : null;
-
-    if(btn) { btn.disabled = true; btn.innerText = "Enviando..."; }
-
-    try{
-        await updateDoc(doc(db, "compras", id), {
-            confirmacaoComprador: true,
-            status: "Entregue",
-            avaliacaoComprador: avaliacao,
-            dataConfirmacao: new Date()
-        });
-        if(btn) btn.innerText = "Entrega confirmada";
-    } catch(e){
-        console.error(e);
-        alert("Erro ao confirmar recebimento.");
-        if(btn) { btn.disabled = false; btn.innerText = "Confirmar Recebimento"; }
-    }
-};
 </script>
 
 </body>
