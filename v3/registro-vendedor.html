@@ -1,3 +1,86 @@
+
+<!-- registro-vendedor.html -->
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Criar Conta | RePhone</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
+  <style>
+    /* CSS conforme já definido anteriormente */
+  </style>
+</head>
+<body>
+<div class="reg-card">
+  <h2>Comece a Vender</h2>
+  <p>Crie sua conta para publicar no Radar.</p>
+  
+  <label>E-mail</label>
+  <input type="email" id="email" placeholder="seu@email.com">
+  
+  <label>WhatsApp (com DDD)</label>
+  <input type="number" id="whatsapp" placeholder="Ex: 11999999999">
+  
+  <label>Senha</label>
+  <input type="password" id="pass" placeholder="Mínimo 6 caracteres">
+  
+  <button class="btn-reg" id="btnReg" onclick="registrar()">CRIAR MINHA CONTA</button>
+  
+  <div class="footer-links">
+    Já tem conta? <a href="vendedor-login.html">Fazer Login</a>
+  </div>
+</div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-app.js";
+import { getAuth, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-auth.js";
+import { getFirestore, doc, setDoc } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-firestore.js";
+
+const firebaseConfig = { 
+  apiKey: "...", authDomain: "...", projectId: "...", storageBucket: "...", appId: "..." 
+};
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
+
+window.registrar = async () => {
+  const email = document.getElementById('email').value;
+  const pass = document.getElementById('pass').value;
+  const zap = document.getElementById('whatsapp').value;
+  const btn = document.getElementById('btnReg');
+
+  if(!email || !pass || !zap) return alert("Preencha todos os campos.");
+  if(pass.length < 6) return alert("A senha deve ter pelo menos 6 caracteres.");
+  if(zap.length < 10) return alert("Digite um WhatsApp válido com DDD.");
+
+  btn.disabled = true;
+  btn.innerText = "CRIANDO CONTA...";
+
+  try {
+    const userCredential = await createUserWithEmailAndPassword(auth, email, pass);
+    const user = userCredential.user;
+
+    await setDoc(doc(db, "vendedores", user.uid), {
+      email: email,
+      whatsapp: zap,
+      tipo: "particular",
+      dataRegistro: new Date()
+    });
+
+    alert("Conta criada com sucesso!");
+    window.location.href = 'vendedor-anuncio.html';
+
+  } catch (e) {
+    console.error(e);
+    alert("Erro ao criar conta. Verifique se o e-mail já está em uso.");
+    btn.disabled = false;
+    btn.innerText = "CRIAR MINHA CONTA";
+  }
+};
+</script>
+</body>
+</html>
 <!-- registro-vendedor.html -->
 <!DOCTYPE html>
 <html lang="pt-BR">
