@@ -6,210 +6,117 @@
 <title>Minhas Compras | RePhone</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
 <style>
-  body {
-    font-family: 'Inter', sans-serif;
-    background: #f8fafc;
-    padding: 20px;
-    color: #1e293b;
-  }
-  h1 {
-    font-weight: 900;
-    font-size: 24px;
-    margin-bottom: 5px;
-  }
-  .subtitle {
-    color: #64748b;
-    font-size: 13px;
-    margin-bottom: 20px;
-  }
-  .card {
-    background: #fff;
-    padding: 20px;
-    border-radius: 20px;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
-    margin-bottom: 20px;
-  }
-  .card h2 {
-    margin: 0 0 10px 0;
-    font-size: 16px;
-    font-weight: 800;
-  }
-  .timeline {
-    list-style: none;
-    padding-left: 0;
-    margin-top: 10px;
-  }
-  .timeline li {
-    position: relative;
-    padding-left: 30px;
-    margin-bottom: 15px;
-    font-size: 14px;
-    color: #1e293b;
-  }
-  .timeline li::before {
-    content: "";
-    position: absolute;
-    left: 0;
-    top: 2px;
-    width: 12px;
-    height: 12px;
-    border-radius: 50%;
-    background: #3b82f6;
-  }
-  .timeline li.done::before {
-    background: #10b981;
-  }
-  .timeline li span.time {
-    display: block;
-    font-size: 11px;
-    color: #64748b;
-    margin-top: 2px;
-  }
-  textarea {
-    width: 100%;
-    padding: 10px;
-    border: 1px solid #cbd5e1;
-    border-radius: 8px;
-    resize: vertical;
-    min-height: 60px;
-    margin-top: 8px;
-  }
-  .btn {
-    padding: 12px;
-    width: 100%;
-    border: none;
-    border-radius: 12px;
-    font-weight: 800;
-    cursor: pointer;
-    margin-top: 10px;
-    transition: 0.2s;
-  }
-  .btn-confirm {
-    background-color: #10b981;
-    color: white;
-  }
-  .btn-confirm:hover {
-    background-color: #059669;
-  }
-  .btn-disabled {
-    background-color: #9ca3af;
-    cursor: not-allowed;
-  }
+:root {
+    --dark: #0f172a;
+    --green: #16a34a;
+    --blue: #2563eb;
+    --red: #ef4444;
+    --bg: #f8fafc;
+    --muted: #64748b;
+}
+* { margin:0; padding:0; box-sizing:border-box; font-family:'Inter', sans-serif; }
+body { background: var(--bg); color: var(--dark); padding: 20px 20px 120px 20px; }
+h1 { font-weight: 900; font-size: 26px; margin-bottom:5px; }
+.subtitle { color: var(--muted); font-size: 13px; margin-bottom:15px; }
+.card { background:white; border-radius:20px; padding:20px; margin-bottom:15px; border:1px solid #e2e8f0; box-shadow:0 4px 12px rgba(0,0,0,0.03); }
+.timeline-step { display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; font-size:13px; }
+.timeline-step span { font-weight:700; }
+.status { font-weight:900; font-size:14px; color: var(--blue); }
+textarea { width:100%; padding:10px; margin-top:10px; border-radius:12px; border:1px solid #cbd5e1; resize:vertical; min-height:60px; font-size:14px; }
+button { width:100%; padding:14px; border:none; border-radius:12px; font-weight:800; font-size:14px; background: var(--green); color:white; cursor:pointer; margin-top:10px; transition:0.2s; }
+button:hover { background: #059669; }
+button:disabled { background:#9ca3af; cursor:not-allowed; }
+.empty { text-align:center; color: var(--muted); font-size:14px; margin-top:20px; }
 </style>
 </head>
 <body>
 
 <h1>Minhas Compras</h1>
-<p class="subtitle">Acompanhe todas as etapas de suas compras em tempo real.</p>
+<p class="subtitle">Acompanhe todas as suas compras e confirme recebimento.</p>
 
-<div id="listaCompras">Carregando compras...</div>
+<div id="comprasContainer"></div>
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-app.js";
 import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-auth.js";
-import { getFirestore, collection, query, where, onSnapshot, doc, updateDoc } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-firestore.js";
+import { getFirestore, collection, query, where, onSnapshot, updateDoc, doc } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-firestore.js";
 
-// 🔑 Configuração do Firebase
 const firebaseConfig = {
-  apiKey: "AIzaSyBiN8FqX8UZeyAh1cG2GHZtQWiQH0xPBV4",
-  authDomain: "rephone-a0a80.firebaseapp.com",
-  projectId: "rephone-a0a80",
-  storageBucket: "rephone-a0a80.firebasestorage.app",
-  messagingSenderId: "431497247030",
-  appId: "1:431497247030:web:a943715e4acc04b8995b97"
+    apiKey: "SUA_API_KEY",
+    authDomain: "SEU_PROJETO.firebaseapp.com",
+    projectId: "SEU_PROJETO",
+    storageBucket: "SEU_PROJETO.appspot.com",
+    appId: "1:123456:web:xxxx"
 };
 
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 const auth = getAuth(app);
+const container = document.getElementById("comprasContainer");
 
-const container = document.getElementById("listaCompras");
+onAuthStateChanged(auth, user => {
+    if(!user) return window.location.href = "login-cliente.html";
 
-// 🔒 Garante que só usuários logados acessem
-onAuthStateChanged(auth, (user) => {
-    if (!user) {
-        window.location.href = "login-cliente.html";
-        return;
-    }
+    const q = query(collection(db, "compras"), where("clienteId", "==", user.uid));
 
-    // 🔄 Escuta compras do usuário em tempo real
-    const q = query(collection(db, "compras"), where("compradorId", "==", user.uid));
-    onSnapshot(q, (snap) => {
-        if (snap.empty) {
-            container.innerHTML = '<p>Nenhuma compra encontrada.</p>';
+    onSnapshot(q, snap => {
+        container.innerHTML = "";
+        if(snap.empty){
+            container.innerHTML = '<div class="empty">Você ainda não realizou compras.</div>';
             return;
         }
 
-        container.innerHTML = "";
-
-        snap.forEach(docSnap => {
-            const c = docSnap.data();
-            const card = document.createElement("div");
+        snap.forEach(d => {
+            const compra = d.data();
+            const compraId = d.id;
+            const card = document.createElement('div');
             card.className = "card";
 
-            const precoFormatado = (c.preco || 0).toLocaleString('pt-BR', {minimumFractionDigits:2});
-            card.innerHTML = `<h2>${c.modelo || 'Aparelho'} - R$ ${precoFormatado}</h2>`;
+            // Construção da timeline
+            let timelineHTML = `
+                <div class="timeline-step"><span>📦 Pedido realizado:</span> ${compra.dataPedido ? new Date(compra.dataPedido.seconds*1000).toLocaleString() : 'Aguardando'}</div>
+                <div class="timeline-step"><span>📲 Contato com vendedor:</span> ${compra.contatoVendedor ? new Date(compra.contatoVendedor.seconds*1000).toLocaleString() : 'Aguardando'}</div>
+                <div class="timeline-step"><span>💰 Forma de pagamento:</span> ${compra.pagamento || 'A definir'}</div>
+                <div class="timeline-step"><span>🚚 Forma de entrega:</span> ${compra.entrega || 'A definir'}</div>
+            `;
 
-            const etapas = [
-                { nome: "Compra realizada", status: !!c.dataCompra, data: c.dataCompra },
-                { nome: "Contato com vendedor", status: !!c.contatoVendedor, data: c.contatoVendedor },
-                { nome: "Forma de pagamento definida", status: !!c.formaPagamento, data: c.dataPagamento },
-                { nome: "Forma de entrega definida", status: !!c.formaEntrega, data: c.dataEntrega },
-                { nome: "Entrega confirmada", status: !!c.confirmacaoComprador, data: c.dataConfirmacao },
-                { nome: "Negociação finalizada", status: !!c.confirmacaoComprador, data: c.dataConfirmacao }
-            ];
+            // Status final
+            let statusText = compra.confirmacaoComprador ? "✅ Compra Finalizada" : "⏳ Em andamento";
 
-            const ul = document.createElement("ul");
-            ul.className = "timeline";
-
-            etapas.forEach(etapa => {
-                const li = document.createElement("li");
-                if (etapa.status) li.classList.add("done");
-                li.innerHTML = etapa.nome;
-                if (etapa.data?.toDate) li.innerHTML += `<span class="time">${etapa.data.toDate().toLocaleString('pt-BR')}</span>`;
-                ul.appendChild(li);
-            });
-
-            card.appendChild(ul);
-
-            // ✅ Avaliação e confirmação de recebimento
-            if (!c.confirmacaoComprador) {
-                const textarea = document.createElement("textarea");
-                textarea.placeholder = "Avaliação do vendedor (opcional)";
-                card.appendChild(textarea);
-
-                const btn = document.createElement("button");
-                btn.className = "btn btn-confirm";
-                btn.innerText = "Confirmar Recebimento";
-
-                btn.onclick = async () => {
-                    btn.disabled = true;
-                    btn.innerText = "Enviando...";
-                    try {
-                        await updateDoc(doc(db, "compras", docSnap.id), {
-                            confirmacaoComprador: true,
-                            status: "entregue",
-                            avaliacaoComprador: textarea.value,
-                            dataConfirmacao: new Date()
-                        });
-                    } catch (e) {
-                        alert("Erro ao confirmar: " + e.message);
-                        btn.disabled = false;
-                        btn.innerText = "Confirmar Recebimento";
-                    }
-                };
-                card.appendChild(btn);
-            } else {
-                const msg = document.createElement("p");
-                msg.style.fontWeight = "700";
-                msg.innerText = "✅ Compra finalizada";
-                card.appendChild(msg);
-            }
-
+            card.innerHTML = `
+                <div class="status">${statusText}</div>
+                ${timelineHTML}
+                ${!compra.confirmacaoComprador ? `<textarea placeholder="Avaliação do vendedor (opcional)" id="av-${compraId}">${compra.avaliacaoComprador || ''}</textarea>
+                <button onclick="confirmarCompra('${compraId}')">Confirmar Recebimento</button>` : `<div>⭐ Avaliação enviada: ${compra.avaliacaoComprador || 'Nenhuma'}</div>`}
+            `;
             container.appendChild(card);
         });
     });
 });
+
+// Função de confirmação
+window.confirmarCompra = async (id) => {
+    const textarea = document.getElementById(`av-${id}`);
+    const avaliacao = textarea ? textarea.value : '';
+    const btn = textarea ? textarea.nextElementSibling : null;
+
+    if(btn) { btn.disabled = true; btn.innerText = "Enviando..."; }
+
+    try{
+        await updateDoc(doc(db, "compras", id), {
+            confirmacaoComprador: true,
+            status: "Entregue",
+            avaliacaoComprador: avaliacao,
+            dataConfirmacao: new Date()
+        });
+        if(btn) btn.innerText = "Entrega confirmada";
+    } catch(e){
+        console.error(e);
+        alert("Erro ao confirmar recebimento.");
+        if(btn) { btn.disabled = false; btn.innerText = "Confirmar Recebimento"; }
+    }
+};
 </script>
+
 </body>
 </html>
