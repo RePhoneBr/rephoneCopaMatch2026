@@ -2,177 +2,192 @@
 <html lang="pt-br">
 <head>
 <meta charset="UTF-8">
-<title>Acompanhar Compra | RePhone</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-<link rel="stylesheet" href="assets/style.css">
-
+<title>Minhas Compras | RePhone</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
 <style>
-.timeline {
-  border-left: 4px solid #0099FF;
-  padding-left: 14px;
-  margin: 10px 0;
-}
+body { font-family: 'Inter', sans-serif; background:#f8fafc; padding:20px; color: #1e293b; }
+h1 { text-align:center; margin-bottom:20px; font-size:1.6rem; font-weight:900; }
+.compra-card { background:#fff; padding:20px; border-radius:20px; box-shadow:0 4px 6px rgba(0,0,0,0.1); margin-bottom:20px; }
+.compra-card h2 { font-size:1.2rem; margin-top:0; font-weight:900; }
+.status { font-weight:900; margin-bottom:15px; font-size: 1rem; color:#3b82f6; }
+.timeline { list-style:none; padding:0; margin:0 0 15px 0; }
+.timeline li { margin-bottom:10px; background:#f1f5f9; padding:8px 12px; border-radius:12px; display:flex; justify-content:space-between; font-size:0.9rem; }
+.timeline li span { font-weight:700; color:#64748b; font-size:0.8rem; }
 
-.step {
-  margin-bottom: 18px;
-  padding-bottom: 10px;
-  border-bottom: 1px dashed #e2e8f0;
+button { 
+    padding:10px; width:100%; border:none; border-radius:12px; font-weight:800; 
+    background-color: #10b981; color: white; cursor: pointer; transition:0.2s; margin-bottom:10px;
 }
+button:hover { background-color:#059669; }
+button:disabled { background-color:#9ca3af; cursor:not-allowed; }
 
-.step strong {
-  font-size: 14px;
-}
+textarea { width:100%; box-sizing:border-box; margin-top:8px; padding: 8px; border:1px solid #cbd5e1; border-radius:8px; resize:vertical; min-height:60px; margin-bottom:10px; }
 
-.step small {
-  display: block;
-  color: #64748b;
-  margin-top: 3px;
-}
-
-.status-tag {
-  display: inline-block;
-  padding: 6px 10px;
-  border-radius: 12px;
-  font-size: 12px;
-  font-weight: 800;
-}
-
-.ok { background:#10b98122; color:#059669; }
-.wait { background:#fffae6; color:#b45309; }
-.error { background:#fee2e2; color:#dc2626; }
-
-.box-option {
-  margin-top: 10px;
-  padding: 12px;
-  border-radius: 12px;
-  background: #f8fafc;
-  border: 1px solid #e2e8f0;
-}
+.btn-group { display:flex; gap:10px; flex-wrap:wrap; margin-bottom:10px; }
+.btn-group button { flex:1; padding:8px; font-size:0.85rem; }
 </style>
 </head>
 <body>
 
-<header>
-  <div class="logo">RePhone</div>
+<h1>Minhas Compras</h1>
+<div id="comprasContainer"></div>
 
-  <nav>
-    <a href="index.html">Início</a>
-    <a href="#">Minhas Compras</a>
-    <a href="#">Perfil</a>
-  </nav>
-</header>
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-app.js";
+import { getFirestore, collection, query, where, onSnapshot, updateDoc, doc, serverTimestamp } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-firestore.js";
+import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-auth.js";
 
+// 🔹 CONFIG FIREBASE
+const firebaseConfig = {
+  apiKey: "SUA_API_KEY",
+  authDomain: "SEU_PROJETO.firebaseapp.com",
+  projectId: "SEU_PROJETO",
+  storageBucket: "SEU_PROJETO.appspot.com",
+  messagingSenderId: "123456",
+  appId: "1:123456:web:xxxxx"
+};
 
-<div class="container">
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+const auth = getAuth(app);
 
-  <h1 class="page-title">Acompanhar Compra</h1>
-  <p class="page-sub">Veja o andamento completo da sua negociação.</p>
+const container = document.getElementById("comprasContainer");
 
+// 🔹 Verifica login
+onAuthStateChanged(auth, user => {
+    if (!user) {
+        alert("Faça login para acessar suas compras.");
+        window.location.href = "login-cliente.html";
+        return;
+    }
 
-  <!-- CARD DO PRODUTO -->
-  <div class="card">
-    <h3>📱 iPhone 12 — 128GB</h3>
-    <p class="page-sub">Anúncio #982377 — vendedor: João Silva</p>
-  </div>
+    const comprasQuery = query(collection(db, "compras"), where("clienteId","==",user.uid));
 
+    onSnapshot(comprasQuery, snap => {
+        container.innerHTML = '';
+        if (snap.empty) {
+            container.innerHTML = '<p>Você ainda não tem compras registradas.</p>';
+            return;
+        }
 
+        snap.forEach(docSnap => {
+            const dados = docSnap.data();
+            const compraId = docSnap.id;
 
-  <!-- TIMELINE -->
-  <div class="card">
-    <h3 style="margin-bottom:10px;">Histórico da Negociação</h3>
+            // Cria card da compra
+            const card = document.createElement("div");
+            card.className = "compra-card";
 
-    <div class="timeline">
+            // Status geral
+            let statusTexto = "📦 Aguardando atualização";
+            if (dados.confirmacaoRecebimento) statusTexto = "✅ Compra finalizada";
+            else if (dados.statusGeral) statusTexto = `📦 Status: ${dados.statusGeral}`;
 
-      <div class="step">
-        <strong>Cliente acessou o anúncio</strong>
-        <span class="status-tag ok">Concluído</span>
-        <small>12/02/2026 — 14:22</small>
-      </div>
+            card.innerHTML = `
+                <h2>${dados.produto || 'Produto não informado'}</h2>
+                <p class="status">${statusTexto}</p>
+                <ul class="timeline" id="timeline-${compraId}"></ul>
+                <div id="pagamento-${compraId}">
+                    <h3>Forma de Pagamento</h3>
+                    <div class="btn-group">
+                        <button onclick="marcarPagamento('${compraId}','PIX')">PIX</button>
+                        <button onclick="marcarPagamento('${compraId}','Cartão')">Cartão</button>
+                        <button onclick="marcarPagamento('${compraId}','Boleto')">Boleto</button>
+                    </div>
+                </div>
+                <div id="entrega-${compraId}">
+                    <h3>Forma de Entrega</h3>
+                    <div class="btn-group">
+                        <button onclick="marcarEntrega('${compraId}','Retirada')">Retirada</button>
+                        <button onclick="marcarEntrega('${compraId}','Entrega')">Entrega</button>
+                    </div>
+                </div>
+                <button id="btnConfirmar-${compraId}">Confirmar Recebimento</button>
+                <textarea id="avaliacao-${compraId}" placeholder="Avalie o vendedor"></textarea>
+                <button onclick="avaliarVendedor('${compraId}')">Enviar Avaliação</button>
+            `;
 
-      <div class="step">
-        <strong>Cliente entrou em contato com o vendedor</strong>
-        <span class="status-tag ok">Concluído</span>
-        <small>12/02/2026 — 14:24</small>
-      </div>
+            container.appendChild(card);
 
-      <div class="step">
-        <strong>Venda confirmada</strong>
-        <span class="status-tag wait">Aguardando vendedor</span>
-        <small>—</small>
-      </div>
+            // Timeline em tempo real para cada compra
+            const timelineEl = document.getElementById(`timeline-${compraId}`);
+            const compraRef = doc(db, "compras", compraId);
+            onSnapshot(compraRef, snap => {
+                const data = snap.data();
+                timelineEl.innerHTML = '';
+                if (data.timeline?.length) {
+                    data.timeline.forEach(ev => {
+                        const li = document.createElement('li');
+                        const date = new Date(ev.data).toLocaleString('pt-BR');
+                        li.innerHTML = `${ev.evento} <span>${date}</span>`;
+                        timelineEl.appendChild(li);
+                    });
+                }
 
-      <div class="step">
-        <strong>Forma de pagamento escolhida</strong>
-        <span class="status-tag wait">Aguardando comprador</span>
+                // Desativa botão se já confirmado
+                const btnConf = document.getElementById(`btnConfirmar-${compraId}`);
+                const pagEl = document.getElementById(`pagamento-${compraId}`);
+                const entEl = document.getElementById(`entrega-${compraId}`);
+                const avEl = document.getElementById(`avaliacao-${compraId}`);
+                if (data.confirmacaoRecebimento) {
+                    btnConf.innerText = "Entrega já confirmada";
+                    btnConf.disabled = true;
+                    pagEl.style.display = 'none';
+                    entEl.style.display = 'none';
+                    avEl.style.display = 'none';
+                } else {
+                    btnConf.onclick = async () => {
+                        const snap2 = await doc(db,"compras",compraId).get();
+                        const timeline = data.timeline || [];
+                        await updateDoc(compraRef,{
+                            confirmacaoRecebimento:true,
+                            statusGeral:"finalizado",
+                            timeline:[...timeline,{evento:"Comprador confirmou recebimento",data:Date.now()}]
+                        });
+                        alert("Entrega confirmada!");
+                    }
+                }
+            });
+        });
+    });
+});
 
-        <div class="box-option">
-          <label>
-            <input type="radio" name="pagamento"> Pix
-          </label><br>
+// 🔹 Funções globais
+window.marcarPagamento = async (compraId,tipo) => {
+    const compraRef = doc(db,"compras",compraId);
+    const snap = await getDoc(compraRef);
+    const timeline = snap.data().timeline || [];
+    await updateDoc(compraRef,{
+        pagamento:{escolhido:true,tipo},
+        timeline:[...timeline,{evento:`Pagamento escolhido: ${tipo}`,data:Date.now()}]
+    });
+}
 
-          <label>
-            <input type="radio" name="pagamento"> Dinheiro
-          </label><br>
+window.marcarEntrega = async (compraId,tipo) => {
+    const compraRef = doc(db,"compras",compraId);
+    const snap = await getDoc(compraRef);
+    const timeline = snap.data().timeline || [];
+    await updateDoc(compraRef,{
+        entrega:{definida:true,tipo},
+        timeline:[...timeline,{evento:`Entrega escolhida: ${tipo}`,data:Date.now()}]
+    });
+}
 
-          <label>
-            <input type="radio" name="pagamento"> Transferência bancária
-          </label>
-        </div>
-
-        <small>Selecione uma opção para registrar</small>
-      </div>
-
-
-      <div class="step">
-        <strong>Forma de entrega definida</strong>
-        <span class="status-tag wait">Aguardando comprador</span>
-
-        <div class="box-option">
-          <label>
-            <input type="radio" name="entrega"> Retirada em mãos
-          </label><br>
-
-          <label>
-            <input type="radio" name="entrega"> Entrega combinada
-          </label>
-        </div>
-
-        <small>Selecione uma opção para registrar</small>
-      </div>
-
-
-      <div class="step">
-        <strong>Confirmação de Recebimento</strong>
-        <span class="status-tag wait">Aguardando comprador</span>
-
-        <button class="btn-success" style="margin-top:10px;">
-          Confirmar que recebi o produto
-        </button>
-      </div>
-
-
-      <div class="step">
-        <strong>Avaliação do Vendedor</strong>
-        <span class="status-tag wait">Pendente</span>
-
-        <textarea style="width:100%; margin-top:10px; border-radius:12px; padding:10px; border:1px solid #cbd5e1;"
-        placeholder="Conte como foi a negociação..."></textarea>
-
-        <button class="btn-primary" style="margin-top:10px;">
-          Enviar avaliação
-        </button>
-      </div>
-
-    </div>
-  </div>
-
-</div>
-
-
-<footer>
-  RePhone — Conectando compradores e vendedores com segurança.
-</footer>
-
+window.avaliarVendedor = async (compraId) => {
+    const textoEl = document.getElementById(`avaliacao-${compraId}`);
+    const texto = textoEl.value;
+    if (!texto) return alert("Digite sua avaliação");
+    const compraRef = doc(db,"compras",compraId);
+    const snap = await getDoc(compraRef);
+    const timeline = snap.data().timeline || [];
+    await updateDoc(compraRef,{
+        avaliacaoComprador:texto,
+        timeline:[...timeline,{evento:"Comprador avaliou vendedor",data:Date.now()}]
+    });
+    alert("Avaliação enviada!");
+    textoEl.value = "";
+}
+</script>
 </body>
 </html>
