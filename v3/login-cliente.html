@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Login Cliente | RePhone</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
+<style>
+:root { --dark: #0f172a; --green: #16a34a; --bg: #f8fafc; --border: #e2e8f0; }
+* { box-sizing: border-box; font-family: 'Inter', sans-serif; margin: 0; padding: 0; }
+body { background: var(--bg); display: flex; align-items: center; justify-content: center; min-height: 100vh; padding: 20px; }
+.login-card { background: white; padding: 35px 25px; border-radius: 30px; width: 100%; max-width: 400px; box-shadow: 0 20px 40px rgba(0,0,0,0.04); text-align: center; border: 1px solid var(--border); }
+.logo { font-weight: 900; font-size: 28px; color: var(--dark); margin-bottom: 5px; }
+.logo span { color: var(--green); }
+h2 { font-size: 16px; color: #64748b; margin-bottom: 25px; font-weight: 400; }
+label { display: block; text-align: left; font-size: 11px; font-weight: 800; color: #94a3b8; text-transform: uppercase; margin-bottom: 5px; margin-left: 5px; }
+input { width: 100%; padding: 15px; margin-bottom: 15px; border-radius: 12px; border: 1px solid var(--border); background: #fdfdfd; outline: none; font-size: 15px; transition: 0.2s; }
+input:focus { border-color: var(--green); box-shadow: 0 0 0 4px rgba(22, 163, 74, 0.05); }
+.btn-login { width: 100%; background: var(--dark); color: white; border: none; padding: 16px; border-radius: 15px; font-weight: 800; font-size: 15px; cursor: pointer; margin-top: 10px; transition: 0.3s; }
+.btn-login:hover { transform: translateY(-2px); box-shadow: 0 10px 20px rgba(15, 23, 42, 0.15); }
+.btn-login:active { transform: translateY(0); }
+.links-footer { margin-top: 25px; font-size: 13px; color: #64748b; }
+.links-footer a { color: var(--dark); font-weight: 700; text-decoration: none; }
+.btn-voltar-index { display: block; margin-top: 20px; font-size: 12px; color: #94a3b8; text-decoration: none; }
+</style>
+</head>
+<body>
+
+<div class="login-card">
+    <div class="logo">Re<span>Phone</span></div>
+    <h2>Painel do Cliente</h2>
+    
+    <form id="loginForm">
+        <label>E-mail</label>
+        <input type="email" id="email" placeholder="seu@email.com" required>
+        <label>Senha</label>
+        <input type="password" id="pass" placeholder="••••••••" required>
+        <button type="submit" id="btnEntrar" class="btn-login">ENTRAR</button>
+    </form>
+
+    <div class="links-footer">
+        Ainda não tem conta? <br>
+        <a href="registro-cliente.html">Criar Conta</a>
+    </div>
+
+    <a href="index.html" class="btn-voltar-index">← Voltar ao Radar Público</a>
+</div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-app.js";
+import { getAuth, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-auth.js";
+
+const firebaseConfig = { 
+    apiKey: "SUA_API_KEY", 
+    authDomain: "SEU_PROJETO.firebaseapp.com", 
+    projectId: "SEU_PROJETO", 
+    storageBucket: "SEU_PROJETO.appspot.com", 
+    appId: "1:123456:web:xxxx" 
+};
+
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+
+document.getElementById('loginForm').onsubmit = async (e) => {
+    e.preventDefault();
+    const btn = document.getElementById('btnEntrar');
+    const email = document.getElementById('email').value;
+    const pass = document.getElementById('pass').value;
+
+    btn.innerText = "VERIFICANDO...";
+    btn.disabled = true;
+
+    try {
+        await signInWithEmailAndPassword(auth, email, pass);
+        window.location.href = "compras.html";
+    } catch (error) {
+        console.error(error);
+        let msg = "Erro ao entrar. Verifique e-mail e senha.";
+        if (error.code === 'auth/user-not-found') msg = "E-mail não cadastrado.";
+        if (error.code === 'auth/wrong-password') msg = "Senha incorreta.";
+        alert(msg);
+        btn.innerText = "ENTRAR";
+        btn.disabled = false;
+    }
+};
+</script>
+</body>
+</html>
