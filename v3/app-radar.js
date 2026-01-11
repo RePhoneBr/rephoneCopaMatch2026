@@ -44,25 +44,7 @@ window.buscarManual = () => {
     renderizar(filtrados);
 };
 
-// --- AUTH OBSERVER ---
-onAuthStateChanged(auth, async (user) => {
-    usuarioLogado = user;
-    const menuGuest = document.getElementById('menuGuest');
-    const menuLogged = document.getElementById('menuLogged');
-    const greeting = document.getElementById('greeting');
-
-    if (user) {
-        if(menuGuest) menuGuest.style.display = 'none';
-        if(menuLogged) menuLogged.style.display = 'flex';
-        try {
-            const vDoc = await getDoc(doc(db, "vendedores", user.uid));
-            if(vDoc.exists() && greeting) greeting.innerText = "OLÁ, " + (vDoc.data().nome?.split(' ')[0].toUpperCase() || 'USUÁRIO');
-        } catch(e) {}
-    } else {
-        if(menuGuest) menuGuest.style.display = 'flex';
-        if(menuLogged) menuLogged.style.display = 'none';
-    }
-});// --- AUTH OBSERVER (CORREÇÃO DO LOOP DE REDIRECIONAMENTO) ---
+// --- AUTH OBSERVER (VERSÃO UNIFICADA COM REDIRECIONAMENTO) ---
 onAuthStateChanged(auth, async (user) => {
     usuarioLogado = user;
     const menuGuest = document.getElementById('menuGuest');
@@ -73,13 +55,12 @@ onAuthStateChanged(auth, async (user) => {
         if(menuGuest) menuGuest.style.display = 'none';
         if(menuLogged) menuLogged.style.display = 'flex';
         
-        // Verifica se o usuário acabou de logar e precisa ser mandado para compras ou anúncio
         const urlParams = new URLSearchParams(window.location.search);
         const returnId = urlParams.get('returnId');
         const goto = urlParams.get('goto');
 
         if (goto === 'compras') {
-            window.location.href = 'compras.html';
+            window.location.href = 'minhas-compras.html'; // Certifique-se que o nome do arquivo é este
         } else if (returnId) {
             window.location.href = `anuncio.html?id=${returnId}`;
         }
@@ -94,7 +75,39 @@ onAuthStateChanged(auth, async (user) => {
     }
 });
 
-// --- RENDERIZAR CARDS (CORREÇÃO DOS CAMPOS FALTANTES) ---
+// --- LOCALIZAÇÃO ---
+navigator.geolocation.getCurrentPosition((pos) => {
+    userLat = pos.coords.latitude; 
+    userLng = pos.coords.longitude;
+    fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${userLat}&lon=${userLng}`)
+        .then(r => r.json()).then(data => {
+            const cidade = data.address.city || data.address.town || data.address.village || "Sua Região";
+            const locTxt = document.getElementById('txtLocation');
+            if(locTxt) locTxt.innerHTML = `📍 Ofertas em <strong>${cidade}</strong>`;
+            renderizar(todosAnuncios);
+        });
+}, () => {
+    console.log("GPS negado ou indisponível.");
+}, { timeout: 10000 });
+
+// --- CÁLCULO DISTÂNCIA ---
+function calcularDistancia(lat1, lon1, lat2, lon2) {
+    const R = 6371;
+    const dLat = (lat2 - lat1) * Math.PI / 180;
+    const dLon = (lon2 - lon1) * Math.PI / 180;
+    const a = Math.sin(dLat/2) * Math.sin(dLat/2) + Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) * Math.sin(dLon/2) * Math.sin(dLon/2);
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+    return (R * c).toFixed(1);
+}
+
+// --- DADOS ---
+onSnapshot(collection(db, "anuncios"), (snap) => {
+    todosAnuncios = snap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+    const ativos = todosAnuncios.filter(ad => (ad.status === "aprovado" || ad.statusAnuncio === "aprovado"));
+    renderizar(ativos);
+});
+
+// --- RENDERIZAR CARDS (VERSÃO FINAL COM TODAS AS INFOS) ---
 function renderizar(lista) {
     const grid = document.getElementById('radarGrid');
     if(!grid) return;
@@ -104,7 +117,6 @@ function renderizar(lista) {
         const isVendido = ad.statusVenda === "vendido" || ad.statusVenda === "entregue";
         const precoNum = parseFloat(ad.preco) || 0;
         
-        // Lógica de Localização e Distância
         let distHtml = "";
         let locMetodo = ad.coords?.metodo === "gps" ? "Confirmada" : "Aproximada";
         
@@ -136,68 +148,6 @@ function renderizar(lista) {
                 <div class="price-tag" style="background:${isVendido ? '#94a3b8' : ''}; margin-top: 8px;">
                     R$ ${precoNum.toLocaleString('pt-br', {minimumFractionDigits:2})}
                 </div>
-            </a>`;
-        grid.appendChild(card);
-    });
-}
-
-// --- LOCALIZAÇÃO ---
-navigator.geolocation.getCurrentPosition((pos) => {
-    userLat = pos.coords.latitude; userLng = pos.coords.longitude;
-    fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${userLat}&lon=${userLng}`)
-        .then(r => r.json()).then(data => {
-            const cidade = data.address.city || data.address.town || data.address.village || "Sua Região";
-            document.getElementById('txtLocation').innerHTML = `📍 Ofertas em <strong>${cidade}</strong>`;
-            renderizar(todosAnuncios);
-        });
-}, () => {}, { timeout: 10000 });
-
-// --- CÁLCULO DISTÂNCIA ---
-function calcularDistancia(lat1, lon1, lat2, lon2) {
-    const R = 6371;
-    const dLat = (lat2 - lat1) * Math.PI / 180;
-    const dLon = (lon2 - lon1) * Math.PI / 180;
-    const a = Math.sin(dLat/2) * Math.sin(dLat/2) + Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) * Math.sin(dLon/2) * Math.sin(dLon/2);
-    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
-    return (R * c).toFixed(1);
-}
-
-// --- DADOS ---
-onSnapshot(collection(db, "anuncios"), (snap) => {
-    todosAnuncios = snap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-    const ativos = todosAnuncios.filter(ad => (ad.status === "aprovado" || ad.statusAnuncio === "aprovado"));
-    renderizar(ativos);
-});
-
-function renderizar(lista) {
-    const grid = document.getElementById('radarGrid');
-    if(!grid) return;
-    grid.innerHTML = "";
-    
-    lista.forEach(ad => {
-        const isVendido = ad.statusVenda === "vendido" || ad.statusVenda === "entregue";
-        const precoNum = parseFloat(ad.preco) || 0;
-        let distHtml = "";
-        
-        if (userLat && ad.coords?.lat) {
-            const d = calcularDistancia(userLat, userLng, ad.coords.lat, ad.coords.lon);
-            if (!isNaN(d)) distHtml = ` • ${d}km`;
-        }
-
-        const card = document.createElement('div');
-        card.className = 'card';
-        card.innerHTML = `
-            <a href="anuncio.html?id=${ad.id}" style="text-decoration:none; color:inherit;">
-                <div class="img-container">
-                    ${isVendido ? '<div class="badge-vendido">VENDIDO</div>' : ''}
-                    <img src="${ad.fotos?.[0] || ''}" style="filter:${isVendido ? 'grayscale(1)' : 'none'}">
-                </div>
-                <div class="tags-row">
-                    <span class="tag-vendedor ${ad.vendedorTipo === 'lojista' ? 'tag-loj' : 'tag-part'}">${ad.vendedorTipo || 'Particular'}</span>
-                </div>
-                <h3>${ad.modelo}</h3>
-                <div class="location-info">📍 ${ad.cidade || 'Região'} ${distHtml}</div>
-                <div class="price-tag" style="background:${isVendido ? '#94a3b8' : ''}">R$ ${precoNum.toLocaleString('pt-br', {minimumFractionDigits:2})}</div>
             </a>`;
         grid.appendChild(card);
     });
