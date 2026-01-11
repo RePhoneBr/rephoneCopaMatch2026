@@ -67,11 +67,23 @@
     const auth = getAuth(app);
     const provider = new GoogleAuthProvider();
 
+    // FUNÇÃO PARA DIRECIONAR O USUÁRIO
+    function redirecionarAposLogin() {
+        const urlParams = new URLSearchParams(window.location.search);
+        const returnId = urlParams.get('returnId'); // Verifica se veio de um anúncio
+
+        if (returnId) {
+            window.location.href = `anuncio.html?id=${returnId}`;
+        } else {
+            window.location.href = 'index.html';
+        }
+    }
+
     // Login com Google
     document.getElementById('btnGoogle').onclick = async () => {
         try {
             await signInWithPopup(auth, provider);
-            window.location.href = 'index.html'; // Volta para a home para negociar
+            redirecionarAposLogin();
         } catch (e) {
             alert("Erro ao entrar com Google: " + e.message);
         }
@@ -79,12 +91,12 @@
 
     // Login com E-mail
     document.getElementById('btnLogin').onclick = async () => {
-        const email = document.getElementById('email').value;
+        const email = document.getElementById('email').value.trim();
         const pass = document.getElementById('pass').value;
 
         try {
             await signInWithEmailAndPassword(auth, email, pass);
-            window.location.href = 'index.html';
+            redirecionarAposLogin();
         } catch (e) {
             alert("E-mail ou senha incorretos.");
         }
