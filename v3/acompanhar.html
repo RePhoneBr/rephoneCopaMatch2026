@@ -2,44 +2,50 @@
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Minhas Compras | RePhone</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800;900&display=swap" rel="stylesheet">
     <style>
         :root { --dark: #0f172a; --green: #16a34a; --blue: #3b82f6; --bg: #f8fafc; --muted: #64748b; }
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; -webkit-tap-highlight-color: transparent; }
         body { background: var(--bg); color: var(--dark); padding-bottom: 40px; }
 
-        .header { background: var(--dark); color: white; padding: 30px 20px; border-radius: 0 0 25px 25px; margin-bottom: 25px; }
-        .header h1 { font-weight: 900; font-size: 24px; }
-        .header p { font-size: 13px; opacity: 0.8; margin-top: 5px; }
+        .header { background: var(--dark); color: white; padding: 35px 20px; border-radius: 0 0 30px 30px; margin-bottom: 25px; box-shadow: 0 4px 20px rgba(0,0,0,0.1); }
+        .header h1 { font-weight: 900; font-size: 26px; letter-spacing: -1px; }
+        .header p { font-size: 14px; opacity: 0.8; margin-top: 5px; }
 
         .container { padding: 0 20px; max-width: 600px; margin: 0 auto; }
 
-        .card { background: white; padding: 20px; border-radius: 20px; border: 1px solid #e2e8f0; margin-bottom: 20px; transition: 0.3s; }
-        .status-badge { display: inline-block; padding: 6px 12px; border-radius: 10px; font-size: 11px; font-weight: 800; text-transform: uppercase; margin-bottom: 15px; }
+        .card { background: white; padding: 20px; border-radius: 24px; border: 1px solid #e2e8f0; margin-bottom: 20px; position: relative; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); }
+        .card.finalizado { opacity: 0.8; background: #fcfcfc; }
+
+        .status-badge { display: inline-block; padding: 6px 14px; border-radius: 12px; font-size: 11px; font-weight: 900; text-transform: uppercase; margin-bottom: 15px; letter-spacing: 0.5px; }
         .status-aguardando { background: #dbeafe; color: #1e40af; }
         .status-entregue { background: #dcfce7; color: #166534; }
 
-        .info-row { display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 14px; }
-        .info-row span:first-child { color: var(--muted); font-weight: 600; }
+        .product-name { font-size: 18px; font-weight: 800; margin-bottom: 15px; display: block; color: var(--dark); border-bottom: 2px solid #f1f5f9; padding-bottom: 12px; }
+
+        .info-row { display: flex; justify-content: space-between; margin-bottom: 10px; font-size: 14px; }
+        .info-row span:first-child { color: var(--muted); font-weight: 500; }
         .info-row span:last-child { color: var(--dark); font-weight: 700; }
-
-        .product-name { font-size: 18px; font-weight: 800; margin-bottom: 15px; display: block; border-bottom: 1px solid #f1f5f9; padding-bottom: 10px; }
-
-        textarea { width: 100%; padding: 12px; border: 1px solid #e2e8f0; border-radius: 12px; font-size: 14px; margin: 15px 0; outline: none; background: #f8fafc; }
         
-        .btn-confirm { width: 100%; padding: 16px; border: none; border-radius: 15px; background: var(--green); color: white; font-weight: 800; font-size: 15px; cursor: pointer; box-shadow: 0 4px 12px rgba(22, 163, 74, 0.2); }
-        .btn-confirm:disabled { background: #cbd5e1; box-shadow: none; }
+        .whatsapp-link { color: var(--blue) !important; text-decoration: none; }
 
-        #loading { text-align: center; padding: 40px; color: var(--muted); font-weight: 600; }
+        textarea { width: 100%; padding: 14px; border: 1px solid #e2e8f0; border-radius: 16px; font-size: 14px; margin: 15px 0; outline: none; background: #f8fafc; resize: none; transition: 0.3s; }
+        textarea:focus { border-color: var(--blue); background: white; box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1); }
+        
+        .btn-confirm { width: 100%; padding: 18px; border: none; border-radius: 18px; background: var(--green); color: white; font-weight: 800; font-size: 15px; cursor: pointer; transition: 0.3s; display: flex; align-items: center; justify-content: center; gap: 8px; }
+        .btn-confirm:active { transform: scale(0.98); }
+        .btn-confirm:disabled { background: #cbd5e1; cursor: not-allowed; }
+
+        #loading { text-align: center; padding: 60px 20px; color: var(--muted); font-weight: 600; }
     </style>
 </head>
 <body>
 
     <div class="header">
         <h1>Minhas Compras</h1>
-        <p>Acompanhe o status e confirme o recebimento.</p>
+        <p>Gerencie seus pedidos e confirme o recebimento.</p>
     </div>
 
     <div class="container" id="comprasContainer">
@@ -75,7 +81,11 @@
             const snapshot = await getDocs(q);
 
             if (snapshot.empty) {
-                container.innerHTML = "<div id='loading'>Nenhum pedido encontrado.</div>";
+                container.innerHTML = `
+                    <div id='loading' style="opacity:0.6">
+                        <span style="font-size:40px">🛍️</span><br><br>
+                        Nenhuma compra encontrada.<br>Que tal fazer o seu primeiro match?
+                    </div>`;
                 return;
             }
 
@@ -84,9 +94,10 @@
                 const data = docSnap.data();
                 const id = docSnap.id;
                 const isFinalizado = data.confirmacaoComprador === true;
+                const valorFormatado = parseFloat(data.preco || 0).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
 
                 const card = document.createElement("div");
-                card.className = "card";
+                card.className = `card ${isFinalizado ? 'finalizado' : ''}`;
                 
                 card.innerHTML = `
                     <span class="status-badge ${isFinalizado ? 'status-entregue' : 'status-aguardando'}">
@@ -95,17 +106,20 @@
                     
                     <span class="product-name">${data.modelo}</span>
 
-                    <div class="info-row"><span>Vendedor</span><span>${data.nomeVendedor || 'Particular'}</span></div>
-                    <div class="info-row"><span>WhatsApp</span><span>${data.whatsapp || '--'}</span></div>
-                    <div class="info-row"><span>Cidade</span><span>${data.cidade || '--'}</span></div>
-                    <div class="info-row"><span>Valor</span><span style="color:var(--green)">R$ ${data.preco}</span></div>
+                    <div class="info-row"><span>Vendedor</span><span>${data.nomeVendedor || 'Vendedor RePhone'}</span></div>
+                    <div class="info-row">
+                        <span>WhatsApp</span>
+                        <span><a href="https://wa.me/55${data.whatsapp?.replace(/\D/g,'')}" class="whatsapp-link">📲 ${data.whatsapp || 'Ver no chat'}</a></span>
+                    </div>
+                    <div class="info-row"><span>Cidade</span><span>${data.cidade || 'Não informada'}</span></div>
+                    <div class="info-row"><span>Valor</span><span style="color:var(--green)">${valorFormatado}</span></div>
 
                     ${!isFinalizado ? `
-                        <textarea id="feedback-${id}" placeholder="Como foi sua experiência com este vendedor?"></textarea>
+                        <textarea id="feedback-${id}" placeholder="Como foi o atendimento? (Opcional)"></textarea>
                         <button class="btn-confirm" id="btn-${id}">CONFIRMAR RECEBIMENTO</button>
                     ` : `
-                        <div style="margin-top:15px; padding-top:15px; border-top:1px dashed #eee; font-size:13px; color:var(--muted)">
-                            Finalizado em: ${data.dataConfirmacao ? new Date(data.dataConfirmacao.seconds * 1000).toLocaleDateString() : '--'}
+                        <div style="margin-top:15px; padding-top:15px; border-top:1px dashed #e2e8f0; font-size:12px; color:var(--muted); font-style: italic;">
+                            Finalizado em: ${data.dataConfirmacao ? new Date(data.dataConfirmacao.seconds * 1000).toLocaleDateString('pt-BR') : '--'}
                         </div>
                     `}
                 `;
@@ -116,22 +130,22 @@
                 }
             });
         } catch (e) {
-            console.error(e);
-            container.innerHTML = "Erro ao carregar.";
+            console.error("Erro ao carregar compras:", e);
+            container.innerHTML = "<div id='loading'>Erro ao sincronizar dados. Verifique sua conexão.</div>";
         }
     }
 
     async function confirmarPedido(compraId, dataCompra) {
+        if(!confirm("Você confirma que recebeu o aparelho em mãos e está tudo certo?")) return;
+
         const btn = document.getElementById(`btn-${compraId}`);
         const feedback = document.getElementById(`feedback-${compraId}`).value;
 
-        if(!confirm("Você confirma que recebeu o aparelho conforme anunciado?")) return;
-
         btn.disabled = true;
-        btn.innerText = "PROCESSANDO...";
+        btn.innerText = "ATUALIZANDO ESTOQUE...";
 
         try {
-            // 1. Atualiza a Compra
+            // 1. Atualiza o documento da compra
             await updateDoc(doc(db, "compras", compraId), {
                 confirmacaoComprador: true,
                 status: "Entregue",
@@ -139,26 +153,29 @@
                 dataConfirmacao: serverTimestamp()
             });
 
-            // 2. Atualiza o Estoque do Anúncio (Correção da Lógica)
-            const anuncioRef = doc(db, "anuncios", dataCompra.anuncioId);
-            const anuncioSnap = await getDoc(anuncioRef);
+            // 2. Atualiza o estoque no anúncio para refletir a venda finalizada
+            if (dataCompra.anuncioId) {
+                const anuncioRef = doc(db, "anuncios", dataCompra.anuncioId);
+                const anuncioSnap = await getDoc(anuncioRef);
 
-            if (anuncioSnap.exists()) {
-                const estoqueAtual = anuncioSnap.data().estoque || 1;
-                const novoEstoque = Math.max(0, estoqueAtual - 1);
-                
-                await updateDoc(anuncioRef, {
-                    estoque: novoEstoque,
-                    statusVenda: novoEstoque > 0 ? "disponivel" : "vendido"
-                });
+                if (anuncioSnap.exists()) {
+                    const estoqueAtual = anuncioSnap.data().estoque || 1;
+                    const novoEstoque = Math.max(0, estoqueAtual - 1);
+                    
+                    await updateDoc(anuncioRef, {
+                        estoque: novoEstoque,
+                        // Se o estoque zerar, o status de venda passa a ser "vendido" definitivamente
+                        statusVenda: novoEstoque > 0 ? "disponivel" : "vendido"
+                    });
+                }
             }
 
-            alert("Recebimento confirmado! Obrigado por usar a RePhone.");
+            alert("Sucesso! Sua confirmação ajuda a manter a comunidade RePhone segura.");
             location.reload();
 
         } catch (e) {
-            console.error(e);
-            alert("Erro ao confirmar. Tente novamente.");
+            console.error("Erro na confirmação:", e);
+            alert("Ocorreu um erro técnico. Por favor, tente novamente.");
             btn.disabled = false;
             btn.innerText = "CONFIRMAR RECEBIMENTO";
         }
