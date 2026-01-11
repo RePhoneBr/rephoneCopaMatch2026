@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Criar Conta | RePhone</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
+    <style>
+        :root { --dark: #0f172a; --green: #16a34a; --bg: #f8fafc; --muted: #64748b; }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; }
+        body { background: var(--bg); display: flex; align-items: center; justify-content: center; min-height: 100vh; padding: 20px; }
+        
+        .reg-card { background: white; width: 100%; max-width: 400px; padding: 40px; border-radius: 24px; box-shadow: 0 10px 40px rgba(0,0,0,0.05); text-align: center; }
+        h2 { font-weight: 900; font-size: 28px; margin-bottom: 10px; letter-spacing: -1px; }
+        p { color: var(--muted); font-size: 14px; margin-bottom: 30px; }
+
+        .form-group { text-align: left; margin-bottom: 15px; }
+        label { display: block; font-size: 11px; font-weight: 800; text-transform: uppercase; color: var(--muted); margin-bottom: 5px; margin-left: 5px; }
+        input { width: 100%; padding: 14px; border-radius: 12px; border: 1px solid #e2e8f0; font-size: 15px; outline: none; transition: 0.3s; }
+        input:focus { border-color: var(--dark); }
+
+        .btn-reg { width: 100%; background: var(--dark); color: white; border: none; padding: 16px; border-radius: 12px; font-weight: 800; font-size: 16px; cursor: pointer; margin-top: 10px; transition: 0.3s; }
+        .btn-reg:hover { opacity: 0.9; transform: translateY(-1px); }
+        .btn-reg:disabled { background: #cbd5e1; }
+
+        .footer-links { margin-top: 25px; font-size: 13px; color: var(--muted); }
+        .footer-links a { color: var(--dark); font-weight: 700; text-decoration: none; }
+    </style>
+</head>
+<body>
+
+<div class="reg-card">
+    <h2>Criar Conta</h2>
+    <p>Rápido, seguro e gratuito.</p>
+
+    <div class="form-group">
+        <label>Nome Completo</label>
+        <input type="text" id="nome" placeholder="Como quer ser chamado?">
+    </div>
+
+    <div class="form-group">
+        <label>E-mail</label>
+        <input type="email" id="email" placeholder="seu@email.com">
+    </div>
+
+    <div class="form-group">
+        <label>Senha</label>
+        <input type="password" id="pass" placeholder="Mínimo 6 caracteres">
+    </div>
+
+    <button class="btn-reg" id="btnReg">CRIAR MINHA CONTA</button>
+
+    <div class="footer-links">
+        Já tem uma conta? <a href="login-cliente.html">Fazer Login</a>
+    </div>
+</div>
+
+<script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-app.js";
+    import { getAuth, createUserWithEmailAndPassword, updateProfile } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-auth.js";
+    import { getFirestore, doc, setDoc } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-firestore.js";
+
+    const firebaseConfig = { 
+        apiKey: "AIzaSyBiN8FqX8UZeyAh1cG2GHZtQWiQH0xPBV4", 
+        authDomain: "rephone-a0a80.firebaseapp.com", 
+        projectId: "rephone-a0a80", 
+        storageBucket: "rephone-a0a80.firebasestorage.app", 
+        appId: "1:431497247030:web:a943715e4acc04b8995b97" 
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+
+    document.getElementById('btnReg').onclick = async () => {
+        const nome = document.getElementById('nome').value;
+        const email = document.getElementById('email').value;
+        const pass = document.getElementById('pass').value;
+        const btn = document.getElementById('btnReg');
+
+        if(!nome || !email || !pass) return alert("Preencha todos os campos.");
+        if(pass.length < 6) return alert("A senha deve ter no mínimo 6 caracteres.");
+
+        btn.disabled = true;
+        btn.innerText = "CRIANDO...";
+
+        try {
+            // 1. Cria o usuário no Auth
+            const userCredential = await createUserWithEmailAndPassword(auth, email, pass);
+            const user = userCredential.user;
+
+            // 2. Atualiza o nome no perfil do Auth
+            await updateProfile(user, { displayName: nome });
+
+            // 3. Salva os dados na coleção de 'clientes'
+            await setDoc(doc(db, "clientes", user.uid), {
+                nome: nome,
+                email: email,
+                dataCadastro: new Date(),
+                tipo: "comprador"
+            });
+
+            alert("Conta criada com sucesso!");
+            window.location.href = 'index.html';
+
+        } catch (e) {
+            console.error(e);
+            alert("Erro ao criar conta: " + e.message);
+            btn.disabled = false;
+            btn.innerText = "CRIAR MINHA CONTA";
+        }
+    };
+</script>
+</body>
+</html>
