@@ -71,90 +71,114 @@
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-app.js";
     import { getAuth, createUserWithEmailAndPassword, updateProfile } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-auth.js";
-    import { getFirestore, doc, setDoc } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-firestore.js";
+    import { getFirestore, doc, setDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-firestore.js";
 
     const firebaseConfig = { 
-        apiKey: "AIzaSyBiN8FqX8UZeyAh1cG2GHZtQWiQH0xPBV4", // CORRIGIDO
+        apiKey: "AIzaSyBiN8FqX8UZeyAh1cG2GHZtQWiQH0xPBV4", 
         authDomain: "rephone-a0a80.firebaseapp.com", 
         projectId: "rephone-a0a80", 
         storageBucket: "rephone-a0a80.firebasestorage.app", 
         appId: "1:431497247030:web:a943715e4acc04b8995b97" 
     };
+
     const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
     const db = getFirestore(app);
 
     let cidadeDetectada = "Não informada";
     let coordsDetectadas = null;
+    let infoAuditoria = {
+        dispositivo: navigator.userAgent, // Captura navegador/sistema
+        plataforma: navigator.platform,
+        idioma: navigator.language
+    };
 
-    // Captura GPS automática (Melhorado para pegar lat/lng)
-    function pegarGPS() {
+    // --- LOGICA DE LOCALIZAÇÃO SEGURA ---
+    async function iniciarLocalizacao() {
+        const gpsStatus = document.getElementById('gpsStatus');
+
         if ("geolocation" in navigator) {
-            navigator.geolocation.getCurrentPosition(async (pos) => {
-                try {
+            navigator.geolocation.getCurrentPosition(
+                async (pos) => {
                     const lat = pos.coords.latitude;
                     const lon = pos.coords.longitude;
-                    coordsDetectadas = { lat, lon }; // Salva os números para o Radar
-
-                    const res = await fetch(`https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lon}&format=json`);
-                    const data = await res.json();
-                    cidadeDetectada = data.address.city || data.address.town || data.address.village || "Desconhecida";
-                    
-                    document.getElementById('gpsStatus').innerText = "📍 Localizado: " + cidadeDetectada;
-                    document.getElementById('gpsStatus').style.color = "var(--green)";
-                } catch (e) { 
-                    document.getElementById('gpsStatus').innerText = "📍 GPS OK (Cidade Manual)"; 
-                }
-            }, (error) => {
-                document.getElementById('gpsStatus').innerText = "📍 GPS Bloqueado pelo navegador";
-                document.getElementById('gpsStatus').style.color = "red";
-            });
+                    coordsDetectadas = { lat, lon, metodo: "gps" };
+                    buscarCidadeNominatim(lat, lon);
+                },
+                async () => {
+                    // Fallback automático por IP se o GPS for negado
+                    gpsStatus.innerHTML = "🛡️ Validando conexão segura...";
+                    capturarPorIP();
+                },
+                { timeout: 5000 }
+            );
+        } else {
+            capturarPorIP();
         }
     }
-    pegarGPS();
 
+    async function capturarPorIP() {
+        try {
+            const res = await fetch('https://ipapi.co/json/');
+            const data = await res.json();
+            coordsDetectadas = { 
+                lat: data.latitude, 
+                lon: data.longitude, 
+                metodo: "ip_fallback",
+                ip: data.ip 
+            };
+            cidadeDetectada = data.city || "Região via IP";
+            document.getElementById('gpsStatus').innerHTML = `🛡️ Conexão validada: <b>${cidadeDetectada}</b>`;
+        } catch (e) {
+            document.getElementById('gpsStatus').innerText = "📍 Localização pendente";
+        }
+    }
+
+    async function buscarCidadeNominatim(lat, lon) {
+        try {
+            const res = await fetch(`https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lon}&format=json`);
+            const data = await res.json();
+            cidadeDetectada = data.address.city || data.address.town || "Desconhecida";
+            document.getElementById('gpsStatus').innerHTML = `📍 Localizado em <b>${cidadeDetectada}</b>`;
+        } catch (e) {}
+    }
+
+    iniciarLocalizacao();
+
+    // --- REGISTRO FINAL ---
     document.getElementById('btnReg').onclick = async () => {
-        const nome = document.getElementById('nome').value;
-        const email = document.getElementById('email').value;
-        const zap = document.getElementById('whatsapp').value;
-        const tipo = document.getElementById('tipo').value;
+        const nome = document.getElementById('nome').value.trim();
+        const email = document.getElementById('email').value.toLowerCase().trim();
+        const zap = document.getElementById('whatsapp').value.trim();
         const pass = document.getElementById('pass').value;
         const btn = document.getElementById('btnReg');
 
         if(!nome || !email || !zap || !pass) return alert("Preencha todos os campos!");
-        if(pass.length < 6) return alert("A senha deve ter pelo menos 6 dígitos.");
 
         btn.disabled = true;
-        btn.innerText = "CRIANDO PERFIL...";
+        btn.innerText = "CRIANDO PERFIL SEGURO...";
 
         try {
-            // 1. Cria o login no Auth
             const userCredential = await createUserWithEmailAndPassword(auth, email, pass);
             const user = userCredential.user;
 
-            // 2. Atualiza o nome no perfil de autenticação (Importante!)
             await updateProfile(user, { displayName: nome });
 
-            // 3. Salva o perfil detalhado no Firestore
+            // Salva o perfil com os dados de auditoria
             await setDoc(doc(db, "vendedores", user.uid), {
-                nome: nome,
-                email: email,
-                zap: zap,
-                tipo: tipo,
+                nome, email, zap,
+                tipo: document.getElementById('tipo').value,
                 cidade: cidadeDetectada,
-                coords: coordsDetectadas, // Agora salva lat/lon para o Radar funcionar
-                status: "ativo", // Começa como ativo, 'verificado' pode ser manual depois
-                dataRegistro: new Date()
+                coords: coordsDetectadas,
+                auditoria: infoAuditoria, // Dados de prevenção de golpe
+                status: "ativo",
+                dataRegistro: serverTimestamp()
             });
 
-            alert("Bem-vindo à RePhone! Agora você já pode anunciar.");
-            window.location.href = 'vendedor-anuncio.html';
-
+            window.location.href = 'dashboard-vendedor.html';
         } catch (e) {
-            console.error(e);
-            alert("Erro ao cadastrar: " + e.message);
+            alert("Erro: " + e.message);
             btn.disabled = false;
-            btn.innerText = "CRIAR CONTA";
         }
     };
 </script>
