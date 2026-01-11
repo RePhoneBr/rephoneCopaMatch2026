@@ -2,21 +2,21 @@
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>RePhone | Match Inteligente</title>
     
     <link rel="apple-touch-icon" sizes="180x180" href="assets/apple-touch-icon.png">
     <link rel="icon" type="image/png" sizes="32x32" href="assets/favicon-32x32.png">
     <link rel="icon" type="image/png" sizes="16x16" href="assets/favicon-16x16.png">
     
-    <meta name="description" content="RePhone - Encontre celulares perto de você. Faça Match com ofertas reais, seguras e próximas.">
+    <meta name="description" content="RePhone - Encontre celulares perto de você.">
     <link rel="canonical" href="https://www.rephone.com.br/">
     
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap" rel="stylesheet">
     
     <style>
         :root { --dark: #0f172a; --green: #16a34a; --green-light: #4ade80; --bg: #f8fafc; --text-muted: #64748b; --blue: #3b82f6; }
-        * { margin:0; padding:0; box-sizing:border-box; font-family:'Inter', sans-serif; }
+        * { margin:0; padding:0; box-sizing:border-box; font-family:'Inter', sans-serif; -webkit-tap-highlight-color: transparent; }
         body { background: var(--bg); color: var(--dark); overflow-x: hidden; }
         
         /* HEADER */
@@ -59,12 +59,13 @@
         .toggle-busca { width: 100%; background: #f1f5f9; border: 1px solid #e2e8f0; border-radius: 16px; padding: 14px; font-weight: 900; font-size: 13px; margin-top: 14px; cursor: pointer; }
         .busca-collapsible { overflow: hidden; max-height: 0; transition: 0.4s; }
         .busca-collapsible.open { max-height: 500px; margin-top: 15px; }
+        .btn-close { width:100%; margin-top:10px; background:none; color:var(--text-muted); border:none; font-weight:700; cursor:pointer; padding:10px; }
 
         /* GRID RADAR & CARDS */
         .feed { 
             padding: 0 15px 100px; 
             display: grid; 
-            grid-template-columns: repeat(2, 1fr); /* Mobile: 2 por linha */
+            grid-template-columns: repeat(2, 1fr); 
             gap: 12px; 
             max-width: 1200px; 
             margin: 0 auto; 
@@ -78,10 +79,9 @@
         }
         .card:hover { transform: translateY(-4px); box-shadow: 0 10px 30px rgba(0,0,0,0.05); }
 
-        /* PADRONIZAÇÃO DE IMAGEM */
         .img-container { 
             width: 100%; 
-            height: 150px; /* Altura fixa no mobile */
+            height: 150px; 
             background: #f1f5f9; 
             border-radius: 14px; 
             overflow: hidden; 
@@ -92,11 +92,7 @@
         }
         @media (min-width: 1024px) { .img-container { height: 180px; } }
 
-        .card img { 
-            width: 100%; 
-            height: 100%; 
-            object-fit: cover; /* Garante que a foto preencha o espaço sem esticar */
-        }
+        .card img { width: 100%; height: 100%; object-fit: cover; }
 
         /* TAGS */
         .tags-row { display: flex; align-items: center; gap: 5px; margin-bottom: 5px; flex-wrap: wrap; }
@@ -146,14 +142,22 @@
 
     <div id="menuOverlay" onclick="toggleMenu()"></div>
     <nav id="mobileMenu">
-        <div id="greeting" style="color:#94a3b8; font-size:11px; font-weight:800; text-align:center; margin-bottom:10px;">MENU REPHONE</div>
+        <div id="greeting" style="color:#94a3b8; font-size:11px; font-weight:800; text-align:center; margin-bottom:15px;">MENU REPHONE</div>
+        
+        <a href="login-cliente.html" class="menu-link" style="background: #3b82f6; margin-bottom: 15px; border: 1px solid #2563eb;">
+            🛍️ Minhas Compras / Rastreio
+        </a>
+
+        <div style="height: 1px; background: rgba(255,255,255,0.1); margin: 5px 0 15px;"></div>
         
         <div id="menuGuest" style="display: flex; flex-direction: column; gap: 12px;">
+            <span style="font-size:10px; color:#94a3b8; font-weight:700; text-transform:uppercase;">Para Vendedores</span>
             <a href="vendedor-login.html" class="menu-link destaque">Entrar / Vender</a>
             <a href="registro-vendedor.html" class="menu-link">Criar Conta Vendedor</a>
         </div>
 
         <div id="menuLogged" style="display: none; flex-direction: column; gap: 12px;">
+            <span style="font-size:10px; color:#94a3b8; font-weight:700; text-transform:uppercase;">Painel Vendedor</span>
             <a href="vendedor-anuncio.html" class="menu-link destaque">+ Novo Anúncio</a>
             <a href="dashboard-vendedor.html" class="menu-link">Meus Anúncios</a>
             <button class="btn-logout-menu" onclick="fazerLogout()">SAIR DA CONTA</button>
@@ -174,14 +178,13 @@
             <input type="number" id="matchPreco" placeholder="Ex: 4000">
             
             <button class="btn-match" onclick="fazerMatch()">DAR MATCH</button>
-            
             <button class="toggle-busca" onclick="toggleBusca()">🔍 BUSCA MANUAL</button>
             
             <div id="buscaManualBox" class="busca-collapsible">
                 <label>Marca</label>
                 <input type="text" id="buscaMarca" placeholder="Apple, Samsung...">
                 <button class="btn-match" style="background:var(--dark)" onclick="buscarManual()">FILTRAR</button>
-                <button class="btn-close" style="width:100%; margin-top:10px; background:none; color:var(--text-muted);" onclick="limparBusca()">LIMPAR FILTROS</button>
+                <button class="btn-close" onclick="limparBusca()">LIMPAR FILTROS</button>
             </div>
         </div>
     </section>
@@ -229,9 +232,10 @@
 
         // --- FUNÇÕES GLOBAIS ---
         window.toggleMenu = () => {
-            document.getElementById('mobileMenu').classList.toggle('active');
+            const menu = document.getElementById('mobileMenu');
             const overlay = document.getElementById('menuOverlay');
-            overlay.style.display = overlay.style.display === 'block' ? 'none' : 'block';
+            menu.classList.toggle('active');
+            overlay.style.display = menu.classList.contains('active') ? 'block' : 'none';
         };
         window.toggleBusca = () => document.getElementById('buscaManualBox').classList.toggle('open');
         window.fecharMatch = () => document.getElementById('matchPopup').classList.remove('active');
@@ -245,7 +249,7 @@
 
         window.buscarManual = () => {
             const marca = document.getElementById('buscaMarca').value.toLowerCase();
-            const filtrados = todosAnuncios.filter(ad => ad.marca.toLowerCase().includes(marca) || ad.modelo.toLowerCase().includes(marca));
+            const filtrados = todosAnuncios.filter(ad => (ad.marca || '').toLowerCase().includes(marca) || (ad.modelo || '').toLowerCase().includes(marca));
             renderizar(filtrados);
         };
 
@@ -256,36 +260,53 @@
                 document.getElementById('menuLogged').style.display = 'flex';
                 try {
                     const vDoc = await getDoc(doc(db, "vendedores", user.uid));
-                    if(vDoc.exists()) document.getElementById('greeting').innerText = "OLÁ, " + vDoc.data().nome.split(' ')[0].toUpperCase();
+                    if(vDoc.exists()) document.getElementById('greeting').innerText = "OLÁ, " + (vDoc.data().nome?.split(' ')[0].toUpperCase() || 'USUÁRIO');
                 } catch(e) {}
             }
         });
 
-        // --- LOCALIZAÇÃO ---
+        // --- CÁLCULO DE DISTÂNCIA ---
         function calcularDistancia(lat1, lon1, lat2, lon2) {
-            const R = 6371;
+            const R = 6371; // Raio da terra
             const dLat = (lat2 - lat1) * Math.PI / 180;
             const dLon = (lon2 - lon1) * Math.PI / 180;
             const a = Math.sin(dLat/2) * Math.sin(dLat/2) + Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) * Math.sin(dLon/2) * Math.sin(dLon/2);
-            return (R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a))).toFixed(1);
+            const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+            return (R * c).toFixed(1);
         }
 
-        navigator.geolocation.getCurrentPosition(pos => {
-            userLat = pos.coords.latitude; userLng = pos.coords.longitude;
-            fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${userLat}&lon=${userLng}`)
-                .then(r => r.json()).then(data => {
-                    document.getElementById('txtLocation').innerHTML = `📍 Ofertas em <strong>${data.address.city || 'Sua Região'}</strong>`;
-                    renderizar(todosAnuncios);
-                });
-        }, () => document.getElementById('txtLocation').innerHTML = "📍 Localização aproximada (GPS Off)");
+        // --- LOCALIZAÇÃO ROBUSTA ---
+        navigator.geolocation.getCurrentPosition(
+            (pos) => {
+                userLat = pos.coords.latitude; 
+                userLng = pos.coords.longitude;
+                // Busca o nome da cidade (API Gratuita)
+                fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${userLat}&lon=${userLng}`)
+                    .then(r => r.json())
+                    .then(data => {
+                        const cidade = data.address.city || data.address.town || data.address.village || "Sua Região";
+                        document.getElementById('txtLocation').innerHTML = `📍 Ofertas em <strong>${cidade}</strong>`;
+                        renderizar(todosAnuncios); // Re-renderiza para mostrar os KMs
+                    })
+                    .catch(() => {
+                        document.getElementById('txtLocation').innerHTML = "📍 Ofertas na sua região";
+                    });
+            }, 
+            () => {
+                document.getElementById('txtLocation').innerHTML = "📍 Localização aproximada (GPS Off)";
+            },
+            { timeout: 10000 }
+        );
 
-        // --- DADOS ---
+        // --- DADOS (FIREBASE REALTIME) ---
         onSnapshot(collection(db, "anuncios"), (snap) => {
             todosAnuncios = snap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-            // Filtro duplo para garantir compatibilidade
+            
+            // Filtro de Segurança: Só mostra o que foi aprovado
             const aprovados = todosAnuncios.filter(ad => 
                 (ad.status === "aprovado" || ad.statusAnuncio === "aprovado") && ad.statusVenda !== "vendido"
             );
+            
             renderizar(aprovados);
         });
 
@@ -303,14 +324,19 @@
                 
                 // Lógica de Tags
                 const isLojista = ad.vendedorTipo === "lojista";
-                const isVerificado = ad.statusVendedor === "verificado";
+                const isVerificado = ad.statusVendedor === "verificado" || ad.status === "verificado";
+                // Verifica se a localização do anúncio foi por GPS (Confirmada) ou IP (Aproximada)
                 const locMetodo = ad.coords?.metodo === "gps" ? "Confirmada" : "Aproximada";
                 
                 // Cálculo Distância
                 let distHtml = "";
+                // Verifica se temos as coordenadas do usuario E do anuncio
                 if (userLat && ad.coords?.lat) {
                     const d = calcularDistancia(userLat, userLng, ad.coords.lat, ad.coords.lon);
-                    if(d <= 50) distHtml = ` • ${d}km`;
+                    // Adiciona KM ao card
+                    if (!isNaN(d)) {
+                        distHtml = ` • ${d}km ${d <= 5 ? '<span class="badge-near">PERTO</span>' : ''}`;
+                    }
                 }
 
                 const card = document.createElement('div');
@@ -318,7 +344,7 @@
                 card.innerHTML = `
                     <a href="anuncio.html?id=${ad.id}" style="text-decoration:none; color:inherit; display:flex; flex-direction:column; height:100%;">
                         <div class="img-container">
-                            <img src="${ad.fotos?.[0] || 'https://via.placeholder.com/200'}" loading="lazy">
+                            <img src="${ad.fotos?.[0] || 'https://via.placeholder.com/200'}" loading="lazy" alt="${ad.modelo}">
                         </div>
                         
                         <div class="tags-row">
