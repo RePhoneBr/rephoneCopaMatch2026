@@ -16,59 +16,24 @@ const auth = getAuth(app);
 
 let todosAnuncios = [];
 let userLat = null, userLng = null;
-let usuarioLogado = null;
 
-// --- FUNÇÕES DE INTERFACE ---
-window.toggleMenu = () => {
-    const menu = document.getElementById('mobileMenu');
-    const overlay = document.getElementById('menuOverlay');
-    menu.classList.toggle('active');
-    overlay.style.display = menu.classList.contains('active') ? 'block' : 'none';
-};
+// --- INTERFACE ---
+window.toggleMenu = () => document.getElementById('mobileMenu').classList.toggle('active');
 window.toggleBusca = () => document.getElementById('buscaManualBox').classList.toggle('open');
 window.fecharMatch = () => document.getElementById('matchPopup').classList.remove('active');
-window.fazerLogout = () => { signOut(auth).then(() => window.location.reload()); };
+window.fazerLogout = () => signOut(auth).then(() => window.location.reload());
 
-window.limparBusca = () => {
-    document.getElementById('buscaMarca').value = "";
-    renderizar(todosAnuncios);
-    document.getElementById('buscaManualBox').classList.remove('open');
-};
-
-window.buscarManual = () => {
-    const busca = document.getElementById('buscaMarca').value.toLowerCase();
-    const filtrados = todosAnuncios.filter(ad => 
-        (ad.marca || '').toLowerCase().includes(busca) || 
-        (ad.modelo || '').toLowerCase().includes(busca)
-    );
-    renderizar(filtrados);
-};
-
-// --- AUTH OBSERVER (VERSÃO UNIFICADA COM REDIRECIONAMENTO) ---
+// --- LOGIN & REDIRECIONAMENTO ---
 onAuthStateChanged(auth, async (user) => {
-    usuarioLogado = user;
     const menuGuest = document.getElementById('menuGuest');
     const menuLogged = document.getElementById('menuLogged');
-    const greeting = document.getElementById('greeting');
-
     if (user) {
         if(menuGuest) menuGuest.style.display = 'none';
         if(menuLogged) menuLogged.style.display = 'flex';
         
-        const urlParams = new URLSearchParams(window.location.search);
-        const returnId = urlParams.get('returnId');
-        const goto = urlParams.get('goto');
-
-        if (goto === 'compras') {
-            window.location.href = 'minhas-compras.html'; // Certifique-se que o nome do arquivo é este
-        } else if (returnId) {
-            window.location.href = `anuncio.html?id=${returnId}`;
-        }
-
-        try {
-            const vDoc = await getDoc(doc(db, "vendedores", user.uid));
-            if(vDoc.exists() && greeting) greeting.innerText = "OLÁ, " + (vDoc.data().nome?.split(' ')[0].toUpperCase() || 'USUÁRIO');
-        } catch(e) {}
+        const params = new URLSearchParams(window.location.search);
+        if (params.get('goto') === 'compras') window.location.href = 'minhas-compras.html';
+        if (params.get('returnId')) window.location.href = 'anuncio.html?id=' + params.get('returnId');
     } else {
         if(menuGuest) menuGuest.style.display = 'flex';
         if(menuLogged) menuLogged.style.display = 'none';
@@ -76,55 +41,38 @@ onAuthStateChanged(auth, async (user) => {
 });
 
 // --- LOCALIZAÇÃO ---
-navigator.geolocation.getCurrentPosition((pos) => {
-    userLat = pos.coords.latitude; 
-    userLng = pos.coords.longitude;
-    fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${userLat}&lon=${userLng}`)
-        .then(r => r.json()).then(data => {
-            const cidade = data.address.city || data.address.town || data.address.village || "Sua Região";
-            const locTxt = document.getElementById('txtLocation');
-            if(locTxt) locTxt.innerHTML = `📍 Ofertas em <strong>${cidade}</strong>`;
-            renderizar(todosAnuncios);
-        });
-}, () => {
-    console.log("GPS negado ou indisponível.");
-}, { timeout: 10000 });
-
-// --- CÁLCULO DISTÂNCIA ---
 function calcularDistancia(lat1, lon1, lat2, lon2) {
     const R = 6371;
     const dLat = (lat2 - lat1) * Math.PI / 180;
     const dLon = (lon2 - lon1) * Math.PI / 180;
     const a = Math.sin(dLat/2) * Math.sin(dLat/2) + Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) * Math.sin(dLon/2) * Math.sin(dLon/2);
-    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
-    return (R * c).toFixed(1);
+    return (R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a))).toFixed(1);
 }
+
+navigator.geolocation.getCurrentPosition((pos) => {
+    userLat = pos.coords.latitude; userLng = pos.coords.longitude;
+    renderizar(todosAnuncios);
+}, null, { timeout: 5000 });
 
 // --- DADOS ---
 onSnapshot(collection(db, "anuncios"), (snap) => {
-    todosAnuncios = snap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-    const ativos = todosAnuncios.filter(ad => (ad.status === "aprovado" || ad.statusAnuncio === "aprovado"));
-    renderizar(ativos);
+    todosAnuncios = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+    renderizar(todosAnuncios.filter(ad => ad.status === "aprovado" || ad.statusAnuncio === "aprovado"));
 });
 
-// --- RENDERIZAR CARDS (VERSÃO FINAL COM TODAS AS INFOS) ---
 function renderizar(lista) {
     const grid = document.getElementById('radarGrid');
     if(!grid) return;
     grid.innerHTML = "";
     
     lista.forEach(ad => {
-        const isVendido = ad.statusVenda === "vendido" || ad.statusVenda === "entregue";
-        const precoNum = parseFloat(ad.preco) || 0;
-        
+        const isVendido = ad.statusVenda === "vendido";
         let distHtml = "";
         let locMetodo = ad.coords?.metodo === "gps" ? "Confirmada" : "Aproximada";
         
-        if (userLat && ad.coords?.lat && ad.coords?.lon) {
+        if (userLat && ad.coords?.lat) {
             const d = calcularDistancia(userLat, userLng, ad.coords.lat, ad.coords.lon);
-            if (!isNaN(d)) {
-                distHtml = ` • ${d}km`;
-            }
+            distHtml = ` • ${d}km`;
         }
 
         const card = document.createElement('div');
@@ -135,45 +83,15 @@ function renderizar(lista) {
                     ${isVendido ? '<div class="badge-vendido">VENDIDO</div>' : ''}
                     <img src="${ad.fotos?.[0] || ''}" style="filter:${isVendido ? 'grayscale(1)' : 'none'}">
                 </div>
-                <div class="tags-row">
-                    <span class="tag-vendedor ${ad.vendedorTipo === 'lojista' ? 'tag-loj' : 'tag-part'}">${ad.vendedorTipo || 'Particular'}</span>
-                </div>
                 <h3>${ad.modelo}</h3>
-                <div class="details" style="font-size: 10px; color: var(--text-muted); font-weight: 600; margin-bottom: 5px;">
-                    ${ad.capacidade || '--'} • Bateria ${ad.bateria || '--'}% • ${ad.condicao || ad.estado || '--'}
+                <div style="font-size:10px; color:#64748b; margin-bottom:5px;">
+                    ${ad.capacidade || '--'} • Bateria ${ad.bateria || '--'}% • ${ad.condicao || 'Usado'}
                 </div>
-                <div class="location-info" style="font-size: 10px; color: var(--green); font-weight: 700;">
-                    📍 ${ad.cidade || 'Região'} <span style="font-size: 9px; opacity: 0.7; font-weight: 400;">(${locMetodo})</span>${distHtml}
+                <div style="font-size:10px; color:#16a34a; font-weight:700;">
+                    📍 ${ad.cidade || 'Região'} (${locMetodo})${distHtml}
                 </div>
-                <div class="price-tag" style="background:${isVendido ? '#94a3b8' : ''}; margin-top: 8px;">
-                    R$ ${precoNum.toLocaleString('pt-br', {minimumFractionDigits:2})}
-                </div>
+                <div class="price-tag">R$ ${parseFloat(ad.preco || 0).toLocaleString('pt-br', {minimumFractionDigits:2})}</div>
             </a>`;
         grid.appendChild(card);
     });
 }
-
-// --- MATCH ---
-window.fazerMatch = () => {
-    const mod = document.getElementById('matchModelo').value.toLowerCase();
-    const pMax = parseFloat(document.getElementById('matchPreco').value) || Infinity;
-    if(!mod) return alert("Digite o modelo!");
-
-    const circle = document.getElementById('mCircle');
-    circle.classList.add('searching');
-    
-    setTimeout(() => {
-        const match = todosAnuncios.filter(a => 
-            !a.statusVenda && a.modelo.toLowerCase().includes(mod) && parseFloat(a.preco) <= pMax
-        ).sort((a,b) => (b.bateria||0) - (a.bateria||0))[0];
-
-        circle.classList.remove('searching');
-        if(match) {
-            document.getElementById('matchData').innerHTML = `<b>${match.modelo}</b><br>R$ ${match.preco}`;
-            document.getElementById('matchLink').href = `anuncio.html?id=${match.id}`;
-            document.getElementById('matchPopup').classList.add('active');
-        } else {
-            alert("Nenhum match encontrado.");
-        }
-    }, 1000);
-};
