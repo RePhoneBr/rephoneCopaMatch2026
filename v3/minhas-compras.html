@@ -1,106 +1,203 @@
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
-<meta charset="UTF-8">
-<title>Minhas Compras | RePhone</title>
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
-<style>
-body { font-family:'Inter',sans-serif; background:#f8fafc; padding:20px; color:#1e293b; }
-.card { background:white; padding:24px; border-radius:20px; box-shadow:0 4px 6px -1px rgb(0 0 0 / 0.1); max-width:600px; margin:0 auto 20px auto; }
-h2 { margin-top:0; }
-.status { font-weight:900; margin-bottom:10px; color:#3b82f6; }
-.timeline { font-size:14px; margin-top:10px; }
-.timeline div { margin-bottom:8px; }
-button { padding:12px; width:100%; border:none; border-radius:12px; font-weight:800; background-color:#10b981; color:white; cursor:pointer; transition:.2s; }
-button:hover { background-color:#059669; }
-button:disabled { background-color:#9ca3af; cursor:not-allowed; }
-textarea { width:100%; box-sizing:border-box; margin-top:10px; padding:10px; border:1px solid #cbd5e1; border-radius:8px; resize:vertical; min-height:80px; }
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Minhas Negociações | RePhone</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800;900&display=swap" rel="stylesheet">
+    <style>
+        :root { --dark: #0f172a; --green: #16a34a; --bg: #f8fafc; --muted: #64748b; --red: #ef4444; }
+        * { margin:0; padding:0; box-sizing:border-box; font-family:'Inter', sans-serif; }
+        body { background: var(--bg); color: var(--dark); padding: 20px; padding-bottom: 100px; }
+
+        .header { margin-bottom: 20px; }
+        .header h2 { font-weight: 900; letter-spacing: -1px; }
+
+        /* ABAS */
+        .tabs-container { display: flex; justify-content: space-around; background: white; padding: 15px; border-radius: 25px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); margin-bottom: 15px; }
+        .tab-item { text-align: center; cursor: pointer; opacity: 0.3; transition: 0.3s; flex: 1; border-bottom: 3px solid transparent; }
+        .tab-item.active { opacity: 1; border-bottom: 3px solid var(--green); transform: translateY(-2px); }
+        .tab-item span { font-size: 22px; display: block; }
+        .tab-item small { font-size: 9px; font-weight: 900; text-transform: uppercase; }
+
+        .aba-info { font-size: 11px; color: var(--muted); text-align: center; margin-bottom: 20px; padding: 0 10px; line-height: 1.4; }
+
+        /* LISTA */
+        .card-pedido { background: white; border-radius: 20px; padding: 15px; display: flex; gap: 15px; margin-bottom: 12px; border: 1px solid #e2e8f0; align-items: center; }
+        .card-pedido img { width: 70px; height: 70px; border-radius: 12px; object-fit: cover; background: #f1f5f9; }
+        .card-info { flex: 1; }
+        .card-info h4 { font-size: 14px; font-weight: 800; margin-bottom: 4px; }
+        .time-tag { font-size: 10px; font-weight: 700; color: var(--green); background: #f0fdf4; padding: 2px 8px; border-radius: 10px; display: inline-block; margin-bottom: 8px; }
+        .card-actions { display: flex; gap: 8px; margin-top: 10px; }
+        
+        .btn-action { border: none; padding: 8px 12px; border-radius: 10px; font-size: 10px; font-weight: 800; cursor: pointer; }
+        .btn-confirm { background: var(--green); color: white; }
+        .btn-ignore { background: #fee2e2; color: var(--red); }
+
+        /* MODAL */
+        #modalConfirm { position: fixed; inset: 0; background: rgba(0,0,0,0.8); display: none; align-items: center; justify-content: center; z-index: 9999; padding: 20px; }
+        .modal-content { background: white; padding: 25px; border-radius: 30px; width: 100%; max-width: 380px; }
+        .modal-content select { width: 100%; padding: 15px; border-radius: 12px; border: 1px solid #e2e8f0; margin: 10px 0 20px; font-size: 14px; background: #f8fafc; }
+    </style>
 </head>
 <body>
 
-<h2>Minhas Compras</h2>
-<div id="comprasContainer"></div>
+    <header class="header">
+        <a href="index.html" style="text-decoration:none; font-size:12px; font-weight:800; color:var(--muted)">← VOLTAR</a>
+        <h2>Minhas Negociações</h2>
+    </header>
 
-<script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-app.js";
-import { getFirestore, collection, query, where, onSnapshot, doc, updateDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-firestore.js";
-import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-auth.js";
+    <div class="tabs-container">
+        <div onclick="mudarAba('aberto')" class="tab-item active" id="tab-aberto">
+            <span>📂</span><small>Em Aberto</small>
+        </div>
+        <div onclick="mudarAba('finalizado')" class="tab-item" id="tab-finalizado">
+            <span>✅</span><small>Finalizados</small>
+        </div>
+        <div onclick="mudarAba('sem-interesse')" class="tab-item" id="tab-sem-interesse">
+            <span>👎</span><small>Sem Interesse</small>
+        </div>
+    </div>
 
-// 🔹 Firebase Config atualizado
-const firebaseConfig = { 
-    apiKey: "AIzaSyBiN8FqX8UZeyAh1cG2GHZtQWiQH0xPBV4", 
-    authDomain: "rephone-a0a80.firebaseapp.com", 
-    projectId: "rephone-a0a80", 
-    storageBucket: "rephone-a0a80.firebasestorage.app", 
-    messagingSenderId: "431497247030", 
-    appId: "1:431497247030:web:a943715e4acc04b8995b97"  
-};
+    <div id="aba-descricao" class="aba-info">
+        Mostrando negociações ativas. Registros sem interação por mais de 7 dias são movidos automaticamente para "Sem Interesse".
+    </div>
 
-const app = initializeApp(firebaseConfig);
-const db = getFirestore(app);
-const auth = getAuth(app);
+    <div id="listaPedidos"></div>
 
-const container = document.getElementById("comprasContainer");
+    <div id="modalConfirm">
+        <div class="modal-content">
+            <h3 style="font-weight:900; margin-bottom:5px;">Confirmar Recebimento</h3>
+            <p style="font-size:12px; color:var(--muted); margin-bottom:20px;">Para finalizar, informe os detalhes da transação:</p>
+            
+            <label style="font-size:11px; font-weight:800;">FORMA DE PAGAMENTO</label>
+            <select id="pagamento">
+                <option value="">Selecione...</option>
+                <option value="Pix">Pix</option>
+                <option value="Dinheiro">Dinheiro</option>
+                <option value="Cartao">Cartão de Crédito/Débito</option>
+            </select>
 
-onAuthStateChanged(auth, (user)=>{
-    if(!user) { window.location.href="login-cliente.html"; return; }
+            <label style="font-size:11px; font-weight:800;">FORMA DE ENTREGA</label>
+            <select id="entrega">
+                <option value="">Selecione...</option>
+                <option value="Maos">Retirada em Mãos</option>
+                <option value="Delivery">Motoboy / Entrega</option>
+                <option value="Correios">Envio (Correios/Transportadora)</option>
+            </select>
 
-    const q = query(collection(db, "compras"), where("clienteId","==",user.uid));
+            <button onclick="salvarFinalizacao()" style="width:100%; background:var(--green); color:white; border:none; padding:16px; border-radius:15px; font-weight:800;">CONFIRMAR E REGISTRAR</button>
+            <button onclick="document.getElementById('modalConfirm').style.display='none'" style="width:100%; background:none; border:none; color:var(--red); margin-top:15px; font-size:12px; font-weight:700;">CANCELAR</button>
+        </div>
+    </div>
 
-    onSnapshot(q, (snap)=>{
-        container.innerHTML = "";
-        if(snap.empty){ container.innerHTML="<p>Você ainda não realizou nenhuma compra.</p>"; return; }
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-app.js";
+        import { getFirestore, collection, query, where, getDocs, doc, updateDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-firestore.js";
+        import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-auth.js";
 
-        snap.forEach(docSnap=>{
-            const data = docSnap.data();
-            const card = document.createElement("div");
-            card.className="card";
+        const firebaseConfig = { 
+            apiKey: "AIzaSyBiN8FqX8UZeyAh1cG2GHZtQWiQH0xPBV4", 
+            authDomain: "rephone-a0a80.firebaseapp.com", 
+            projectId: "rephone-a0a80", 
+            storageBucket: "rephone-a0a80.firebasestorage.app", 
+            appId: "1:431497247030:web:a943715e4acc04b8995b97" 
+        };
 
-            const timeline = `
-                <div class="timeline">
-                    <div>📦 Produto: ${data.produto || '-'}</div>
-                    <div>💰 Valor: R$ ${Number(data.preco || 0).toLocaleString('pt-BR', {minimumFractionDigits:2})}</div>
-                    <div>📅 Data do pedido: ${data.dataCompra?.toDate ? data.dataCompra.toDate().toLocaleString('pt-BR') : '-'}</div>
-                    <div>💳 Forma de pagamento: ${data.pagamento || 'Aguardando'}</div>
-                    <div>🚚 Forma de entrega: ${data.entrega || 'Aguardando'}</div>
-                    <div>✅ Recebimento: ${data.confirmacaoComprador ? 'Confirmado' : 'Pendente'}</div>
-                    <div>📝 Avaliação: ${data.avaliacaoComprador || '-'}</div>
-                </div>
-            `;
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+        const auth = getAuth(app);
 
-            const btn = `<textarea id="avaliacao_${docSnap.id}" placeholder="Como foi sua experiência? (Opcional)"></textarea>
-                         <button id="btnConfirm_${docSnap.id}" ${data.confirmacaoComprador ? "disabled" : ""}>Confirmar Recebimento</button>`;
+        let abaAtual = 'aberto';
+        let idSelecionado = null;
 
-            card.innerHTML = `<h3 class="status">${data.status || 'Em andamento'}</h3>${timeline}${btn}`;
-            container.appendChild(card);
+        onAuthStateChanged(auth, user => { if(user) carregarNegociacoes(user.uid); else window.location.href="login-cliente.html"; });
 
-            if(!data.confirmacaoComprador){
-                const btnEl = document.getElementById(`btnConfirm_${docSnap.id}`);
-                const textEl = document.getElementById(`avaliacao_${docSnap.id}`);
+        window.mudarAba = (aba) => {
+            abaAtual = aba;
+            document.querySelectorAll('.tab-item').forEach(i => i.classList.remove('active'));
+            document.getElementById(`tab-${aba}`).classList.add('active');
+            
+            const desc = document.getElementById('aba-descricao');
+            if(aba === 'aberto') desc.innerText = 'Mostrando negociações ativas. Registros sem interação por mais de 7 dias são movidos automaticamente para "Sem Interesse".';
+            if(aba === 'finalizado') desc.innerText = 'Histórico de aparelhos que você confirmou o recebimento.';
+            if(aba === 'sem-interesse') desc.innerText = 'Itens que você descartou ou que expiraram após 7 dias.';
+            
+            onAuthStateChanged(auth, user => carregarNegociacoes(user.uid));
+        };
 
-                btnEl.addEventListener("click", async ()=>{
-                    btnEl.disabled=true;
-                    btnEl.innerText="Enviando...";
-                    try{
-                        await updateDoc(doc(db, "compras", docSnap.id), {
-                            confirmacaoComprador:true,
-                            avaliacaoComprador:textEl.value,
-                            status:"Entregue",
-                            dataConfirmacao:serverTimestamp()
-                        });
-                    }catch(e){
-                        alert("Erro ao confirmar. Tente novamente.");
-                        btnEl.disabled=false;
-                        btnEl.innerText="Confirmar Recebimento";
-                    }
-                });
+        async function carregarNegociacoes(uid) {
+            const q = query(collection(db, "compras"), where("clienteId", "==", uid));
+            const snap = await getDocs(q);
+            const container = document.getElementById('listaPedidos');
+            container.innerHTML = "";
+
+            const agora = new Date();
+
+            snap.forEach(async (d) => {
+                const item = d.data();
+                const id = d.id;
+                const dataCriacao = item.dataCompra?.toDate() || agora;
+                const diasPassados = Math.floor((agora - dataCriacao) / (1000 * 60 * 60 * 24));
+
+                // LÓGICA DE AUTO-ARQUIVAMENTO (7 DIAS)
+                if (item.status !== 'Finalizado' && item.interesse !== 'Não' && diasPassados >= 7) {
+                    await updateDoc(doc(db, "compras", id), { interesse: "Não" });
+                    return; // Pula a renderização deste item pois ele mudou de estado
+                }
+
+                // FILTROS DE ABA
+                if(abaAtual === 'aberto' && (item.status === 'Finalizado' || item.interesse === 'Não')) return;
+                if(abaAtual === 'finalizado' && item.status !== 'Finalizado') return;
+                if(abaAtual === 'sem-interesse' && item.interesse !== 'Não') return;
+
+                const card = document.createElement('div');
+                card.className = 'card-pedido';
+                card.innerHTML = `
+                    <img src="${item.fotoProduto || 'https://via.placeholder.com/80'}">
+                    <div class="card-info">
+                        ${abaAtual === 'aberto' ? `<span class="time-tag">Interesse há ${diasPassados} dias</span>` : ''}
+                        <h4>${item.produto}</h4>
+                        <p style="font-size:12px; color:var(--muted)">Status: ${item.status}</p>
+                        
+                        <div class="card-actions">
+                            ${abaAtual === 'aberto' ? `
+                                <button onclick="abrirModal('${id}')" class="btn-action btn-confirm">RECEBI O APARELHO</button>
+                                <button onclick="descartar('${id}')" class="btn-action btn-ignore">SEM INTERESSE</button>
+                            ` : ''}
+                        </div>
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        window.abrirModal = (id) => { idSelecionado = id; document.getElementById('modalConfirm').style.display = 'flex'; };
+
+        window.descartar = async (id) => {
+            if(confirm("Deseja mover para Sem Interesse?")) {
+                await updateDoc(doc(db, "compras", id), { interesse: "Não" });
+                location.reload();
             }
-        });
-    });
-});
-</script>
+        };
 
+        window.salvarFinalizacao = async () => {
+            const pag = document.getElementById('pagamento').value;
+            const ent = document.getElementById('entrega').value;
+
+            if(!pag || !ent) return alert("Erro: Você precisa informar a Forma de Pagamento e de Entrega antes de registrar o recebimento!");
+
+            try {
+                await updateDoc(doc(db, "compras", idSelecionado), {
+                    status: "Finalizado",
+                    formaPagamento: pag,
+                    formaEntrega: ent,
+                    dataFinalizacao: serverTimestamp()
+                });
+                alert("Parabéns pela sua compra! Registro finalizado.");
+                location.reload();
+            } catch(e) { console.error(e); }
+        };
+    </script>
 </body>
 </html>
