@@ -1,3 +1,8 @@
 User-agent: *
 Allow: /
+Disallow: /admin-master.html
+Disallow: /dashboard-vendedor.html
+Disallow: /vendedor-anuncio.html
+Disallow: /old_backup/
+
 Sitemap: https://www.rephone.com.br/sitemap.xml
