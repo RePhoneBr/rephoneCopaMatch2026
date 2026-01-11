@@ -352,6 +352,20 @@ if (ad.statusVenda !== "vendido" && ad.statusVenda !== "entregue") {
             window.location.href = 'login-cliente.html';
             return;
         }
+        function iniciarNegociacao() {
+    const user = auth.currentUser;
+    const urlParams = new URLSearchParams(window.location.search);
+    const adId = urlParams.get('id');
+
+    if (!user) {
+        // Se não estiver logado, envia para o login passando o ID do anúncio atual na URL
+        window.location.href = `login-cliente.html?returnId=${adId}`;
+        return;
+    }
+
+    // Se já estiver logado, segue para o checkout ou chat
+    window.location.href = `confirmar-compra.html?id=${adId}`;
+}
 
         if (!ad.whatsapp) {
             alert("Vendedor não informou WhatsApp");
