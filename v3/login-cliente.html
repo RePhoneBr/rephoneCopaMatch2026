@@ -80,41 +80,79 @@
     }
 
     // Login com Google
-   document.getElementById('btnGoogle').onclick = async () => {
+  <script type="module">
+    // 1. IMPORTAÇÕES CORRIGIDAS (Adicionados setPersistence e browserLocalPersistence)
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-app.js";
+    import { 
+        getAuth, 
+        signInWithEmailAndPassword, 
+        GoogleAuthProvider, 
+        signInWithPopup, 
+        setPersistence, 
+        browserLocalPersistence 
+    } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-auth.js";
+
+    const firebaseConfig = { 
+        apiKey: "AIzaSyBiN8FqX8UZeyAh1cG2GHZtQWiQH0xPBV4", 
+        authDomain: "rephone-a0a80.firebaseapp.com", 
+        projectId: "rephone-a0a80", 
+        storageBucket: "rephone-a0a80.firebasestorage.app", 
+        appId: "1:431497247030:web:a943715e4acc04b8995b97" 
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const provider = new GoogleAuthProvider();
+
+    // Idioma em Português
+    auth.languageCode = 'pt';
+
+    function redirecionarAposLogin() {
+        const urlParams = new URLSearchParams(window.location.search);
+        const returnId = urlParams.get('returnId');
+        if (returnId) {
+            window.location.href = `anuncio.html?id=${returnId}`;
+        } else {
+            window.location.href = 'index.html';
+        }
+    }
+
+    // LOGIN COM GOOGLE
+    document.getElementById('btnGoogle').onclick = async () => {
         const btn = document.getElementById('btnGoogle');
         btn.disabled = true;
         btn.innerText = "Conectando...";
 
         try {
-            // Garante que a sessão persista mesmo se fechar a aba
-            await setPersistence(auth, browserSessionPersistence);
+            // Define que o login deve ser lembrado mesmo após fechar o navegador
+            await setPersistence(auth, browserLocalPersistence);
             
             const result = await signInWithPopup(auth, provider);
-            console.log("Sucesso:", result.user);
+            console.log("Logado com sucesso:", result.user.displayName);
             redirecionarAposLogin();
             
         } catch (error) {
-            console.error("Erro detalhado:", error);
+            console.error("Erro no login Google:", error);
             btn.disabled = false;
             btn.innerHTML = `<img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google"> Entrar com Google`;
             
             if (error.code === 'auth/popup-closed-by-user') {
-                alert("O login foi cancelado porque a janela foi fechada.");
-            } else if (error.code === 'auth/cancelled-popup-request') {
-                // Ignora, o usuário clicou duas vezes rápido
+                alert("Você fechou a janela de login do Google antes de terminar.");
             } else {
                 alert("Erro ao entrar com Google: " + error.message);
             }
         }
     };
 
-    // LOGIN COM E-MAIL (MANTIDO)
+    // LOGIN COM E-MAIL
     document.getElementById('btnLogin').onclick = async () => {
         const email = document.getElementById('email').value.trim();
         const pass = document.getElementById('pass').value;
-        if(!email || !pass) return alert("Preencha e-mail e senha.");
+        
+        if(!email || !pass) return alert("Por favor, preencha e-mail e senha.");
 
         try {
+            await setPersistence(auth, browserLocalPersistence);
             await signInWithEmailAndPassword(auth, email, pass);
             redirecionarAposLogin();
         } catch (e) {
