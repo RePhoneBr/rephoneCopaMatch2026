@@ -8,10 +8,9 @@
     <style>
         :root { --dark: #0f172a; --green: #16a34a; --red: #ef4444; --bg: #f8fafc; --muted: #64748b; --blue: #2563eb; }
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; -webkit-tap-highlight-color: transparent; }
-        
         body { background: var(--bg); color: var(--dark); padding: 0 0 100px 0; }
 
-        /* Header Padronizado */
+        /* Header */
         .header-premium { background: var(--dark); padding: 30px 20px; border-radius: 0 0 30px 30px; color: white; margin-bottom: 20px; }
         .header-premium h1 { font-weight: 900; font-size: 24px; letter-spacing: -1px; }
         .header-premium p { opacity: 0.8; font-size: 13px; margin-top: 5px; }
@@ -30,7 +29,6 @@
         /* Lista de Anúncios */
         .ad-list { display: flex; flex-direction: column; gap: 15px; }
         .ad-item { background: white; padding: 15px; border-radius: 20px; border: 1px solid #e2e8f0; display: flex; flex-direction: column; gap: 12px; position: relative; }
-        
         .ad-main-info { display: flex; align-items: center; gap: 12px; }
         .ad-item img { width: 70px; height: 70px; border-radius: 15px; object-fit: cover; background: #eee; }
         .ad-info { flex: 1; }
@@ -45,7 +43,6 @@
         .btn-status.marcar-vendido { background: var(--blue); color: white; }
         .btn-status.marcar-entregue { background: var(--green); color: white; }
         
-        /* Compartilhamento */
         .share-box { background: #f8fafc; padding: 12px; border-radius: 15px; border: 1px dashed #cbd5e1; margin-top: 5px; }
         .share-label { font-size: 10px; font-weight: 800; color: var(--muted); display: block; margin-bottom: 8px; }
         .share-buttons { display: flex; gap: 10px; }
@@ -114,11 +111,9 @@
     onAuthStateChanged(auth, async (user) => {
         if (!user) { window.location.href = "vendedor-login.html"; return; }
 
-        // Data e GPS
         document.getElementById("dataHoje").innerText = "📅 " + new Date().toLocaleDateString('pt-BR');
         obterLocalizacao();
 
-        // Dados do Vendedor
         const vSnap = await getDoc(doc(db, "vendedores", user.uid));
         if (vSnap.exists()) {
             const v = vSnap.data();
@@ -126,7 +121,6 @@
             document.getElementById('perfilTipo').innerText = `${v.tipo === 'lojista' ? '🏢 Lojista' : '👤 Particular'} • ${v.status === 'verificado' ? '✅ Verificado' : '⚠️ Pendente'}`;
         }
 
-        // Escuta Anúncios em Tempo Real
         const q = query(collection(db, "anuncios"), where("vendedorId", "==", user.uid));
         onSnapshot(q, (snap) => {
             renderizarAnuncios(snap);
@@ -139,6 +133,7 @@
         
         if (snap.empty) {
             container.innerHTML = '<div class="empty-state">Você ainda não anunciou nenhum aparelho.</div>';
+            atualizarContadores(0, 0, 0);
             return;
         }
 
@@ -154,15 +149,15 @@
 
             const card = document.createElement('div');
             card.className = 'ad-item';
-            
             const linkAcomp = `${LINK_BASE}?id=${id}`;
+            const fotoUrl = (ad.fotos && ad.fotos.length > 0) ? ad.fotos[0] : 'https://via.placeholder.com/150?text=Sem+Foto';
 
             card.innerHTML = `
-                <div class="ad-main-info">
-                    <img src="${ad.fotos?.[0] || ''}" alt="foto">
+                <div class="ad-main-info" style="${status !== 'disponivel' ? 'opacity: 0.6' : ''}">
+                    <img src="${fotoUrl}" alt="${ad.modelo}">
                     <div class="ad-info">
-                        <h3>${ad.modelo}</h3>
-                        <span class="price">R$ ${Number(ad.preco).toLocaleString('pt-BR')}</span>
+                        <h3>${ad.modelo} ${status === 'vendido' ? '<span style="color:var(--blue); font-size:10px;">(RESERVADO)</span>' : ''}</h3>
+                        <span class="price">R$ ${parseFloat(ad.preco || 0).toLocaleString('pt-BR', {minimumFractionDigits: 2})}</span>
                     </div>
                     <button class="btn-delete" onclick="window.deletarAnuncio('${id}')">🗑️</button>
                 </div>
@@ -170,14 +165,14 @@
                 <div class="acoes-venda">
                     ${status === 'disponivel' ? `<button class="btn-status marcar-vendido" onclick="window.marcarVendido('${id}')">Marcar como Vendido</button>` : ''}
                     ${status === 'vendido' ? `<button class="btn-status marcar-entregue" onclick="window.marcarEntregue('${id}')">Confirmar Entrega</button>` : ''}
-                    ${status === 'entregue' ? `<div class="badge entregue" style="width:100%; text-align:center">Venda Finalizada</div>` : ''}
+                    ${status === 'entregue' ? `<div class="badge entregue" style="width:100%; text-align:center; background:#f1f5f9; border: 1px solid #e2e8f0;">✅ Venda Finalizada</div>` : ''}
                 </div>
 
                 ${status === 'vendido' ? `
                     <div class="share-box">
-                        <span class="share-label">LINK DE ACOMPANHAMENTO PARA O CLIENTE:</span>
+                        <span class="share-label">ENVIE O STATUS PARA O COMPRADOR:</span>
                         <div class="share-buttons">
-                            <button class="btn-share-action" onclick="window.abrirZap('${linkAcomp}')">🟢 WhatsApp</button>
+                            <button class="btn-share-action" onclick="window.abrirZap('${linkAcomp}', '${ad.modelo}')">🟢 WhatsApp</button>
                             <button class="btn-share-action" onclick="window.copiarLink('${linkAcomp}')">🔗 Copiar Link</button>
                         </div>
                     </div>
@@ -186,48 +181,60 @@
             container.appendChild(card);
         });
 
-        document.getElementById("countAtivos").innerText = `Ativos: ${ativos}`;
-        document.getElementById("countPendentes").innerText = `Vendidos: ${vendidos}`;
-        document.getElementById("countVendidos").innerText = `Entregues: ${entregues}`;
+        atualizarContadores(ativos, vendidos, entregues);
     }
 
-    // --- FUNÇÕES GLOBAIS (Anexadas ao window para funcionar com o onclick do HTML) ---
+    function atualizarContadores(a, v, e) {
+        document.getElementById("countAtivos").innerText = `Ativos: ${a}`;
+        document.getElementById("countPendentes").innerText = `Vendidos: ${v}`;
+        document.getElementById("countVendidos").innerText = `Entregues: ${e}`;
+    }
+
+    // --- FUNÇÕES GLOBAIS ---
     window.marcarVendido = async (id) => {
-        if(confirm("Deseja marcar como vendido? Isso gerará o link de acompanhamento.")) {
-            await updateDoc(doc(db, "anuncios", id), { statusVenda: "vendido", dataVenda: serverTimestamp() });
+        if(confirm("Marcar como vendido? Isso gera o link de acompanhamento.")) {
+            await updateDoc(doc(db, "anuncios", id), { 
+                statusVenda: "vendido", 
+                dataVenda: serverTimestamp() 
+            });
         }
     };
 
     window.marcarEntregue = async (id) => {
-        if(confirm("Confirmar que o aparelho foi entregue ao comprador?")) {
-            await updateDoc(doc(db, "anuncios", id), { statusVenda: "entregue", dataEntrega: serverTimestamp() });
+        if(confirm("Confirmar entrega ao comprador?")) {
+            await updateDoc(doc(db, "anuncios", id), { 
+                statusVenda: "entregue", 
+                dataEntrega: serverTimestamp() 
+            });
         }
     };
 
     window.deletarAnuncio = async (id) => {
-        if (confirm("Tem certeza que deseja remover este anúncio permanentemente?")) {
+        if (confirm("Remover anúncio permanentemente?")) {
             await deleteDoc(doc(db, "anuncios", id));
         }
     };
 
     window.copiarLink = (link) => {
         navigator.clipboard.writeText(link);
-        alert("Link de acompanhamento copiado!");
+        alert("Link copiado!");
     };
 
-    window.abrirZap = (link) => {
-        const msg = encodeURIComponent(`Olá! Seu aparelho já foi separado. Você pode acompanhar o status por aqui: ${link}`);
+    window.abrirZap = (link, modelo) => {
+        const msg = encodeURIComponent(`Olá! Seu ${modelo} já está reservado. Você pode acompanhar o status por aqui: ${link}`);
         window.open(`https://wa.me/?text=${msg}`, '_blank');
     };
 
     async function obterLocalizacao() {
-        navigator.geolocation.getCurrentPosition(async pos => {
-            try {
-                const res = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${pos.coords.latitude}&lon=${pos.coords.longitude}`);
-                const data = await res.json();
-                document.getElementById("localAtual").innerText = "📍 " + (data.address.city || data.address.town || "Local Atual");
-            } catch (e) { document.getElementById("localAtual").innerText = "📍 Localização ativa"; }
-        });
+        if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(async pos => {
+                try {
+                    const res = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${pos.coords.latitude}&lon=${pos.coords.longitude}`);
+                    const data = await res.json();
+                    document.getElementById("localAtual").innerText = "📍 " + (data.address.city || data.address.town || "Local Atual");
+                } catch (e) { document.getElementById("localAtual").innerText = "📍 Localização Ativa"; }
+            });
+        }
     }
 </script>
 </body>
