@@ -1,130 +1,200 @@
 <!DOCTYPE html>
-<html lang="pt-br">
+<html lang="pt-BR">
 <head>
-<meta charset="UTF-8">
-<title>Anunciar Aparelho | RePhone</title>
+<meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Anunciar Aparelho | RePhone</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
 <style>
-body { font-family:'Inter',sans-serif; background:#f8fafc; padding:20px; color:#1e293b; }
-.card { background:white; padding:25px; border-radius:20px; max-width:500px; margin:0 auto 20px auto; box-shadow:0 4px 12px rgba(0,0,0,0.05); }
-h2 { margin-top:0; font-weight:900; font-size:22px; margin-bottom:15px; text-align:center; }
-input, select, textarea { width:100%; padding:12px; margin-bottom:12px; border:1px solid #e2e8f0; border-radius:12px; font-size:14px; }
-button { width:100%; padding:14px; border:none; border-radius:15px; font-weight:800; background:#16a34a; color:white; cursor:pointer; transition:.2s; }
-button:disabled { background:#9ca3af; cursor:not-allowed; }
-img.preview { width:80px; height:80px; object-fit:cover; margin-right:8px; border-radius:8px; }
-.preview-container { display:flex; margin-bottom:12px; flex-wrap:wrap; }
-.status-estoque { font-size:14px; font-weight:700; margin-bottom:10px; }
+:root { --dark:#0f172a; --green:#16a34a; --bg:#f8fafc; --muted:#64748b; }
+*{margin:0;padding:0;box-sizing:border-box;font-family:'Inter',sans-serif;}
+body{background:var(--bg);padding:20px;color:var(--dark);}
+.container{max-width:500px;margin:0 auto;display:none;}
+h1{font-size:24px;font-weight:900;margin-bottom:20px;}
+.form-group{margin-bottom:15px;}
+label{display:block;font-size:11px;font-weight:800;text-transform:uppercase;color:var(--muted);margin-bottom:5px;}
+input,select,textarea{width:100%;padding:15px;border-radius:15px;border:1px solid #e2e8f0;background:white;font-size:15px;outline:none;font-family:inherit;}
+input[readonly]{background:#f1f5f9;color:var(--muted);cursor:not-allowed;}
+.photo-upload{width:100%;aspect-ratio:16/9;background:#f1f5f9;border:2px dashed #cbd5e1;border-radius:20px;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;overflow:hidden;position:relative;}
+.photo-upload img{width:100%;height:100%;object-fit:contain;}
+#fileInput{display:none;}
+.btn-save{width:100%;background:var(--green);color:white;border:none;padding:18px;border-radius:18px;font-weight:800;font-size:16px;cursor:pointer;margin-top:10px;}
+.btn-clear{width:100%;background:#e2e8f0;color:var(--dark);border:none;padding:14px;border-radius:18px;font-weight:700;font-size:14px;cursor:pointer;margin-top:8px;}
+.loc-info{font-size:12px;color:var(--green);font-weight:700;display:block;margin-top:5px;}
+.header-vendedor{background:white;padding:15px;border-radius:20px;margin-bottom:20px;border:1px solid #e2e8f0;box-shadow:0 4px 8px rgba(0,0,0,0.03);}
+.header-vendedor p{font-size:13px;color:var(--muted);margin:3px 0;}
+.nav-bottom{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);width:90%;max-width:400px;background:var(--dark);display:flex;justify-content:space-around;padding:15px;border-radius:25px;box-shadow:0 10px 25px rgba(0,0,0,0.3);z-index:1000;}
+.nav-item{color:#94a3b8;text-decoration:none;font-size:10px;font-weight:800;text-align:center;text-transform:uppercase;}
+.nav-item.active{color:var(--green);}
+.nav-item span{display:block;font-size:18px;margin-bottom:4px;}
 </style>
 </head>
 <body>
 
-<div class="card">
-<h2>Novo Anúncio</h2>
+<div id="loading" style="text-align:center;margin-top:50px;font-weight:800;color:var(--muted);">VERIFICANDO ACESSO...</div>
 
-<label>Modelo</label>
-<input type="text" id="modelo" placeholder="Ex: iPhone 13">
+<div class="container" id="app">
+    <div class="header-vendedor">
+        <h1>Novo Anúncio</h1>
+        <p id="vendedorNome">Carregando vendedor...</p>
+        <p id="vendedorTipo">Tipo: --</p>
+        <p id="vendedorStatus">Status: --</p>
+        <p id="vendedorWhats">WhatsApp: --</p>
+    </div>
 
-<label>Preço</label>
-<input type="number" id="preco" placeholder="Ex: 2500">
+    <div class="form-group">
+        <label>Foto do Aparelho</label>
+        <div class="photo-upload" onclick="document.getElementById('fileInput').click()">
+            <img id="preview" style="display:none;">
+            <div id="uploadPlaceholder"><span style="font-size:30px;">📸</span><span style="font-size:12px;font-weight:700;color:#64748b;">Tirar ou Anexar</span></div>
+        </div>
+        <input type="file" id="fileInput" accept="image/*" onchange="handleFile(event)">
+    </div>
 
-<label>Quantidade</label>
-<input type="number" id="quantidade" placeholder="Ex: 1" min="1">
+    <div class="form-group">
+        <label>Localização Detectada</label>
+        <input type="text" id="cidade" placeholder="Buscando cidade..." readonly>
+        <span class="loc-info">📍 Cidade capturada automaticamente</span>
+    </div>
 
-<label>Fotos (até 3)</label>
-<input type="file" id="fotos" multiple accept="image/*">
-<div class="preview-container" id="previewContainer"></div>
+    <div class="form-group">
+        <label>Marca</label>
+        <select id="marca">
+            <option>Apple</option><option>Samsung</option><option>Motorola</option><option>Xiaomi</option><option>Outros</option>
+        </select>
+    </div>
 
-<label>Descrição</label>
-<textarea id="descricao" placeholder="Informações do aparelho..."></textarea>
+    <div class="form-group"><label>Modelo</label><input type="text" id="modelo" placeholder="Ex: iPhone 13 Pro Max"></div>
+    <div class="form-group"><label>Cor</label><input type="text" id="cor" placeholder="Ex: Verde Alpino"></div>
+    <div class="form-group"><label>Capacidade</label><select id="capacidade"><option>128GB</option><option>256GB</option><option>512GB</option><option>1TB</option></select></div>
+    <div class="form-group"><label>Condição</label><select id="condicao"><option>Novo</option><option>Lacrado</option><option>Vitrine</option><option>Usado</option></select></div>
+    <div class="form-group"><label>Estado</label><select id="estado"><option>Excelente</option><option>Ótimo</option><option>Bom</option><option>Razoável</option></select></div>
+    <div class="form-group"><label>Saúde da Bateria (%)</label><input type="number" id="bateria" placeholder="Ex: 95"></div>
+    <div class="form-group"><label>Preço Sugerido (R$)</label><input type="number" id="preco" placeholder="Ex: 3800"></div>
+    <div class="form-group"><label>Garantia</label><input type="text" id="garantia" placeholder="Ex: 6 meses"></div>
+    <div class="form-group"><label>Descrição do Anúncio</label><textarea id="descricao" rows="4" placeholder="Detalhes do aparelho, riscos ou acessórios inclusos..."></textarea></div>
 
-<button id="btnAnunciar">Anunciar e Abrir WhatsApp</button>
-<p class="status-estoque" id="statusEstoque"></p>
+    <div class="form-group"><label>Estoque Inicial</label><input type="number" id="estoque" min="1" value="1"></div>
+
+    <button class="btn-save" id="btnSubmit" onclick="salvarAnuncio()">PUBLICAR NO RADAR</button>
+    <button class="btn-clear" onclick="limparFormulario()">LIMPAR FORMULÁRIO</button>
 </div>
+
+<nav class="nav-bottom">
+    <a href="index.html" class="nav-item"><span>🏠</span>HOME</a>
+    <a href="vendedor-anuncio.html" class="nav-item active"><span>➕</span>Anunciar</a>
+    <a href="dashboard-interesses.html" class="nav-item"><span>📲</span>Interesses</a>
+</nav>
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-app.js";
-import { getFirestore, collection, addDoc, doc, updateDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-firestore.js";
+import { getFirestore, collection, addDoc, doc, getDoc } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-firestore.js";
 import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-auth.js";
 
-// 🔹 Firebase Config atualizado
 const firebaseConfig = { 
     apiKey: "AIzaSyBiN8FqX8UZeyAh1cG2GHZtQWiQH0xPBV4", 
     authDomain: "rephone-a0a80.firebaseapp.com", 
     projectId: "rephone-a0a80", 
     storageBucket: "rephone-a0a80.firebasestorage.app", 
-    messagingSenderId: "431497247030", 
-    appId: "1:431497247030:web:a943715e4acc04b8995b97"  
+    appId: "1:431497247030:web:a943715e4acc04b8995b97" 
 };
-
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 const auth = getAuth(app);
+const IMGBB_API_KEY = "a4405be3b982f9aad88589728a3d949c";
 
-const modeloEl = document.getElementById("modelo");
-const precoEl = document.getElementById("preco");
-const qtdEl = document.getElementById("quantidade");
-const descricaoEl = document.getElementById("descricao");
-const fotosEl = document.getElementById("fotos");
-const previewContainer = document.getElementById("previewContainer");
-const btnEl = document.getElementById("btnAnunciar");
-const statusEstoque = document.getElementById("statusEstoque");
+let userLogado = null;
+let fotoArquivo = null;
 
-// Previsualização de fotos
-fotosEl.addEventListener("change", ()=>{
-    previewContainer.innerHTML="";
-    Array.from(fotosEl.files).forEach(file=>{
-        const url = URL.createObjectURL(file);
-        const img = document.createElement("img");
-        img.src=url; img.className="preview";
-        previewContainer.appendChild(img);
+onAuthStateChanged(auth, async (user)=>{
+    if(user){
+        userLogado = user;
+        const userDoc = await getDoc(doc(db,"vendedores",user.uid));
+        if(userDoc.exists()){
+            const data = userDoc.data();
+            document.getElementById('vendedorNome').innerText = `Nome: ${data.nome || '--'}`;
+            document.getElementById('vendedorTipo').innerText = `Tipo: ${data.tipo==='lojista'?'🏢 Lojista':'👤 Particular'}`;
+            document.getElementById('vendedorStatus').innerText = `Status: ${data.status==='verificado'?'✅ Verificado':'⚠️ Não verificado'}`;
+            document.getElementById('vendedorWhats').innerText = `WhatsApp: ${data.zap || 'Não cadastrado'}`;
+        }
+        document.getElementById('loading').style.display='none';
+        document.getElementById('app').style.display='block';
+        obterCidade();
+    }else{ window.location.href='vendedor-login.html'; }
+});
+
+async function obterCidade(){
+    navigator.geolocation.getCurrentPosition(async pos=>{
+        const res = await fetch(`https://nominatim.openstreetmap.org/reverse?lat=${pos.coords.latitude}&lon=${pos.coords.longitude}&format=json`);
+        const data = await res.json();
+        document.getElementById('cidade').value = data.address.city||data.address.town||"Local Indefinido";
     });
-});
+}
 
-// Autenticação
-let vendedorId="";
-onAuthStateChanged(auth, user=>{
-    if(!user) window.location.href="vendedor-login.html";
-    else vendedorId=user.uid;
-});
+window.handleFile = (event)=>{
+    fotoArquivo=event.target.files[0];
+    if(fotoArquivo){
+        const reader=new FileReader();
+        reader.onload=e=>{
+            document.getElementById('preview').src=e.target.result;
+            document.getElementById('preview').style.display='block';
+            document.getElementById('uploadPlaceholder').style.display='none';
+        }
+        reader.readAsDataURL(fotoArquivo);
+    }
+};
 
-btnEl.addEventListener("click", async ()=>{
-    const modelo = modeloEl.value.trim();
-    const preco = Number(precoEl.value);
-    const quantidade = Number(qtdEl.value);
-    const descricao = descricaoEl.value.trim();
+window.limparFormulario=()=>{
+    document.getElementById('preview').style.display='none';
+    document.getElementById('uploadPlaceholder').style.display='flex';
+    fotoArquivo=null;
+    ['marca','modelo','cor','capacidade','condicao','estado','bateria','preco','garantia','descricao','estoque'].forEach(id=>{
+        const el=document.getElementById(id);
+        if(el.tagName==='SELECT') el.selectedIndex=0;
+        else if(el.type==='number') el.value=id==='estoque'?1:'';
+        else el.value='';
+    });
+};
 
-    if(!modelo || !preco || !quantidade) return alert("Preencha todos os campos.");
-
-    btnEl.disabled=true;
-    btnEl.innerText="Criando anúncio...";
+window.salvarAnuncio=async()=>{
+    const estoque = parseInt(document.getElementById('estoque').value)||1;
+    if(estoque<1) return alert("Estoque deve ser no mínimo 1!");
+    if(!fotoArquivo) return alert("Adicione uma foto!");
+    const btn=document.getElementById('btnSubmit'); btn.disabled=true; btn.innerText="SUBINDO IMAGEM...";
 
     try{
-        // 1️⃣ Criar documento do anúncio
-        const docRef = await addDoc(collection(db,"anuncios"),{
-            modelo, preco, quantidade, fotos:[], descricao,
-            vendedorId, statusVenda:null, ativo:true, criadoEm:serverTimestamp()
+        const formData=new FormData(); formData.append("image",fotoArquivo);
+        const resImg=await fetch(`https://api.imgbb.com/1/upload?key=${IMGBB_API_KEY}`,{method:"POST",body:formData});
+        const dataImg=await resImg.json();
+        const urlFinal=dataImg.data.url;
+
+        await addDoc(collection(db,"anuncios"),{
+            vendedorId:userLogado.uid,
+            nomeVendedor:document.getElementById('vendedorNome').innerText.replace('Nome: ',''),
+            tipoVendedor:document.getElementById('vendedorTipo').innerText.replace('Tipo: ',''),
+            statusVendedor:document.getElementById('vendedorStatus').innerText.replace('Status: ',''),
+            whatsapp:document.getElementById('vendedorWhats').innerText.replace('WhatsApp: ',''),
+            cidade:document.getElementById('cidade').value,
+            marca:document.getElementById('marca').value,
+            modelo:document.getElementById('modelo').value,
+            cor:document.getElementById('cor').value,
+            capacidade:document.getElementById('capacidade').value,
+            condicao:document.getElementById('condicao').value,
+            estado:document.getElementById('estado').value,
+            bateria:document.getElementById('bateria').value,
+            preco:document.getElementById('preco').value,
+            garantia:document.getElementById('garantia').value,
+            descricao:document.getElementById('descricao').value,
+            fotos:[urlFinal],
+            statusVenda:"disponivel",
+            estoque: estoque,
+            dataCriacao:new Date()
         });
 
-        // 2️⃣ Simula upload de fotos (aqui apenas URLs locais placeholder, pode integrar Storage depois)
-        const urls = Array.from(fotosEl.files).map(f=>URL.createObjectURL(f));
-        await updateDoc(doc(db,"anuncios",docRef.id),{fotos:urls});
-
-        statusEstoque.innerText = `✅ Estoque disponível: ${quantidade}`;
-
-        // 3️⃣ Abrir WhatsApp para comprador (pode preencher número do cliente depois)
-        const msg = encodeURIComponent(`Olá! Tenho disponível o aparelho ${modelo} por R$ ${preco}. Acesse: https://www.rephone.com.br/v3/acompanhar.html?anuncio=${docRef.id}`);
-        window.open(`https://wa.me/?text=${msg}`,'_blank');
-
-        btnEl.innerText="Anúncio criado e WhatsApp aberto!";
-    }catch(e){
-        console.error(e);
-        alert("Erro ao criar anúncio.");
-        btnEl.disabled=false;
-        btnEl.innerText="Anunciar e Abrir WhatsApp";
-    }
-});
+        alert("Anúncio publicado!");
+        limparFormulario();
+    }catch(e){console.error(e); alert("Erro ao publicar."); btn.disabled=false; btn.innerText="PUBLICAR NO RADAR";}
+};
 </script>
-
 </body>
 </html>
