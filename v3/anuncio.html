@@ -339,43 +339,60 @@ async function carregarAnuncio() {
   badge.innerText = badgeTxt;
   badge.className = badgeClass;
 
-  /* ================= WHATSAPP (Apenas se não estiver vendido) ================= */
+  /* ================= WHATSAPP E REGISTRO DE NEGOCIAÇÃO ================= */
 if (ad.statusVenda !== "vendido" && ad.statusVenda !== "entregue") {
-    const mensagem = `Olá! Vi seu anúncio do ${ad.marca} ${ad.modelo} no RePhone...`;
-
+    
     btnZap.onclick = async (e) => {
         e.preventDefault();
+
+        // 1. Verificar se está logado (Obrigatório para o painel de compras)
+        const user = auth.currentUser;
+        if (!user) {
+            alert("Para negociar, você precisa estar logado!");
+            window.location.href = 'login-cliente.html';
+            return;
+        }
 
         if (!ad.whatsapp) {
             alert("Vendedor não informou WhatsApp");
             return;
         }
 
-        const nome = vendedorNome || "vendedor";
-const linkAnuncio = window.location.href;
+        // Bloquear botão para evitar múltiplos cliques
+        btnZap.innerText = "REGISTRANDO...";
+        btnZap.style.opacity = "0.5";
 
-const mensagem = 
-`Olá ${nome}! Vi seu anúncio do ${ad.marca} ${ad.modelo} no RePhone e me interessei.
-Está disponível? Pode me confirmar as condições do aparelho e se há possibilidade de negociação?
+        const nomeVendedor = vendedorNome || "vendedor";
+        const linkAnuncio = window.location.href;
 
-Link do anúncio: ${linkAnuncio}`;
-        const zapUrl = `https://wa.me/55${ad.whatsapp}?text=${encodeURIComponent(mensagem)}`;
-window.location.href = zapUrl;
-
-        /* iPhone só funciona assim */
-        window.location.href = zapUrl;
+        // Mensagem Única (Corrigido erro de duplicidade)
+        const msgTexto = `Olá ${nomeVendedor}! Vi seu anúncio do ${ad.marca} ${ad.modelo} no RePhone e me interessei.\n\nLink do anúncio: ${linkAnuncio}`;
+        const zapUrl = `https://wa.me/55${ad.whatsapp.replace(/\D/g, '')}?text=${encodeURIComponent(msgTexto)}`;
 
         try {
-            await addDoc(collection(db, "interesses"), {
-                anuncioId,
+            // 2. Registra na coleção de COMPRAS (para aparecer no dashboard do cliente)
+            // Usamos addDoc para gerar um ID automático para essa transação
+            await addDoc(collection(db, "compras"), {
+                anuncioId: anuncioId,
+                clienteId: user.uid,
                 vendedorId: ad.vendedorId || ad.uid || null,
-                compradorId: auth.currentUser ? auth.currentUser.uid : "anonimo",
-                canal: "whatsapp",
-                criadoEm: serverTimestamp(),
-                status: "contato"
+                modelo: ad.modelo,
+                marca: ad.marca,
+                preco: ad.preco,
+                whatsapp: ad.whatsapp,
+                nomeVendedor: nomeVendedor,
+                status: "Negociação Iniciada",
+                confirmacaoComprador: false,
+                dataPedido: serverTimestamp()
             });
+
+            // 3. Só redireciona APÓS salvar no banco
+            window.location.href = zapUrl;
+
         } catch (e) {
-            console.warn("Interesse não registrado", e);
+            console.error("Erro ao registrar interesse:", e);
+            // Mesmo se o banco falhar, deixamos o usuário prosseguir para não perder a venda
+            window.location.href = zapUrl;
         }
     };
 }
