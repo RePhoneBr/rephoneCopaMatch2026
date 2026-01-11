@@ -1,62 +1,94 @@
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
-<meta charset="UTF-8">
-<title>Login Cliente | RePhone</title>
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
-<style>
-body { font-family:'Inter',sans-serif; background:#f8fafc; display:flex; justify-content:center; align-items:center; height:100vh; padding:20px; }
-.card { background:white; padding:35px; border-radius:25px; max-width:400px; width:100%; box-shadow:0 20px 40px rgba(0,0,0,0.05); text-align:center; }
-h2 { font-weight:900; font-size:22px; margin-bottom:15px; }
-input { width:100%; padding:15px; border-radius:12px; border:1px solid #e2e8f0; margin-bottom:15px; font-size:15px; }
-button { width:100%; padding:16px; border:none; border-radius:15px; font-weight:800; background:#16a34a; color:white; cursor:pointer; }
-button:disabled { background:#9ca3af; cursor:not-allowed; }
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Entrar | RePhone</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
+    <style>
+        :root { --dark: #0f172a; --green: #16a34a; --bg: #f8fafc; --muted: #64748b; }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; }
+        body { background: var(--bg); display: flex; align-items: center; justify-content: center; min-height: 100vh; padding: 20px; }
+        
+        .login-card { background: white; width: 100%; max-width: 400px; padding: 40px; border-radius: 24px; box-shadow: 0 10px 40px rgba(0,0,0,0.05); text-align: center; }
+        h2 { font-weight: 900; font-size: 28px; margin-bottom: 10px; letter-spacing: -1px; }
+        p { color: var(--muted); font-size: 14px; margin-bottom: 30px; }
+
+        .btn-google { width: 100%; display: flex; align-items: center; justify-content: center; gap: 10px; background: white; border: 1px solid #e2e8f0; padding: 14px; border-radius: 12px; font-weight: 700; cursor: pointer; transition: 0.3s; margin-bottom: 20px; }
+        .btn-google:hover { background: #f1f5f9; }
+        .btn-google img { width: 20px; }
+
+        .divider { display: flex; align-items: center; color: #cbd5e1; font-size: 12px; margin: 20px 0; font-weight: 700; }
+        .divider::before, .divider::after { content: ""; flex: 1; height: 1px; background: #e2e8f0; margin: 0 10px; }
+
+        input { width: 100%; padding: 14px; margin-bottom: 15px; border-radius: 12px; border: 1px solid #e2e8f0; font-size: 15px; outline: none; }
+        .btn-login { width: 100%; background: var(--dark); color: white; border: none; padding: 16px; border-radius: 12px; font-weight: 800; cursor: pointer; }
+        
+        .footer-links { margin-top: 25px; font-size: 13px; color: var(--muted); }
+        .footer-links a { color: var(--dark); font-weight: 700; text-decoration: none; }
+    </style>
 </head>
 <body>
 
-<div class="card">
-<h2>Login Cliente</h2>
-<input type="email" id="email" placeholder="seu@email.com">
-<input type="password" id="senha" placeholder="••••••••">
-<button id="btnLogin">Entrar</button>
+<div class="login-card">
+    <h2>RePhone</h2>
+    <p>Entre para negociar e acompanhar seus pedidos.</p>
+
+    <button class="btn-google" id="btnGoogle">
+        <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google">
+        Entrar com Google
+    </button>
+
+    <div class="divider">OU COM E-MAIL</div>
+
+    <input type="email" id="email" placeholder="Seu e-mail">
+    <input type="password" id="pass" placeholder="Sua senha">
+    
+    <button class="btn-login" id="btnLogin">ENTRAR</button>
+
+    <div class="footer-links">
+        Não tem conta? <a href="cadastro-cliente.html">Criar conta grátis</a>
+    </div>
 </div>
 
 <script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-app.js";
-import { getAuth, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-auth.js";
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-app.js";
+    import { getAuth, signInWithEmailAndPassword, GoogleAuthProvider, signInWithPopup } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-auth.js";
 
-// 🔹 Firebase Config atualizado
-const firebaseConfig = { 
-    apiKey: "AIzaSyBiN8FqX8UZeyAh1cG2GHZtQWiQH0xPBV4", 
-    authDomain: "rephone-a0a80.firebaseapp.com", 
-    projectId: "rephone-a0a80", 
-    storageBucket: "rephone-a0a80.firebasestorage.app", 
-    messagingSenderId: "431497247030", 
-    appId: "1:431497247030:web:a943715e4acc04b8995b97"  
-};
+    const firebaseConfig = { 
+        apiKey: "AIzaSyBiN8FqX8UZeyAh1cG2GHZtQWiQH0xPBV4", 
+        authDomain: "rephone-a0a80.firebaseapp.com", 
+        projectId: "rephone-a0a80", 
+        storageBucket: "rephone-a0a80.firebasestorage.app", 
+        appId: "1:431497247030:web:a943715e4acc04b8995b97" 
+    };
 
-const app = initializeApp(firebaseConfig);
-const auth = getAuth(app);
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const provider = new GoogleAuthProvider();
 
-document.getElementById("btnLogin").addEventListener("click", async () => {
-    const email = document.getElementById("email").value;
-    const senha = document.getElementById("senha").value;
-    const btn = document.getElementById("btnLogin");
-    btn.disabled = true;
-    btn.innerText = "Verificando...";
+    // Login com Google
+    document.getElementById('btnGoogle').onclick = async () => {
+        try {
+            await signInWithPopup(auth, provider);
+            window.location.href = 'index.html'; // Volta para a home para negociar
+        } catch (e) {
+            alert("Erro ao entrar com Google: " + e.message);
+        }
+    };
 
-    try{
-        await signInWithEmailAndPassword(auth, email, senha);
-        window.location.href = "compras.html";
-    } catch(e){
-        alert("E-mail ou senha incorretos.");
-        btn.disabled = false;
-        btn.innerText = "Entrar";
-    }
-});
+    // Login com E-mail
+    document.getElementById('btnLogin').onclick = async () => {
+        const email = document.getElementById('email').value;
+        const pass = document.getElementById('pass').value;
+
+        try {
+            await signInWithEmailAndPassword(auth, email, pass);
+            window.location.href = 'index.html';
+        } catch (e) {
+            alert("E-mail ou senha incorretos.");
+        }
+    };
 </script>
-
 </body>
 </html>
