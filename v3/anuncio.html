@@ -257,11 +257,9 @@
     </div>
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-app.js";
-import { getFirestore, doc, getDoc, addDoc, collection, serverTimestamp } 
-from "https://www.gstatic.com/firebasejs/12.7.0/firebase-firestore.js";
-import { getAuth } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-auth.js";
+import { getFirestore, doc, getDoc, addDoc, collection, serverTimestamp } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-firestore.js";
+import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-auth.js";
 
-/* ================= FIREBASE ================= */
 const firebaseConfig = { 
   apiKey: "AIzaSyBiN8FqX8UZeyAh1cG2GHZtQWiQH0xPBV4", 
   authDomain: "rephone-a0a80.firebaseapp.com", 
@@ -274,167 +272,133 @@ const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 const auth = getAuth(app);
 
-/* ================= PARAM ================= */
 const anuncioId = new URLSearchParams(location.search).get("id");
+let usuarioLogado = null;
+
+// Escuta o estado do usuário
+onAuthStateChanged(auth, (user) => {
+    usuarioLogado = user;
+});
+
 if (!anuncioId) {
-  alert("Anúncio não encontrado");
-  throw new Error("Sem ID");
+    alert("Anúncio não encontrado");
+    window.location.href = 'index.html';
 }
 
-/* ================= UTIL ================= */
-function primeiraFoto(fotos) {
-  if (Array.isArray(fotos) && fotos.length) return fotos[0];
-  if (typeof fotos === "string") return fotos;
-  return "/img/placeholder.png";
-}
-
-/* ================= LOAD ================= */
 async function carregarAnuncio() {
-  const snap = await getDoc(doc(db, "anuncios", anuncioId));
-  if (!snap.exists()) {
-    alert("Anúncio não existe");
-    return;
-  }
-
-  const ad = snap.data();
-  const precoFmt = Number(ad.preco || 0).toLocaleString("pt-BR", { minimumFractionDigits: 2 });
-
-  /* ===== VERIFICAÇÃO DE STATUS DE VENDA ===== */
-  const btnZap = document.getElementById("pZap");
-  
-  // Se o status for 'vendido' ou 'entregue', desabilita o botão
-  if (ad.statusVenda === "vendido" || ad.statusVenda === "entregue") {
-    btnZap.innerText = "APARELHO VENDIDO";
-    btnZap.classList.add("vendido");
-    btnZap.href = "javascript:void(0)"; // Remove link
-  }
-
-  /* ===== DADOS (Mantidos) ===== */
-  document.getElementById("pImg").src = primeiraFoto(ad.fotos);
-  document.getElementById("pModeloHeader").innerText = ad.modelo || "--";
-  document.getElementById("pModeloGrid").innerText = ad.modelo || "--";
-  document.getElementById("pPreco").innerText = `R$ ${precoFmt}`;
-  document.getElementById("pMarca").innerText = ad.marca || "--";
-  document.getElementById("pCor").innerText = ad.cor || "--";
-  document.getElementById("pCapacidade").innerText = ad.capacidade || "--";
-  document.getElementById("pCondicao").innerText = ad.condicao || "--";
-  document.getElementById("pEstado").innerText = ad.estado || "--";
-  document.getElementById("pBateria").innerText = ad.bateria || "--";
-  document.getElementById("pGarantia").innerText = ad.garantia || "Sem garantia";
-  document.getElementById("pDesc").innerText = ad.descricao || "";
-  document.getElementById("pLocal").innerText = `📍 ${ad.cidade || "Local não informado"}`;
-
-  document.getElementById("mainPanel").style.display = "grid";
-
-  /* ===== VENDEDOR (Mantido) ===== */
-  let vendedorNome = "Vendedor particular";
-  let badgeTxt = "👤 VENDEDOR PARTICULAR";
-  let badgeClass = "badge-verificado status-particular";
-
-  if (ad.vendedorId || ad.uid) {
-    const vSnap = await getDoc(doc(db, "vendedores", ad.vendedorId || ad.uid));
-    if (vSnap.exists()) {
-      const v = vSnap.data();
-      vendedorNome = v.nome || vendedorNome;
-      if (v.status === "verificado") {
-        badgeTxt = "🏢 LOJISTA VERIFICADO";
-        badgeClass = "badge-verificado status-lojista";
-      }
-    }
-  }
-
-  document.getElementById("pNomeVendedor").innerText = `Vendedor: ${vendedorNome}`;
-  const badge = document.getElementById("pVendedorTipo");
-  badge.innerText = badgeTxt;
-  badge.className = badgeClass;
-
-  /* ================= WHATSAPP E REGISTRO DE NEGOCIAÇÃO ================= */
-if (ad.statusVenda !== "vendido" && ad.statusVenda !== "entregue") {
-    
-    btnZap.onclick = async (e) => {
-        e.preventDefault();
-
-        // 1. Verificar se está logado (Obrigatório para o painel de compras)
-        const user = auth.currentUser;
-        if (!user) {
-            alert("Para negociar, você precisa estar logado!");
-            window.location.href = 'login-cliente.html';
-            return;
-        }
-        function iniciarNegociacao() {
-    const user = auth.currentUser;
-    const urlParams = new URLSearchParams(window.location.search);
-    const adId = urlParams.get('id');
-
-    if (!user) {
-        // Se não estiver logado, envia para o login passando o ID do anúncio atual na URL
-        window.location.href = `login-cliente.html?returnId=${adId}`;
+    const snap = await getDoc(doc(db, "anuncios", anuncioId));
+    if (!snap.exists()) {
+        alert("Anúncio não existe");
         return;
     }
 
-    // Se já estiver logado, segue para o checkout ou chat
-    window.location.href = `confirmar-compra.html?id=${adId}`;
-}
+    const ad = snap.data();
+    const precoFmt = Number(ad.preco || 0).toLocaleString("pt-BR", { minimumFractionDigits: 2 });
 
-        if (!ad.whatsapp) {
-            alert("Vendedor não informou WhatsApp");
-            return;
+    // Preencher UI
+    document.getElementById("pImg").src = ad.fotos?.[0] || "https://via.placeholder.com/400";
+    document.getElementById("pModeloHeader").innerText = ad.modelo || "--";
+    document.getElementById("pModeloGrid").innerText = ad.modelo || "--";
+    document.getElementById("pPreco").innerText = `R$ ${precoFmt}`;
+    document.getElementById("pMarca").innerText = ad.marca || "--";
+    document.getElementById("pCor").innerText = ad.cor || "--";
+    document.getElementById("pCapacidade").innerText = ad.capacidade || "--";
+    document.getElementById("pCondicao").innerText = ad.condicao || "--";
+    document.getElementById("pEstado").innerText = ad.estado || "--";
+    document.getElementById("pBateria").innerText = (ad.bateria || "--");
+    document.getElementById("pGarantia").innerText = ad.garantia || "Sem garantia";
+    document.getElementById("pDesc").innerText = ad.descricao || "";
+    document.getElementById("pLocal").innerText = `📍 ${ad.cidade || "Local não informado"}`;
+    document.getElementById("mainPanel").style.display = "grid";
+
+    // Lógica do Vendedor
+    let vendedorNome = ad.nomeVendedor || "Vendedor Particular";
+    const pVendedorTipo = document.getElementById("pVendedorTipo");
+    const pNomeVendedor = document.getElementById("pNomeVendedor");
+
+    const vSnap = await getDoc(doc(db, "vendedores", ad.vendedorId || ad.uid));
+    if (vSnap.exists()) {
+        const v = vSnap.data();
+        vendedorNome = v.nome || vendedorNome;
+        if (v.status === "verificado") {
+            pVendedorTipo.innerText = "🏢 LOJISTA VERIFICADO";
+            pVendedorTipo.className = "badge-verificado status-lojista";
+        } else {
+            pVendedorTipo.innerText = "👤 VENDEDOR PARTICULAR";
+            pVendedorTipo.className = "badge-verificado status-particular";
         }
-
-        // Bloquear botão para evitar múltiplos cliques
-        btnZap.innerText = "REGISTRANDO...";
-        btnZap.style.opacity = "0.5";
-
-        const nomeVendedor = vendedorNome || "vendedor";
-        const linkAnuncio = window.location.href;
-
-        // Mensagem Única (Corrigido erro de duplicidade)
-        const msgTexto = `Olá ${nomeVendedor}! Vi seu anúncio do ${ad.marca} ${ad.modelo} no RePhone e me interessei.\n\nLink do anúncio: ${linkAnuncio}`;
-        const zapUrl = `https://wa.me/55${ad.whatsapp.replace(/\D/g, '')}?text=${encodeURIComponent(msgTexto)}`;
-
-        try {
-            // 2. Registra na coleção de COMPRAS (para aparecer no dashboard do cliente)
-            // Usamos addDoc para gerar um ID automático para essa transação
-            await addDoc(collection(db, "compras"), {
-                anuncioId: anuncioId,
-                clienteId: user.uid,
-                vendedorId: ad.vendedorId || ad.uid || null,
-                modelo: ad.modelo,
-                marca: ad.marca,
-                preco: ad.preco,
-                whatsapp: ad.whatsapp,
-                nomeVendedor: nomeVendedor,
-                status: "Negociação Iniciada",
-                confirmacaoComprador: false,
-                dataPedido: serverTimestamp()
-            });
-
-            // 3. Só redireciona APÓS salvar no banco
-            window.location.href = zapUrl;
-
-        } catch (e) {
-            console.error("Erro ao registrar interesse:", e);
-            // Mesmo se o banco falhar, deixamos o usuário prosseguir para não perder a venda
-            window.location.href = zapUrl;
-        }
-    };
-}
-  /* ================= SHARE (Mantido) ================= */
-  document.getElementById("pShare").onclick = async () => {
-    const shareData = {
-      title: `RePhone - ${ad.marca} ${ad.modelo}`,
-      text: `📱 ${ad.marca} ${ad.modelo}\n💰 R$ ${precoFmt}\nDisponível no RePhone.com.br`,
-      url: window.location.href
-    };
-    if (navigator.share) await navigator.share(shareData);
-    else {
-      await navigator.clipboard.writeText(window.location.href);
-      alert("Link copiado!");
     }
-  };
-}
+    pNomeVendedor.innerText = `Vendedor: ${vendedorNome}`;
 
-/* 🚀 START */
+    // Lógica do Botão Negociar
+    const btnZap = document.getElementById("pZap");
+    const isVendido = ad.statusVenda === "vendido" || ad.statusVenda === "entregue";
+
+    if (isVendido) {
+        btnZap.innerText = "APARELHO VENDIDO";
+        btnZap.classList.add("vendido");
+        btnZap.onclick = null;
+    } else {
+        btnZap.onclick = async (e) => {
+            e.preventDefault();
+            
+            if (!usuarioLogado) {
+                alert("Para negociar, você precisa estar logado!");
+                window.location.href = `login-cliente.html?returnId=${anuncioId}`;
+                return;
+            }
+
+            if (!ad.whatsapp) return alert("Vendedor sem WhatsApp cadastrado.");
+
+            btnZap.innerText = "REGISTRANDO...";
+            btnZap.style.opacity = "0.5";
+
+            try {
+                // Registrar intenção na coleção 'compras'
+                await addDoc(collection(db, "compras"), {
+                    anuncioId: anuncioId,
+                    clienteId: usuarioLogado.uid,
+                    clienteNome: usuarioLogado.displayName || "Cliente",
+                    vendedorId: ad.vendedorId || ad.uid,
+                    produto: ad.modelo,
+                    preco: ad.preco,
+                    fotoProduto: ad.fotos?.[0] || "",
+                    vendedorNome: vendedorNome,
+                    status: "Em negociação",
+                    confirmacaoComprador: false,
+                    dataCompra: serverTimestamp()
+                });
+
+                // Abrir WhatsApp
+                const msg = `Olá ${vendedorNome}! Vi seu anúncio do ${ad.modelo} no RePhone e tenho interesse. Link: ${window.location.href}`;
+                window.open(`https://wa.me/55${ad.whatsapp.replace(/\D/g, '')}?text=${encodeURIComponent(msg)}`, '_blank');
+                
+                btnZap.innerText = "NEGOCIAR";
+                btnZap.style.opacity = "1";
+
+            } catch (error) {
+                console.error("Erro:", error);
+                alert("Erro ao registrar interesse.");
+                btnZap.innerText = "NEGOCIAR";
+                btnZap.style.opacity = "1";
+            }
+        };
+    }
+
+    // Compartilhamento
+    document.getElementById("pShare").onclick = async () => {
+        const shareData = {
+            title: `RePhone - ${ad.modelo}`,
+            text: `Confira este ${ad.modelo} no RePhone!`,
+            url: window.location.href
+        };
+        if (navigator.share) await navigator.share(shareData);
+        else {
+            await navigator.clipboard.writeText(window.location.href);
+            alert("Link copiado!");
+        }
+    };
+}
 carregarAnuncio();
     </script>
 </body>
