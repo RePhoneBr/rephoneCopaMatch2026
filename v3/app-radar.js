@@ -62,7 +62,84 @@ onAuthStateChanged(auth, async (user) => {
         if(menuGuest) menuGuest.style.display = 'flex';
         if(menuLogged) menuLogged.style.display = 'none';
     }
+});// --- AUTH OBSERVER (CORREÇÃO DO LOOP DE REDIRECIONAMENTO) ---
+onAuthStateChanged(auth, async (user) => {
+    usuarioLogado = user;
+    const menuGuest = document.getElementById('menuGuest');
+    const menuLogged = document.getElementById('menuLogged');
+    const greeting = document.getElementById('greeting');
+
+    if (user) {
+        if(menuGuest) menuGuest.style.display = 'none';
+        if(menuLogged) menuLogged.style.display = 'flex';
+        
+        // Verifica se o usuário acabou de logar e precisa ser mandado para compras ou anúncio
+        const urlParams = new URLSearchParams(window.location.search);
+        const returnId = urlParams.get('returnId');
+        const goto = urlParams.get('goto');
+
+        if (goto === 'compras') {
+            window.location.href = 'compras.html';
+        } else if (returnId) {
+            window.location.href = `anuncio.html?id=${returnId}`;
+        }
+
+        try {
+            const vDoc = await getDoc(doc(db, "vendedores", user.uid));
+            if(vDoc.exists() && greeting) greeting.innerText = "OLÁ, " + (vDoc.data().nome?.split(' ')[0].toUpperCase() || 'USUÁRIO');
+        } catch(e) {}
+    } else {
+        if(menuGuest) menuGuest.style.display = 'flex';
+        if(menuLogged) menuLogged.style.display = 'none';
+    }
 });
+
+// --- RENDERIZAR CARDS (CORREÇÃO DOS CAMPOS FALTANTES) ---
+function renderizar(lista) {
+    const grid = document.getElementById('radarGrid');
+    if(!grid) return;
+    grid.innerHTML = "";
+    
+    lista.forEach(ad => {
+        const isVendido = ad.statusVenda === "vendido" || ad.statusVenda === "entregue";
+        const precoNum = parseFloat(ad.preco) || 0;
+        
+        // Lógica de Localização e Distância
+        let distHtml = "";
+        let locMetodo = ad.coords?.metodo === "gps" ? "Confirmada" : "Aproximada";
+        
+        if (userLat && ad.coords?.lat && ad.coords?.lon) {
+            const d = calcularDistancia(userLat, userLng, ad.coords.lat, ad.coords.lon);
+            if (!isNaN(d)) {
+                distHtml = ` • ${d}km`;
+            }
+        }
+
+        const card = document.createElement('div');
+        card.className = 'card';
+        card.innerHTML = `
+            <a href="anuncio.html?id=${ad.id}" style="text-decoration:none; color:inherit;">
+                <div class="img-container">
+                    ${isVendido ? '<div class="badge-vendido">VENDIDO</div>' : ''}
+                    <img src="${ad.fotos?.[0] || ''}" style="filter:${isVendido ? 'grayscale(1)' : 'none'}">
+                </div>
+                <div class="tags-row">
+                    <span class="tag-vendedor ${ad.vendedorTipo === 'lojista' ? 'tag-loj' : 'tag-part'}">${ad.vendedorTipo || 'Particular'}</span>
+                </div>
+                <h3>${ad.modelo}</h3>
+                <div class="details" style="font-size: 10px; color: var(--text-muted); font-weight: 600; margin-bottom: 5px;">
+                    ${ad.capacidade || '--'} • Bateria ${ad.bateria || '--'}% • ${ad.condicao || ad.estado || '--'}
+                </div>
+                <div class="location-info" style="font-size: 10px; color: var(--green); font-weight: 700;">
+                    📍 ${ad.cidade || 'Região'} <span style="font-size: 9px; opacity: 0.7; font-weight: 400;">(${locMetodo})</span>${distHtml}
+                </div>
+                <div class="price-tag" style="background:${isVendido ? '#94a3b8' : ''}; margin-top: 8px;">
+                    R$ ${precoNum.toLocaleString('pt-br', {minimumFractionDigits:2})}
+                </div>
+            </a>`;
+        grid.appendChild(card);
+    });
+}
 
 // --- LOCALIZAÇÃO ---
 navigator.geolocation.getCurrentPosition((pos) => {
