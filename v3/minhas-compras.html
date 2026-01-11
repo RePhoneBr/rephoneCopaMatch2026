@@ -190,32 +190,70 @@
             }
         };
 
-        window.salvarFinalizacao = async () => {
-            const pag = document.getElementById('pagamento').value;
-            const ent = document.getElementById('entrega').value;
-            if(!pag || !ent) return alert("Erro: Informe a Forma de Pagamento e Entrega!");
+       window.salvarFinalizacao = async () => {
+    const pag = document.getElementById('pagamento').value;
+    const ent = document.getElementById('entrega').value;
 
-            try {
-                const cRef = doc(db, "compras", idSelecionado);
-                const cSnap = await getDoc(cRef);
-                const cData = cSnap.data();
+    if(!pag || !ent) return alert("Erro: Informe a Forma de Pagamento e Entrega!");
 
-                const adSnap = await getDoc(doc(db, "anuncios", cData.anuncioId));
-                const vSnap = await getDoc(doc(db, "vendedores", cData.vendedorId));
-                const ad = adSnap.exists() ? adSnap.data() : {};
-                const vend = vSnap.exists() ? vSnap.data() : {};
+    // Feedback visual
+    const btn = event.target;
+    btn.disabled = true;
+    btn.innerText = "CAPTURANDO SEGURANÇA...";
 
-                await updateDoc(cRef, {
-                    status: "Finalizado", formaPagamento: pag, formaEntrega: ent,
-                    dataFinalizacao: serverTimestamp(),
-                    backupVendedorWhatsapp: ad.whatsapp || vend.whatsapp || ""
-                });
+    // 1. Capturar Localização para auditoria (Admin)
+    navigator.geolocation.getCurrentPosition(async (pos) => {
+        const lat = pos.coords.latitude;
+        const lon = pos.coords.longitude;
+        const precisao = pos.coords.accuracy; // em metros
 
-                alert("Finalizado com sucesso!");
-                location.reload();
-            } catch(e) { console.error(e); }
-        };
+        try {
+            // 2. Transformar Coordenadas em Endereço via Nominatim (Gratuito)
+            const res = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}`);
+            const data = await res.json();
+            const enderecoFormatado = data.display_name;
 
+            // 3. Link para o Google Maps
+            const googleMapsLink = `https://www.google.com/maps?q=${lat},${lon}`;
+
+            const cRef = doc(db, "compras", idSelecionado);
+            const cSnap = await getDoc(cRef);
+            const cData = cSnap.data();
+
+            // 4. Salvar tudo no Firestore (Invisível para o cliente no HTML)
+            await updateDoc(cRef, {
+                status: "Finalizado",
+                formaPagamento: pag,
+                formaEntrega: ent,
+                dataFinalizacao: serverTimestamp(),
+                // Bloco de Segurança (Somente Admin vê no console/painel)
+                auditoriaSeguranca: {
+                    compradorEnderecoIP: "", // Opcional capturar via API externa
+                    compradorLocalizacaoTxt: enderecoFormatado,
+                    compradorMapsLink: googleMapsLink,
+                    compradorPrecisaoGps: `${precisao} metros`,
+                    vendedorId: cData.vendedorId
+                }
+            });
+
+            // 5. Enviar E-mails (Seu código anterior aqui...)
+            // ... addDoc(collection(db, "mail"), { ... })
+
+            alert("Venda finalizada com sucesso! Registro de segurança arquivado.");
+            location.reload();
+
+        } catch (e) {
+            console.error("Erro na auditoria:", e);
+            alert("Erro ao processar segurança. Tente novamente com GPS ligado.");
+            btn.disabled = false;
+            btn.innerText = "CONFIRMAR E REGISTRAR";
+        }
+    }, (error) => {
+        alert("Para sua segurança e do vendedor, ative o GPS para finalizar a compra.");
+        btn.disabled = false;
+        btn.innerText = "CONFIRMAR E REGISTRAR";
+    }, { enableHighAccuracy: true });
+};
         window.abrirAvaliacao = async (id) => {
             const nota = prompt("Qual nota você dá para o vendedor? (1 a 5)");
             if (nota >= 1 && nota <= 5) {
