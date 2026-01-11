@@ -1,1 +1,152 @@
-const _0x441446=_0x30f9;(function(_0x3150d5,_0x34c319){const _0x51c7dc=_0x30f9,_0x2c1bcc=_0x3150d5();while(!![]){try{const _0x34c134=parseInt(_0x51c7dc(0xec))/0x1*(parseInt(_0x51c7dc(0xfe))/0x2)+parseInt(_0x51c7dc(0xef))/0x3+-parseInt(_0x51c7dc(0xd4))/0x4+-parseInt(_0x51c7dc(0xf7))/0x5*(parseInt(_0x51c7dc(0xf8))/0x6)+parseInt(_0x51c7dc(0xfc))/0x7+parseInt(_0x51c7dc(0xff))/0x8*(parseInt(_0x51c7dc(0xf2))/0x9)+-parseInt(_0x51c7dc(0xf5))/0xa*(-parseInt(_0x51c7dc(0x10e))/0xb);if(_0x34c134===_0x34c319)break;else _0x2c1bcc['push'](_0x2c1bcc['shift']());}catch(_0x3f89b8){_0x2c1bcc['push'](_0x2c1bcc['shift']());}}}(_0x3be1,0xb909e));const _0x47a81a=(function(){let _0x18ed2e=!![];return function(_0x154585,_0x39eb55){const _0x28815=_0x18ed2e?function(){const _0x7eec4b=_0x30f9;if(_0x39eb55){const _0x3f2760=_0x39eb55[_0x7eec4b(0xe6)](_0x154585,arguments);return _0x39eb55=null,_0x3f2760;}}:function(){};return _0x18ed2e=![],_0x28815;};}());function _0x30f9(_0x3111c5,_0x28bc4b){_0x3111c5=_0x3111c5-0xd3;const _0x20013c=_0x3be1();let _0x255c5a=_0x20013c[_0x3111c5];return _0x255c5a;}(function(){_0x47a81a(this,function(){const _0x34c295=_0x30f9,_0x38edb2=new RegExp(_0x34c295(0xd6)),_0x32929e=new RegExp('\x5c+\x5c+\x20*(?:[a-zA-Z_$][0-9a-zA-Z_$]*)','i'),_0x5eb0d4=_0x468110(_0x34c295(0xfa));!_0x38edb2[_0x34c295(0xd7)](_0x5eb0d4+_0x34c295(0xf1))||!_0x32929e[_0x34c295(0xd7)](_0x5eb0d4+_0x34c295(0xea))?_0x5eb0d4('0'):_0x468110();})();}());const _0x38fc06=(function(){let _0x4ec4eb=!![];return function(_0x5b55d2,_0x521df8){const _0x1f285c=_0x4ec4eb?function(){const _0x650cb0=_0x30f9;if(_0x521df8){const _0x530ac5=_0x521df8[_0x650cb0(0xe6)](_0x5b55d2,arguments);return _0x521df8=null,_0x530ac5;}}:function(){};return _0x4ec4eb=![],_0x1f285c;};}()),_0x255c5a=_0x38fc06(this,function(){const _0x4e3739=_0x30f9,_0x1aef3c=function(){const _0x5629fe=_0x30f9;let _0x236116;try{_0x236116=Function(_0x5629fe(0x101)+_0x5629fe(0xda)+');')();}catch(_0x29eb94){_0x236116=window;}return _0x236116;},_0x51f7c3=_0x1aef3c(),_0xb6413e=_0x51f7c3[_0x4e3739(0x104)]=_0x51f7c3['console']||{},_0xd35244=['log',_0x4e3739(0x109),_0x4e3739(0xdf),_0x4e3739(0x108),_0x4e3739(0xf6),_0x4e3739(0x111),_0x4e3739(0xf0)];for(let _0xd60af8=0x0;_0xd60af8<_0xd35244[_0x4e3739(0xf4)];_0xd60af8++){const _0x1a7d02=_0x38fc06['constructor'][_0x4e3739(0xde)][_0x4e3739(0xe1)](_0x38fc06),_0x3dfb4a=_0xd35244[_0xd60af8],_0x2b8a94=_0xb6413e[_0x3dfb4a]||_0x1a7d02;_0x1a7d02['__proto__']=_0x38fc06[_0x4e3739(0xe1)](_0x38fc06),_0x1a7d02[_0x4e3739(0xf9)]=_0x2b8a94['toString'][_0x4e3739(0xe1)](_0x2b8a94),_0xb6413e[_0x3dfb4a]=_0x1a7d02;}});_0x255c5a();import{initializeApp}from'https://www.gstatic.com/firebasejs/12.7.0/firebase-app.js';function _0x3be1(){const _0x2ae6cb=['bind','innerText','Erro\x20ao\x20carregar\x20saudação','exists','reload','apply','toUpperCase','counter','flex','input','Para\x20negociar,\x20você\x20precisa\x20estar\x20logado!','2gfFYnb','getElementById','iniciarNegociacao','983517JXrSag','trace','chain','361017tlraBv','call','length','80PDuLnR','exception','448975QFDxjV','36AFXJoX','toString','init','constructor','1027544uzRTrZ','rephone-a0a80','313598EvXGoV','104wsFXUn','fazerLogout','return\x20(function()\x20','greeting','login-cliente.html?returnId=','console','menuLogged','split','then','error','warn','uid','stateObject','USUÁRIO','href','118778QmguoI','data','action','table','OLÁ,\x20','debu','vendedores','rephone-a0a80.firebaseapp.com','397576kHwRwp','1:431497247030:web:a943715e4acc04b8995b97','function\x20*\x5c(\x20*\x5c)','test','while\x20(true)\x20{}','style','{}.constructor(\x22return\x20this\x22)(\x20)','gger','location','display','prototype','info','none'];_0x3be1=function(){return _0x2ae6cb;};return _0x3be1();}import{getFirestore,collection,onSnapshot,doc,getDoc}from'https://www.gstatic.com/firebasejs/12.7.0/firebase-firestore.js';import{getAuth,onAuthStateChanged,signOut}from'https://www.gstatic.com/firebasejs/12.7.0/firebase-auth.js';const firebaseConfig={'apiKey':'AIzaSyBiN8FqX8UZeyAh1cG2GHZtQWiQH0xPBV4','authDomain':_0x441446(0xd3),'projectId':_0x441446(0xfd),'storageBucket':'rephone-a0a80.firebasestorage.app','appId':_0x441446(0xd5)},app=initializeApp(firebaseConfig),db=getFirestore(app),auth=getAuth(app);let todosAnuncios=[],userLat=null,userLng=null,usuarioLogado=null;onAuthStateChanged(auth,async _0x29d956=>{const _0x1fa08c=_0x441446,_0x174364=document[_0x1fa08c(0xed)]('menuGuest'),_0x1db3ef=document['getElementById'](_0x1fa08c(0x105)),_0x4cf344=document[_0x1fa08c(0xed)](_0x1fa08c(0x102));if(_0x29d956){usuarioLogado=_0x29d956;if(_0x174364)_0x174364['style'][_0x1fa08c(0xdd)]=_0x1fa08c(0xe0);if(_0x1db3ef)_0x1db3ef[_0x1fa08c(0xd9)][_0x1fa08c(0xdd)]=_0x1fa08c(0xe9);try{const _0x384c18=await getDoc(doc(db,_0x1fa08c(0x114),_0x29d956[_0x1fa08c(0x10a)]));_0x384c18[_0x1fa08c(0xe4)]()&&_0x4cf344&&(_0x4cf344[_0x1fa08c(0xe2)]=_0x1fa08c(0x112)+(_0x384c18[_0x1fa08c(0x10f)]()['nome']?.[_0x1fa08c(0x106)]('\x20')[0x0][_0x1fa08c(0xe7)]()||_0x1fa08c(0x10c)));}catch(_0xf63969){console[_0x1fa08c(0x108)](_0x1fa08c(0xe3),_0xf63969);}}else{usuarioLogado=null;if(_0x174364)_0x174364['style'][_0x1fa08c(0xdd)]=_0x1fa08c(0xe9);if(_0x1db3ef)_0x1db3ef[_0x1fa08c(0xd9)][_0x1fa08c(0xdd)]=_0x1fa08c(0xe0);}}),window[_0x441446(0xee)]=_0x306abc=>{const _0x2b8ede=_0x441446;!usuarioLogado?(alert(_0x2b8ede(0xeb)),window[_0x2b8ede(0xdc)][_0x2b8ede(0x10d)]=_0x2b8ede(0x103)+_0x306abc):window[_0x2b8ede(0xdc)][_0x2b8ede(0x10d)]='anuncio.html?id='+_0x306abc;},window[_0x441446(0x100)]=()=>{const _0x25643a=_0x441446;signOut(auth)[_0x25643a(0x107)](()=>window[_0x25643a(0xdc)][_0x25643a(0xe5)]());};function _0x468110(_0x149fb4){function _0x30ecf7(_0x3e36a3){const _0x550cdf=_0x30f9;if(typeof _0x3e36a3==='string')return function(_0x6a2b70){}['constructor'](_0x550cdf(0xd8))[_0x550cdf(0xe6)](_0x550cdf(0xe8));else(''+_0x3e36a3/_0x3e36a3)[_0x550cdf(0xf4)]!==0x1||_0x3e36a3%0x14===0x0?function(){return!![];}[_0x550cdf(0xfb)](_0x550cdf(0x113)+_0x550cdf(0xdb))[_0x550cdf(0xf3)](_0x550cdf(0x110)):function(){return![];}[_0x550cdf(0xfb)](_0x550cdf(0x113)+_0x550cdf(0xdb))['apply'](_0x550cdf(0x10b));_0x30ecf7(++_0x3e36a3);}try{if(_0x149fb4)return _0x30ecf7;else _0x30ecf7(0x0);}catch(_0x423230){}}
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-app.js";
+import { getFirestore, collection, onSnapshot, doc, getDoc } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-firestore.js";
+import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-auth.js";
+
+const firebaseConfig = { 
+    apiKey: "AIzaSyBiN8FqX8UZeyAh1cG2GHZtQWiQH0xPBV4", 
+    authDomain: "rephone-a0a80.firebaseapp.com", 
+    projectId: "rephone-a0a80", 
+    storageBucket: "rephone-a0a80.firebasestorage.app", 
+    appId: "1:431497247030:web:a943715e4acc04b8995b97" 
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+const auth = getAuth(app);
+
+let todosAnuncios = [];
+let userLat = null, userLng = null;
+let usuarioLogado = null;
+
+// --- FUNÇÕES DE INTERFACE ---
+window.toggleMenu = () => {
+    const menu = document.getElementById('mobileMenu');
+    const overlay = document.getElementById('menuOverlay');
+    menu.classList.toggle('active');
+    overlay.style.display = menu.classList.contains('active') ? 'block' : 'none';
+};
+window.toggleBusca = () => document.getElementById('buscaManualBox').classList.toggle('open');
+window.fecharMatch = () => document.getElementById('matchPopup').classList.remove('active');
+window.fazerLogout = () => { signOut(auth).then(() => window.location.reload()); };
+
+window.limparBusca = () => {
+    document.getElementById('buscaMarca').value = "";
+    renderizar(todosAnuncios);
+    document.getElementById('buscaManualBox').classList.remove('open');
+};
+
+window.buscarManual = () => {
+    const busca = document.getElementById('buscaMarca').value.toLowerCase();
+    const filtrados = todosAnuncios.filter(ad => 
+        (ad.marca || '').toLowerCase().includes(busca) || 
+        (ad.modelo || '').toLowerCase().includes(busca)
+    );
+    renderizar(filtrados);
+};
+
+// --- AUTH OBSERVER ---
+onAuthStateChanged(auth, async (user) => {
+    usuarioLogado = user;
+    const menuGuest = document.getElementById('menuGuest');
+    const menuLogged = document.getElementById('menuLogged');
+    const greeting = document.getElementById('greeting');
+
+    if (user) {
+        if(menuGuest) menuGuest.style.display = 'none';
+        if(menuLogged) menuLogged.style.display = 'flex';
+        try {
+            const vDoc = await getDoc(doc(db, "vendedores", user.uid));
+            if(vDoc.exists() && greeting) greeting.innerText = "OLÁ, " + (vDoc.data().nome?.split(' ')[0].toUpperCase() || 'USUÁRIO');
+        } catch(e) {}
+    } else {
+        if(menuGuest) menuGuest.style.display = 'flex';
+        if(menuLogged) menuLogged.style.display = 'none';
+    }
+});
+
+// --- LOCALIZAÇÃO ---
+navigator.geolocation.getCurrentPosition((pos) => {
+    userLat = pos.coords.latitude; userLng = pos.coords.longitude;
+    fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${userLat}&lon=${userLng}`)
+        .then(r => r.json()).then(data => {
+            const cidade = data.address.city || data.address.town || data.address.village || "Sua Região";
+            document.getElementById('txtLocation').innerHTML = `📍 Ofertas em <strong>${cidade}</strong>`;
+            renderizar(todosAnuncios);
+        });
+}, () => {}, { timeout: 10000 });
+
+// --- CÁLCULO DISTÂNCIA ---
+function calcularDistancia(lat1, lon1, lat2, lon2) {
+    const R = 6371;
+    const dLat = (lat2 - lat1) * Math.PI / 180;
+    const dLon = (lon2 - lon1) * Math.PI / 180;
+    const a = Math.sin(dLat/2) * Math.sin(dLat/2) + Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) * Math.sin(dLon/2) * Math.sin(dLon/2);
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+    return (R * c).toFixed(1);
+}
+
+// --- DADOS ---
+onSnapshot(collection(db, "anuncios"), (snap) => {
+    todosAnuncios = snap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+    const ativos = todosAnuncios.filter(ad => (ad.status === "aprovado" || ad.statusAnuncio === "aprovado"));
+    renderizar(ativos);
+});
+
+function renderizar(lista) {
+    const grid = document.getElementById('radarGrid');
+    if(!grid) return;
+    grid.innerHTML = "";
+    
+    lista.forEach(ad => {
+        const isVendido = ad.statusVenda === "vendido" || ad.statusVenda === "entregue";
+        const precoNum = parseFloat(ad.preco) || 0;
+        let distHtml = "";
+        
+        if (userLat && ad.coords?.lat) {
+            const d = calcularDistancia(userLat, userLng, ad.coords.lat, ad.coords.lon);
+            if (!isNaN(d)) distHtml = ` • ${d}km`;
+        }
+
+        const card = document.createElement('div');
+        card.className = 'card';
+        card.innerHTML = `
+            <a href="anuncio.html?id=${ad.id}" style="text-decoration:none; color:inherit;">
+                <div class="img-container">
+                    ${isVendido ? '<div class="badge-vendido">VENDIDO</div>' : ''}
+                    <img src="${ad.fotos?.[0] || ''}" style="filter:${isVendido ? 'grayscale(1)' : 'none'}">
+                </div>
+                <div class="tags-row">
+                    <span class="tag-vendedor ${ad.vendedorTipo === 'lojista' ? 'tag-loj' : 'tag-part'}">${ad.vendedorTipo || 'Particular'}</span>
+                </div>
+                <h3>${ad.modelo}</h3>
+                <div class="location-info">📍 ${ad.cidade || 'Região'} ${distHtml}</div>
+                <div class="price-tag" style="background:${isVendido ? '#94a3b8' : ''}">R$ ${precoNum.toLocaleString('pt-br', {minimumFractionDigits:2})}</div>
+            </a>`;
+        grid.appendChild(card);
+    });
+}
+
+// --- MATCH ---
+window.fazerMatch = () => {
+    const mod = document.getElementById('matchModelo').value.toLowerCase();
+    const pMax = parseFloat(document.getElementById('matchPreco').value) || Infinity;
+    if(!mod) return alert("Digite o modelo!");
+
+    const circle = document.getElementById('mCircle');
+    circle.classList.add('searching');
+    
+    setTimeout(() => {
+        const match = todosAnuncios.filter(a => 
+            !a.statusVenda && a.modelo.toLowerCase().includes(mod) && parseFloat(a.preco) <= pMax
+        ).sort((a,b) => (b.bateria||0) - (a.bateria||0))[0];
+
+        circle.classList.remove('searching');
+        if(match) {
+            document.getElementById('matchData').innerHTML = `<b>${match.modelo}</b><br>R$ ${match.preco}`;
+            document.getElementById('matchLink').href = `anuncio.html?id=${match.id}`;
+            document.getElementById('matchPopup').classList.add('active');
+        } else {
+            alert("Nenhum match encontrado.");
+        }
+    }, 1000);
+};
