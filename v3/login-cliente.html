@@ -53,36 +53,6 @@
 
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-app.js";
-    import { getAuth, signInWithEmailAndPassword, GoogleAuthProvider, signInWithPopup } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-auth.js";
-
-    const firebaseConfig = { 
-        apiKey: "AIzaSyBiN8FqX8UZeyAh1cG2GHZtQWiQH0xPBV4", 
-        authDomain: "rephone-a0a80.firebaseapp.com", 
-        projectId: "rephone-a0a80", 
-        storageBucket: "rephone-a0a80.firebasestorage.app", 
-        appId: "1:431497247030:web:a943715e4acc04b8995b97" 
-    };
-
-    const app = initializeApp(firebaseConfig);
-    const auth = getAuth(app);
-    const provider = new GoogleAuthProvider();
-
-    // FUNÇÃO PARA DIRECIONAR O USUÁRIO
-    function redirecionarAposLogin() {
-        const urlParams = new URLSearchParams(window.location.search);
-        const returnId = urlParams.get('returnId'); // Verifica se veio de um anúncio
-
-        if (returnId) {
-            window.location.href = `anuncio.html?id=${returnId}`;
-        } else {
-            window.location.href = 'index.html';
-        }
-    }
-
-    // Login com Google
-  <script type="module">
-    // 1. IMPORTAÇÕES CORRIGIDAS (Adicionados setPersistence e browserLocalPersistence)
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-app.js";
     import { 
         getAuth, 
         signInWithEmailAndPassword, 
@@ -124,13 +94,10 @@
         btn.innerText = "Conectando...";
 
         try {
-            // Define que o login deve ser lembrado mesmo após fechar o navegador
             await setPersistence(auth, browserLocalPersistence);
-            
             const result = await signInWithPopup(auth, provider);
             console.log("Logado com sucesso:", result.user.displayName);
             redirecionarAposLogin();
-            
         } catch (error) {
             console.error("Erro no login Google:", error);
             btn.disabled = false;
@@ -148,15 +115,22 @@
     document.getElementById('btnLogin').onclick = async () => {
         const email = document.getElementById('email').value.trim();
         const pass = document.getElementById('pass').value;
+        const btn = document.getElementById('btnLogin');
         
         if(!email || !pass) return alert("Por favor, preencha e-mail e senha.");
+
+        btn.disabled = true;
+        btn.innerText = "ENTRANDO...";
 
         try {
             await setPersistence(auth, browserLocalPersistence);
             await signInWithEmailAndPassword(auth, email, pass);
             redirecionarAposLogin();
         } catch (e) {
+            console.error("Erro no login E-mail:", e);
             alert("E-mail ou senha incorretos.");
+            btn.disabled = false;
+            btn.innerText = "ENTRAR";
         }
     };
 </script>
