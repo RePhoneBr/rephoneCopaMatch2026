@@ -62,11 +62,13 @@ window.registrar = async () => {
     const user = userCredential.user;
 
     await setDoc(doc(db, "vendedores", user.uid), {
-      email: email,
-      whatsapp: zap,
-      tipo: "particular",
-      dataRegistro: new Date()
-    });
+  nome: document.getElementById('nome').value, // Adicione este input no seu HTML
+  email: email,
+  zap: zap, // Mudei de 'whatsapp' para 'zap' para combinar com o outro código
+  tipo: "particular",
+  status: "verificado",
+  dataRegistro: new Date()
+});
 
     alert("Conta criada com sucesso!");
     window.location.href = 'vendedor-anuncio.html';
