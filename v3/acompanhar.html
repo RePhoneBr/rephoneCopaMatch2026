@@ -1,117 +1,168 @@
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
-<meta charset="UTF-8">
-<title>Acompanhar Compras | RePhone</title>
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
-<style>
-body{font-family:'Inter',sans-serif;background:#f8fafc;padding:20px;color:#1e293b;}
-h2{margin-top:0;}
-.card{background:#fff;padding:24px;border-radius:20px;box-shadow:0 4px 6px -1px rgb(0 0 0 / 0.1);margin-bottom:20px;}
-.status{font-weight:900;margin-bottom:15px;font-size:1.1rem;color:#3b82f6;}
-textarea{width:100%;padding:10px;border:1px solid #cbd5e1;border-radius:8px;resize:vertical;min-height:80px;margin-bottom:10px;}
-button{width:100%;padding:14px;border:none;border-radius:12px;font-weight:800;background-color:#10b981;color:white;cursor:pointer;transition:0.2s;margin-bottom:10px;}
-button:hover{background-color:#059669;}
-button:disabled{background-color:#9ca3af;cursor:not-allowed;}
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Minhas Compras | RePhone</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800;900&display=swap" rel="stylesheet">
+    <style>
+        :root { --dark: #0f172a; --green: #16a34a; --blue: #3b82f6; --bg: #f8fafc; --muted: #64748b; }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; }
+        body { background: var(--bg); color: var(--dark); padding-bottom: 40px; }
+
+        .header { background: var(--dark); color: white; padding: 30px 20px; border-radius: 0 0 25px 25px; margin-bottom: 25px; }
+        .header h1 { font-weight: 900; font-size: 24px; }
+        .header p { font-size: 13px; opacity: 0.8; margin-top: 5px; }
+
+        .container { padding: 0 20px; max-width: 600px; margin: 0 auto; }
+
+        .card { background: white; padding: 20px; border-radius: 20px; border: 1px solid #e2e8f0; margin-bottom: 20px; transition: 0.3s; }
+        .status-badge { display: inline-block; padding: 6px 12px; border-radius: 10px; font-size: 11px; font-weight: 800; text-transform: uppercase; margin-bottom: 15px; }
+        .status-aguardando { background: #dbeafe; color: #1e40af; }
+        .status-entregue { background: #dcfce7; color: #166534; }
+
+        .info-row { display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 14px; }
+        .info-row span:first-child { color: var(--muted); font-weight: 600; }
+        .info-row span:last-child { color: var(--dark); font-weight: 700; }
+
+        .product-name { font-size: 18px; font-weight: 800; margin-bottom: 15px; display: block; border-bottom: 1px solid #f1f5f9; padding-bottom: 10px; }
+
+        textarea { width: 100%; padding: 12px; border: 1px solid #e2e8f0; border-radius: 12px; font-size: 14px; margin: 15px 0; outline: none; background: #f8fafc; }
+        
+        .btn-confirm { width: 100%; padding: 16px; border: none; border-radius: 15px; background: var(--green); color: white; font-weight: 800; font-size: 15px; cursor: pointer; box-shadow: 0 4px 12px rgba(22, 163, 74, 0.2); }
+        .btn-confirm:disabled { background: #cbd5e1; box-shadow: none; }
+
+        #loading { text-align: center; padding: 40px; color: var(--muted); font-weight: 600; }
+    </style>
 </head>
 <body>
 
-<h1>Minhas Compras</h1>
-<div id="comprasContainer">Carregando suas compras...</div>
+    <div class="header">
+        <h1>Minhas Compras</h1>
+        <p>Acompanhe o status e confirme o recebimento.</p>
+    </div>
+
+    <div class="container" id="comprasContainer">
+        <div id="loading">Buscando seus pedidos...</div>
+    </div>
 
 <script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-app.js";
-import { getFirestore, doc, collection, onSnapshot, updateDoc, query, where, getDocs } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-firestore.js";
-import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-auth.js";
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-app.js";
+    import { getFirestore, doc, collection, query, where, getDocs, getDoc, updateDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-firestore.js";
+    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-auth.js";
 
-const firebaseConfig = { 
-    apiKey: "AIzaSyBiN8FqX8UZeyAh1cG2GHZtQWiQH0xPBV4", 
-    authDomain: "rephone-a0a80.firebaseapp.com", 
-    projectId: "rephone-a0a80", 
-    storageBucket: "rephone-a0a80.firebasestorage.app", 
-    appId: "1:431497247030:web:a943715e4acc04b8995b97" 
-};
-const app = initializeApp(firebaseConfig);
-const db = getFirestore(app);
-const auth = getAuth(app);
+    const firebaseConfig = { 
+        apiKey: "AIzaSyBiN8FqX8UZeyAh1cG2GHZtQWiQH0xPBV4", 
+        authDomain: "rephone-a0a80.firebaseapp.com", 
+        projectId: "rephone-a0a80", 
+        storageBucket: "rephone-a0a80.firebasestorage.app", 
+        appId: "1:431497247030:web:a943715e4acc04b8995b97" 
+    };
 
-let userLogado = null;
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+    const auth = getAuth(app);
 
-onAuthStateChanged(auth, async (user)=>{
-    if(!user){ window.location.href='login-cliente.html'; return; }
-    userLogado = user;
-    carregarCompras();
-});
+    onAuthStateChanged(auth, async (user) => {
+        if (!user) { window.location.href = 'login-cliente.html'; return; }
+        carregarCompras(user.uid);
+    });
 
-async function carregarCompras(){
-    const container = document.getElementById('comprasContainer');
-    container.innerHTML="Carregando suas compras...";
-    try{
-        const q = query(collection(db,"compras"), where("clienteId","==",userLogado.uid));
-        const snapshot = await getDocs(q);
-        if(snapshot.empty){ container.innerHTML="<p>Nenhuma compra registrada.</p>"; return; }
+    async function carregarCompras(uid) {
+        const container = document.getElementById('comprasContainer');
+        try {
+            const q = query(collection(db, "compras"), where("clienteId", "==", uid));
+            const snapshot = await getDocs(q);
 
-        container.innerHTML="";
-        snapshot.forEach(docSnap=>{
-            const data = docSnap.data();
-            const card = document.createElement("div");
-            card.className="card";
-
-            card.innerHTML=`
-                <p class="status">📦 Status: ${data.status || 'Aguardando atualização'}</p>
-                <p><strong>Anúncio:</strong> ${data.modelo} (${data.marca})</p>
-                <p><strong>Vendedor:</strong> ${data.nomeVendedor || 'Desconhecido'}</p>
-                <p><strong>Tipo:</strong> ${data.tipoVendedor || '--'}</p>
-                <p><strong>WhatsApp:</strong> ${data.whatsapp || '--'}</p>
-                <p><strong>Cidade:</strong> ${data.cidade || '--'}</p>
-                <p><strong>Preço:</strong> R$ ${data.preco || '--'}</p>
-                <p><strong>Estoque atual:</strong> ${data.estoque || 0}</p>
-            `;
-
-            if(!data.confirmacaoComprador){
-                const textarea = document.createElement("textarea");
-                textarea.placeholder="Como foi sua experiência? (Opcional)";
-                card.appendChild(textarea);
-
-                const btn = document.createElement("button");
-                btn.innerText="Confirmar Recebimento";
-                btn.onclick=async ()=>{
-                    btn.disabled=true; btn.innerText="Enviando...";
-                    try{
-                        // Atualiza compra do cliente
-                        await updateDoc(doc(db,"compras",docSnap.id),{
-                            confirmacaoComprador:true,
-                            status:"Entregue",
-                            avaliacaoComprador:textarea.value,
-                            dataConfirmacao:new Date()
-                        });
-
-                        // Atualiza estoque do anúncio vinculado
-                        const anuncioRef = doc(db,"anuncios",data.anuncioId);
-                        const anuncioSnap = await getDocs(query(collection(db,"anuncios"), where("__name__","==",data.anuncioId)));
-                        const anuncioDoc = await anuncioRef.get();
-                        const atual = (data.estoque || 1)-1;
-                        await updateDoc(anuncioRef,{
-                            estoque: atual,
-                            statusVenda: atual>0?"disponivel":"inativo"
-                        });
-
-                        alert("Compra confirmada!");
-                        carregarCompras();
-                    }catch(e){ console.error(e); alert("Erro ao confirmar."); btn.disabled=false; btn.innerText="Confirmar Recebimento";}
-                };
-                card.appendChild(btn);
-            }else{
-                card.innerHTML+=`<p>✅ Compra finalizada em ${data.dataConfirmacao?.toDate?.() || '--'}</p>`;
-                if(data.avaliacaoComprador) card.innerHTML+=`<p><strong>Avaliação:</strong> ${data.avaliacaoComprador}</p>`;
+            if (snapshot.empty) {
+                container.innerHTML = "<div id='loading'>Nenhum pedido encontrado.</div>";
+                return;
             }
 
-            container.appendChild(card);
-        });
-    }catch(e){ console.error(e); container.innerHTML="<p>Erro ao carregar compras.</p>"; }
-}
+            container.innerHTML = "";
+            snapshot.forEach(docSnap => {
+                const data = docSnap.data();
+                const id = docSnap.id;
+                const isFinalizado = data.confirmacaoComprador === true;
+
+                const card = document.createElement("div");
+                card.className = "card";
+                
+                card.innerHTML = `
+                    <span class="status-badge ${isFinalizado ? 'status-entregue' : 'status-aguardando'}">
+                        ${isFinalizado ? '✅ Entregue' : '📦 ' + (data.status || 'Em processamento')}
+                    </span>
+                    
+                    <span class="product-name">${data.modelo}</span>
+
+                    <div class="info-row"><span>Vendedor</span><span>${data.nomeVendedor || 'Particular'}</span></div>
+                    <div class="info-row"><span>WhatsApp</span><span>${data.whatsapp || '--'}</span></div>
+                    <div class="info-row"><span>Cidade</span><span>${data.cidade || '--'}</span></div>
+                    <div class="info-row"><span>Valor</span><span style="color:var(--green)">R$ ${data.preco}</span></div>
+
+                    ${!isFinalizado ? `
+                        <textarea id="feedback-${id}" placeholder="Como foi sua experiência com este vendedor?"></textarea>
+                        <button class="btn-confirm" id="btn-${id}">CONFIRMAR RECEBIMENTO</button>
+                    ` : `
+                        <div style="margin-top:15px; padding-top:15px; border-top:1px dashed #eee; font-size:13px; color:var(--muted)">
+                            Finalizado em: ${data.dataConfirmacao ? new Date(data.dataConfirmacao.seconds * 1000).toLocaleDateString() : '--'}
+                        </div>
+                    `}
+                `;
+                container.appendChild(card);
+
+                if (!isFinalizado) {
+                    document.getElementById(`btn-${id}`).onclick = () => confirmarPedido(id, data);
+                }
+            });
+        } catch (e) {
+            console.error(e);
+            container.innerHTML = "Erro ao carregar.";
+        }
+    }
+
+    async function confirmarPedido(compraId, dataCompra) {
+        const btn = document.getElementById(`btn-${compraId}`);
+        const feedback = document.getElementById(`feedback-${compraId}`).value;
+
+        if(!confirm("Você confirma que recebeu o aparelho conforme anunciado?")) return;
+
+        btn.disabled = true;
+        btn.innerText = "PROCESSANDO...";
+
+        try {
+            // 1. Atualiza a Compra
+            await updateDoc(doc(db, "compras", compraId), {
+                confirmacaoComprador: true,
+                status: "Entregue",
+                avaliacaoComprador: feedback,
+                dataConfirmacao: serverTimestamp()
+            });
+
+            // 2. Atualiza o Estoque do Anúncio (Correção da Lógica)
+            const anuncioRef = doc(db, "anuncios", dataCompra.anuncioId);
+            const anuncioSnap = await getDoc(anuncioRef);
+
+            if (anuncioSnap.exists()) {
+                const estoqueAtual = anuncioSnap.data().estoque || 1;
+                const novoEstoque = Math.max(0, estoqueAtual - 1);
+                
+                await updateDoc(anuncioRef, {
+                    estoque: novoEstoque,
+                    statusVenda: novoEstoque > 0 ? "disponivel" : "vendido"
+                });
+            }
+
+            alert("Recebimento confirmado! Obrigado por usar a RePhone.");
+            location.reload();
+
+        } catch (e) {
+            console.error(e);
+            alert("Erro ao confirmar. Tente novamente.");
+            btn.disabled = false;
+            btn.innerText = "CONFIRMAR RECEBIMENTO";
+        }
+    }
 </script>
 </body>
 </html>
