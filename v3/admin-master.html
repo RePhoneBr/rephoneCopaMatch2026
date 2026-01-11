@@ -23,34 +23,36 @@
         .admin-section h3 { font-weight: 900; margin-bottom: 20px; font-size: 18px; color: var(--dark); border-bottom: 1px solid #f1f5f9; padding-bottom: 10px; }
         
         /* Tabelas */
-        table { width: 100%; border-collapse: collapse; }
+        .table-container { overflow-x: auto; }
+        table { width: 100%; border-collapse: collapse; min-width: 600px; }
         th { text-align: left; padding: 12px; color: var(--muted); font-size: 12px; text-transform: uppercase; }
         td { padding: 15px 12px; border-bottom: 1px solid #f1f5f9; font-size: 13px; }
 
         /* Lista Vendedores */
-        .vendedor-item { cursor: pointer; transition: 0.2s; padding: 15px; border-radius: 15px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; border: 1px solid #f1f5f9; }
-        .vendedor-item:hover { background: #f8fafc; border-color: var(--blue); }
+        .vendedor-item { cursor: pointer; transition: 0.2s; padding: 15px; border-radius: 15px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; border: 1px solid #f1f5f9; background: white; }
+        .vendedor-item:hover { background: #f8fafc; border-color: var(--blue); transform: translateY(-2px); }
 
         /* Badges e Botões */
         .badge { padding: 6px 12px; border-radius: 8px; font-weight: 700; font-size: 10px; text-transform: uppercase; }
         .bg-pending { background: #fef9c3; color: #854d0e; }
         .bg-live { background: #dcfce7; color: #166534; }
         .bg-verified { background: #dbeafe; color: #1e40af; }
+        .bg-sold { background: #f1f5f9; color: var(--muted); }
 
-        .btn-action { padding: 8px 12px; border-radius: 10px; border: none; font-weight: 800; cursor: pointer; transition: 0.2s; font-size: 12px; }
+        .btn-action { padding: 8px 12px; border-radius: 10px; border: none; font-weight: 800; cursor: pointer; transition: 0.2s; font-size: 11px; }
         .btn-approve { background: var(--green); color: white; margin-right: 5px; }
         .btn-del { background: #fee2e2; color: var(--red); }
         
         /* Modal */
         #modalVendedor { display: none; position: fixed; top:0; left:0; width:100%; height:100%; background: rgba(15,23,42,0.9); z-index: 1000; padding: 20px; backdrop-filter: blur(4px); }
-        .modal-content { background: white; max-width: 650px; margin: 2% auto; border-radius: 30px; padding: 30px; position: relative; max-height: 90vh; overflow-y: auto; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5); }
+        .modal-content { background: white; max-width: 650px; margin: 2% auto; border-radius: 30px; padding: 30px; position: relative; max-height: 90vh; overflow-y: auto; }
         .close-modal { position: absolute; right: 25px; top: 25px; font-size: 28px; cursor: pointer; font-weight: 900; color: var(--muted); }
 
-        .info-box-detalhes { background: #f8fafc; padding: 20px; border-radius: 20px; border: 1px solid #e2e8f0; margin: 20px 0; display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-        .info-box-detalhes p { font-size: 13px; color: #475569; border-bottom: 1px solid #edf2f7; padding-bottom: 5px; }
-        .info-box-detalhes strong { color: var(--dark); text-transform: capitalize; }
+        .info-grid-detalhes { background: #f8fafc; padding: 20px; border-radius: 20px; border: 1px solid #e2e8f0; margin: 20px 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 15px; }
+        .info-grid-detalhes p { font-size: 12px; color: #64748b; line-height: 1.4; }
+        .info-grid-detalhes strong { color: var(--dark); display: block; font-size: 13px; margin-bottom: 2px; text-transform: capitalize; }
 
-        .img-preview { width: 45px; height: 45px; border-radius: 12px; object-fit: cover; }
+        .img-preview { width: 45px; height: 45px; border-radius: 10px; object-fit: cover; background: #eee; }
     </style>
 </head>
 <body>
@@ -58,54 +60,55 @@
     <div id="modalVendedor">
         <div class="modal-content">
             <span class="close-modal" onclick="fecharModal()">&times;</span>
-            <small style="color: var(--blue); font-weight: 800; text-transform: uppercase;">Perfil do Parceiro</small>
-            <h2 id="mNome" style="font-weight: 900; font-size: 28px; letter-spacing: -1px;">Nome do Vendedor</h2>
+            <small style="color: var(--blue); font-weight: 800; text-transform: uppercase;">Dossiê do Parceiro</small>
+            <h2 id="mNome" style="font-weight: 900; font-size: 28px; letter-spacing: -1px; margin-bottom: 5px;">Nome do Vendedor</h2>
             
-            <div id="mDetalhesVendedor" class="info-box-detalhes">
-                </div>
+            <div id="mDetalhesVendedor" class="info-grid-detalhes"></div>
             
-            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 30px; padding: 0 5px;">
-                <div id="mStats">
+            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 30px; background: #f1f5f9; padding: 15px; border-radius: 15px;">
+                <div>
+                    <span style="font-size: 11px; font-weight: 700; color: var(--muted); display: block; margin-bottom: 5px;">STATUS ATUAL</span>
                     <span id="mStatusBadge" class="badge">PENDENTE</span>
                 </div>
-                <button id="btnVerificarVendedor" class="btn-action btn-approve" style="padding: 12px 25px; display:none;">EFETUAR VERIFICAÇÃO</button>
+                <button id="btnVerificarVendedor" class="btn-action btn-approve" style="padding: 12px 25px;">APROVAR PARCEIRO</button>
             </div>
 
-            <h4 style="font-weight: 900; margin-bottom: 15px; font-size: 15px; color: var(--dark);">ANÚNCIOS ATIVOS NO RADAR</h4>
-            <div id="mListaAds" style="display: flex; flex-direction: column; gap: 10px;"></div>
+            <h4 style="font-weight: 900; margin-bottom: 15px; font-size: 15px;">PRODUTOS NO INVENTÁRIO</h4>
+            <div id="mListaAds" style="display: flex; flex-direction: column; gap: 8px;"></div>
         </div>
     </div>
 
     <div class="header-adm">
         <div>
             <h1 style="font-weight: 900; font-size: 28px; letter-spacing: -1px;">Console Master</h1>
-            <p id="userEmail" style="color: var(--muted); font-size: 13px;">Validando acesso...</p>
+            <p id="userEmail" style="color: var(--muted); font-size: 13px;">Validando privilégios...</p>
         </div>
-        <button onclick="logout()" style="background:#fff; border:1px solid #e2e8f0; padding: 10px 20px; border-radius:12px; color:var(--red); font-weight:800; cursor:pointer;">SAIR</button>
+        <button onclick="logout()" style="background:#fff; border:1px solid #e2e8f0; padding: 10px 20px; border-radius:12px; color:var(--red); font-weight:800; cursor:pointer;">ENCERRAR SESSÃO</button>
     </div>
 
     <div class="stats-grid">
         <div class="stat-card">
-            <small>Aparelhos no Radar</small>
+            <small>Aparelhos Totais</small>
             <h2 id="countAds">0</h2>
         </div>
         <div class="stat-card">
-            <small>Parceiros Registrados</small>
+            <small>Parceiros Ativos</small>
             <h2 id="countVends">0</h2>
         </div>
         <div class="stat-card">
-            <small>Aguardando Aprovação</small>
+            <small>Aguardando Moderação</small>
             <h2 id="countPending" style="color:var(--red)">0</h2>
         </div>
     </div>
 
     <div class="admin-section">
         <h3>Moderação de Inventário</h3>
-        <div style="overflow-x: auto;">
+        <div class="table-container">
             <table>
                 <thead>
                     <tr>
                         <th>Aparelho</th>
+                        <th>Vendedor</th>
                         <th>Preço</th>
                         <th>Status</th>
                         <th>Ações</th>
@@ -117,7 +120,7 @@
     </div>
 
     <div class="admin-section">
-        <h3>Diretório de Parceiros <small style="font-weight: 400; font-size: 12px; color: var(--muted); margin-left: 10px;">(Clique para ver ficha completa)</small></h3>
+        <h3>Diretório de Parceiros</h3>
         <div id="listaVendedores"></div>
     </div>
 
@@ -141,11 +144,10 @@
         const EMAIL_MESTRE = "rp.rephone@gmail.com";
         let todosAnuncios = [];
 
-        // Proteção de Acesso
         onAuthStateChanged(auth, (user) => {
             if (user && user.email === EMAIL_MESTRE) {
                 document.body.style.display = "block";
-                document.getElementById('userEmail').innerText = "Logado como Master: " + user.email;
+                document.getElementById('userEmail').innerText = "Acesso Master: " + user.email;
                 iniciarMonitoramento();
             } else {
                 window.location.href = "vendedor-login.html";
@@ -153,7 +155,7 @@
         });
 
         function iniciarMonitoramento() {
-            // Monitorar Estatísticas e Lista de Anúncios (Tempo Real)
+            // Monitorar Anúncios
             onSnapshot(collection(db, "anuncios"), (snap) => {
                 todosAnuncios = snap.docs.map(d => ({ id: d.id, ...d.data() }));
                 document.getElementById('countAds').innerText = snap.size;
@@ -164,20 +166,25 @@
 
                 snap.forEach(docSnap => {
                     const ad = docSnap.data();
+                    const statusVenda = ad.statusVenda || 'disponivel';
                     if(ad.status === 'pendente') pendentes++;
 
                     const tr = document.createElement('tr');
                     tr.innerHTML = `
                         <td>
-                            <div style="display:flex; align-items:center; gap:12px;">
-                                <img src="${ad.fotos ? ad.fotos[0] : ''}" class="img-preview">
-                                <div><b>${ad.modelo}</b><br><small style="color:var(--muted)">${ad.marca || 'Smartphone'}</small></div>
+                            <div style="display:flex; align-items:center; gap:10px;">
+                                <img src="${ad.fotos ? ad.fotos[0] : ''}" class="img-preview" onerror="this.src='https://via.placeholder.com/50'">
+                                <div><b>${ad.modelo}</b><br><small>${ad.marca || 'Celular'}</small></div>
                             </div>
                         </td>
-                        <td><b>R$ ${parseFloat(ad.preco).toLocaleString('pt-br', {minimumFractionDigits: 2})}</b></td>
-                        <td><span class="badge ${ad.status === 'aprovado' ? 'bg-live' : 'bg-pending'}">${ad.status}</span></td>
+                        <td><small>${ad.nomeVendedor || '---'}</small></td>
+                        <td><b>R$ ${parseFloat(ad.preco || 0).toLocaleString('pt-br')}</b></td>
                         <td>
-                            <button class="btn-action btn-approve" onclick="mudarStatus('${docSnap.id}', 'aprovado')">Aprovar</button>
+                            <span class="badge ${ad.status === 'aprovado' ? 'bg-live' : 'bg-pending'}">${ad.status}</span>
+                            ${statusVenda !== 'disponivel' ? `<br><small style="color:var(--muted); font-size:9px;">(${statusVenda.toUpperCase()})</small>` : ''}
+                        </td>
+                        <td>
+                            ${ad.status === 'pendente' ? `<button class="btn-action btn-approve" onclick="mudarStatus('${docSnap.id}', 'aprovado')">Aprovar</button>` : ''}
                             <button class="btn-action btn-del" onclick="deletarAd('${docSnap.id}')">Excluir</button>
                         </td>
                     `;
@@ -199,8 +206,8 @@
                     div.onclick = () => abrirVendedor(docSnap.id, v);
                     div.innerHTML = `
                         <div>
-                            <b style="font-size:15px">${v.nome || 'Sem Nome'}</b><br>
-                            <small style="color:var(--muted)">${v.cidade || 'Localização não informada'}</small>
+                            <b>${v.nome || 'Usuário Sem Nome'}</b><br>
+                            <small style="color:var(--muted)">${v.email || 'Sem e-mail'} • ${v.cidade || 'Local não informado'}</small>
                         </div>
                         <span class="badge ${v.status === 'verificado' ? 'bg-verified' : 'bg-pending'}">${v.status || 'pendente'}</span>
                     `;
@@ -209,25 +216,26 @@
             });
         }
 
-        // FUNÇÃO MASTER: ABRE MODAL COM TODOS OS DADOS DO VENDEDOR
         window.abrirVendedor = (uid, dadosVendedor) => {
-            document.getElementById('modalVendedor').style.display = 'block';
+            const modal = document.getElementById('modalVendedor');
+            const boxDetalhes = document.getElementById('mDetalhesVendedor');
+            const mLista = document.getElementById('mListaAds');
+            
+            boxDetalhes.innerHTML = "";
+            mLista.innerHTML = "";
+            
             document.getElementById('mNome').innerText = dadosVendedor.nome || "Vendedor";
             
-            // Preencher campos dinâmicos (Puxa tudo o que existir no documento)
-            const boxDetalhes = document.getElementById('mDetalhesVendedor');
-            boxDetalhes.innerHTML = "";
-            
-            // Organiza as chaves do objeto para exibição
+            // Filtra e exibe dados relevantes do documento do vendedor
+            const camposOcultos = ['nome', 'uid', 'vendedorId', 'senha'];
             Object.entries(dadosVendedor).forEach(([chave, valor]) => {
-                if (chave !== "nome" && typeof valor !== 'object') {
-                    const p = document.createElement('p');
-                    p.innerHTML = `<strong>${chave.replace('_', ' ')}:</strong> ${valor}`;
-                    boxDetalhes.appendChild(p);
+                if (!camposOcultos.includes(chave) && typeof valor !== 'object') {
+                    const item = document.createElement('div');
+                    item.innerHTML = `<strong>${chave.replace(/([A-Z])/g, ' $1')}</strong> ${valor}`;
+                    boxDetalhes.appendChild(item);
                 }
             });
 
-            // Status e Verificação
             const badge = document.getElementById('mStatusBadge');
             badge.innerText = dadosVendedor.status || 'pendente';
             badge.className = `badge ${dadosVendedor.status === 'verificado' ? 'bg-verified' : 'bg-pending'}`;
@@ -236,28 +244,23 @@
             btnVerificar.style.display = dadosVendedor.status === 'verificado' ? 'none' : 'block';
             btnVerificar.onclick = () => realizarVerificacao(uid);
 
-            // Lista Anúncios específicos deste Vendedor
-            const mLista = document.getElementById('mListaAds');
-            mLista.innerHTML = "";
-            const filtrados = todosAnuncios.filter(ad => ad.vendedorId === uid || ad.uid === uid);
-
+            const filtrados = todosAnuncios.filter(ad => ad.vendedorId === uid);
             if(filtrados.length === 0) {
-                mLista.innerHTML = "<p style='color:var(--muted); font-size:13px;'>Este parceiro não possui anúncios ativos.</p>";
+                mLista.innerHTML = "<p style='color:var(--muted); font-size:12px;'>Nenhum anúncio vinculado a este UID.</p>";
             } else {
                 filtrados.forEach(ad => {
-                    const div = document.createElement('div');
-                    div.style = "background:#f1f5f9; padding:12px; border-radius:12px; display:flex; justify-content:space-between; align-items:center; font-size:13px;";
-                    div.innerHTML = `<span>${ad.modelo}</span> <strong>R$ ${ad.preco}</strong>`;
-                    mLista.appendChild(div);
+                    const itemAd = document.createElement('div');
+                    itemAd.style = "background:#f8fafc; padding:10px; border-radius:10px; border:1px solid #e2e8f0; display:flex; justify-content:space-between; font-size:12px;";
+                    itemAd.innerHTML = `<span>${ad.modelo}</span> <strong>R$ ${ad.preco}</strong>`;
+                    mLista.appendChild(itemAd);
                 });
             }
+            modal.style.display = 'block';
         };
 
-        // Ações de Escrita no Banco
         async function realizarVerificacao(uid) {
-            if(confirm("Deseja marcar este vendedor como Verificado? Isso aparecerá para todos os compradores.")) {
+            if(confirm("Deseja conceder o selo de VERIFICADO para este parceiro?")) {
                 await updateDoc(doc(db, "vendedores", uid), { status: "verificado" });
-                alert("Status atualizado!");
                 fecharModal();
             }
         }
@@ -267,7 +270,7 @@
         };
 
         window.deletarAd = async (id) => {
-            if(confirm("Deseja apagar este anúncio permanentemente do sistema?")) {
+            if(confirm("Tem certeza? Esta ação removerá o anúncio do radar permanentemente.")) {
                 await deleteDoc(doc(db, "anuncios", id));
             }
         };
