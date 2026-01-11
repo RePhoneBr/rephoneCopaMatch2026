@@ -84,17 +84,35 @@
 
     <div id="menuOverlay" onclick="toggleMenu()"></div>
     <nav id="mobileMenu">
-        <div id="greeting" style="color:#94a3b8; font-size:11px; font-weight:800; text-align:center; margin-bottom:10px;">MENU REPHONE</div>
-        <a href="login-cliente.html?goto=compras" class="menu-link" style="background: #3b82f6;">🛍️ Minhas Compras / Rastreio</a>
-        <div id="menuGuest">
-            <a href="vendedor-login.html" class="menu-link destaque">Entrar / Vender</a>
-        </div>
-        <div id="menuLogged" style="display: none;">
-            <a href="vendedor-anuncio.html" class="menu-link destaque">+ Novo Anúncio</a>
-            <button class="btn-logout-menu" onclick="fazerLogout()" style="width:100%">SAIR DA CONTA</button>
-        </div>
-    </nav>
+    <div id="greeting" style="color:#94a3b8; font-size:11px; font-weight:800; text-align:center; margin-bottom:15px; text-transform: uppercase;">Menu RePhone</div>
+    
+    <a href="index.html" class="menu-link">🏠 Início / Radar</a>
 
+    <div id="menuGuest" style="display: flex; flex-direction: column; gap: 12px;">
+        <div style="height: 1px; background: rgba(255,255,255,0.1); margin: 5px 0;"></div>
+        <a href="login-cliente.html" class="menu-link" style="background: var(--blue);">🛍️ Entrar como Comprador</a>
+        <a href="vendedor-login.html" class="menu-link destaque">💼 Painel do Vendedor</a>
+    </div>
+
+    <div id="menuCustomer" style="display: none; flex-direction: column; gap: 12px;">
+        <div style="height: 1px; background: rgba(255,255,255,0.1); margin: 5px 0;"></div>
+        <span style="font-size:10px; color:#64748b; font-weight:800; padding-left:10px;">MINHA ÁREA</span>
+        <a href="minhas-compras.html" class="menu-link">📦 Meus Pedidos / Matches</a>
+        <a href="perfil-cliente.html" class="menu-link">👤 Meu Perfil</a>
+    </div>
+
+    <div id="menuSeller" style="display: none; flex-direction: column; gap: 12px;">
+        <div style="height: 1px; background: rgba(255,255,255,0.1); margin: 5px 0;"></div>
+        <span style="font-size:10px; color:var(--green-light); font-weight:800; padding-left:10px;">PAINEL VENDEDOR</span>
+        <a href="vendedor-anuncio.html" class="menu-link destaque">➕ Anunciar Aparelho</a>
+        <a href="dashboard-vendedor.html" class="menu-link">📊 Meus Anúncios</a>
+        <a href="vendedor-perfil.html" class="menu-link">⚙️ Configurações da Loja</a>
+    </div>
+
+    <div id="divLogout" style="display: none; margin-top: 10px;">
+        <button class="btn-logout-menu" onclick="fazerLogout()" style="width:100%; border: 1px solid rgba(239, 68, 68, 0.3); padding: 15px; border-radius: 12px;">SAIR DA CONTA</button>
+    </div>
+</nav>
     <section class="hero">
         <div class="match-card">
             <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 15px;">
@@ -162,16 +180,46 @@
         let uLat = null, uLng = null;
 
         // --- AUTH & REDIRECT ---
-        onAuthStateChanged(auth, async (user) => {
-            const params = new URLSearchParams(window.location.search);
-            if (user) {
-                document.getElementById('menuGuest').style.display = 'none';
-                document.getElementById('menuLogged').style.display = 'block';
-                if (params.get('goto') === 'compras') window.location.href = 'minhas-compras.html';
-                if (params.get('returnId')) window.location.href = `anuncio.html?id=${params.get('returnId')}`;
-            }
-        });
+       onAuthStateChanged(auth, async (user) => {
+    const guestUI = document.getElementById('menuGuest');
+    const customerUI = document.getElementById('menuCustomer');
+    const sellerUI = document.getElementById('menuSeller');
+    const logoutUI = document.getElementById('divLogout');
+    const greet = document.getElementById('greeting');
 
+    if (user) {
+        guestUI.style.display = 'none';
+        logoutUI.style.display = 'block';
+
+        // 1. Tenta identificar se é VENDEDOR
+        const sellerDoc = await getDoc(doc(db, "vendedores", user.uid));
+        if (sellerDoc.exists()) {
+            sellerUI.style.display = 'flex';
+            customerUI.style.display = 'none';
+            greet.innerText = "Olá, Lojista " + (sellerDoc.data().nome?.split(' ')[0] || "");
+            return; // Encerra aqui
+        }
+
+        // 2. Se não for vendedor, assume que é COMPRADOR
+        const clientDoc = await getDoc(doc(db, "clientes", user.uid));
+        customerUI.style.display = 'flex';
+        sellerUI.style.display = 'none';
+        
+        if (clientDoc.exists()) {
+            greet.innerText = "Olá, " + (clientDoc.data().nome?.split(' ')[0] || "Cliente");
+        } else {
+            greet.innerText = "Olá, " + (user.displayName?.split(' ')[0] || "Usuário");
+        }
+
+    } else {
+        // Usuário Deslogado
+        guestUI.style.display = 'flex';
+        customerUI.style.display = 'none';
+        sellerUI.style.display = 'none';
+        logoutUI.style.display = 'none';
+        greet.innerText = "Menu RePhone";
+    }
+});
         window.fazerLogout = () => signOut(auth).then(() => window.location.reload());
 
         // --- LOCALIZAÇÃO ---
@@ -283,5 +331,14 @@
 
         if(!localStorage.getItem('lgpd_ok')) document.getElementById('lgpdBanner').style.display = 'flex';
     </script>
+    <footer class="rephone-footer">
+        <div class="footer-links">
+            <a href="sobre.html">Sobre</a>
+            <a href="politica-de-privacidade.html">Privacidade</a>
+            <a href="termos-de-uso.html">Termos de Uso</a>
+            <a href="termos-vendedores.html">Termos Vendedor</a>
+        </div>
+        <div class="footer-info">RePhone © 2026 — Versão 4.0</div>
+    </footer>
 </body>
 </html>
