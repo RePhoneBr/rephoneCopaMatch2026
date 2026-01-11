@@ -119,7 +119,14 @@
     <nav id="mobileMenu">
         <div id="greeting" style="color:#94a3b8; font-size:11px; font-weight:800; text-align:center; margin-bottom:10px;">MENU REPHONE</div>
         <a href="login-cliente.html" class="menu-link" style="background: #3b82f6; border: 1px solid #2563eb;">🛍️ Minhas Compras / Rastreio</a>
-        <div id="menuGuest" style="display: flex; flex-direction: column; gap: 12px; margin-top: 15px;">
+        <a href="#" onclick="acessarCompras()" class="menu-link" style="background: #3b82f6; border: 1px solid #2563eb;">🛍️ Minhas Compras / Rastreio</a>
+<script>
+function acessarCompras() {
+    // Se o código ofuscado já definiu usuarioLogado, usamos ele. 
+    // Como o radar.js é um módulo, a forma mais segura é:
+    window.location.href = "login-cliente.html?goto=compras";
+}
+</script>
             <a href="vendedor-login.html" class="menu-link destaque">Entrar / Vender</a>
             <a href="registro-vendedor.html" class="menu-link">Criar Conta Vendedor</a>
         </div>
