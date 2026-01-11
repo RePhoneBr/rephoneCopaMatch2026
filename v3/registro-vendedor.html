@@ -68,14 +68,13 @@
 
     <button class="btn-reg" id="btnReg">CRIAR CONTA</button>
 </div>
-
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-app.js";
-    import { getAuth, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-auth.js";
+    import { getAuth, createUserWithEmailAndPassword, updateProfile } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-auth.js";
     import { getFirestore, doc, setDoc } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-firestore.js";
 
     const firebaseConfig = { 
-        apiKey: "SUA_API_KEY", 
+        apiKey: "AIzaSyBiN8FqX8UZeyAh1cG2GHZtQWiQH0xPBV4", // CORRIGIDO
         authDomain: "rephone-a0a80.firebaseapp.com", 
         projectId: "rephone-a0a80", 
         storageBucket: "rephone-a0a80.firebasestorage.app", 
@@ -85,18 +84,30 @@
     const auth = getAuth(app);
     const db = getFirestore(app);
 
-    let localizacaoAtual = "Não detectada";
+    let cidadeDetectada = "Não informada";
+    let coordsDetectadas = null;
 
-    // Captura GPS automática
-    async function pegarGPS() {
+    // Captura GPS automática (Melhorado para pegar lat/lng)
+    function pegarGPS() {
         if ("geolocation" in navigator) {
             navigator.geolocation.getCurrentPosition(async (pos) => {
                 try {
-                    const res = await fetch(`https://nominatim.openstreetmap.org/reverse?lat=${pos.coords.latitude}&lon=${pos.coords.longitude}&format=json`);
+                    const lat = pos.coords.latitude;
+                    const lon = pos.coords.longitude;
+                    coordsDetectadas = { lat, lon }; // Salva os números para o Radar
+
+                    const res = await fetch(`https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lon}&format=json`);
                     const data = await res.json();
-                    localizacaoAtual = data.address.city || data.address.town || "Região Desconhecida";
-                    document.getElementById('gpsStatus').innerText = "📍 Localizado: " + localizacaoAtual;
-                } catch (e) { document.getElementById('gpsStatus').innerText = "📍 Localização manual necessária"; }
+                    cidadeDetectada = data.address.city || data.address.town || data.address.village || "Desconhecida";
+                    
+                    document.getElementById('gpsStatus').innerText = "📍 Localizado: " + cidadeDetectada;
+                    document.getElementById('gpsStatus').style.color = "var(--green)";
+                } catch (e) { 
+                    document.getElementById('gpsStatus').innerText = "📍 GPS OK (Cidade Manual)"; 
+                }
+            }, (error) => {
+                document.getElementById('gpsStatus').innerText = "📍 GPS Bloqueado pelo navegador";
+                document.getElementById('gpsStatus').style.color = "red";
             });
         }
     }
@@ -111,32 +122,37 @@
         const btn = document.getElementById('btnReg');
 
         if(!nome || !email || !zap || !pass) return alert("Preencha todos os campos!");
+        if(pass.length < 6) return alert("A senha deve ter pelo menos 6 dígitos.");
 
         btn.disabled = true;
-        btn.innerText = "PROCESSANDO...";
+        btn.innerText = "CRIANDO PERFIL...";
 
         try {
             // 1. Cria o login no Auth
             const userCredential = await createUserWithEmailAndPassword(auth, email, pass);
             const user = userCredential.user;
 
-            // 2. Salva o perfil detalhado no Firestore
+            // 2. Atualiza o nome no perfil de autenticação (Importante!)
+            await updateProfile(user, { displayName: nome });
+
+            // 3. Salva o perfil detalhado no Firestore
             await setDoc(doc(db, "vendedores", user.uid), {
                 nome: nome,
                 email: email,
                 zap: zap,
                 tipo: tipo,
-                localizacaoCadastro: localizacaoAtual,
-                status: "verificado",
+                cidade: cidadeDetectada,
+                coords: coordsDetectadas, // Agora salva lat/lon para o Radar funcionar
+                status: "ativo", // Começa como ativo, 'verificado' pode ser manual depois
                 dataRegistro: new Date()
             });
 
-            alert("Bem-vindo à RePhone!");
+            alert("Bem-vindo à RePhone! Agora você já pode anunciar.");
             window.location.href = 'vendedor-anuncio.html';
 
         } catch (e) {
             console.error(e);
-            alert("Erro: " + e.message);
+            alert("Erro ao cadastrar: " + e.message);
             btn.disabled = false;
             btn.innerText = "CRIAR CONTA";
         }
