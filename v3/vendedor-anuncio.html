@@ -1,25 +1,31 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Anunciar Aparelho | RePhone</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
 <style>
-:root { --dark:#0f172a; --green:#16a34a; --bg:#f8fafc; --muted:#64748b; }
+:root { --dark:#0f172a; --green:#16a34a; --bg:#f8fafc; --muted:#64748b; --blue:#3b82f6;}
 *{margin:0;padding:0;box-sizing:border-box;font-family:'Inter',sans-serif;}
-body{background:var(--bg);padding:20px;color:var(--dark);}
-.container{max-width:500px;margin:0 auto;display:none;}
-h1{font-size:24px;font-weight:900;margin-bottom:20px;}
+body{background:var(--bg);color:var(--dark);padding:20px;}
+.container{max-width:600px;margin:0 auto;display:none;}
+h1{font-size:24px;font-weight:900;margin-bottom:15px;text-align:center;}
+h2{font-size:18px;font-weight:800;margin:20px 0 10px;}
 .form-group{margin-bottom:15px;}
 label{display:block;font-size:11px;font-weight:800;text-transform:uppercase;color:var(--muted);margin-bottom:5px;}
-input,select,textarea{width:100%;padding:15px;border-radius:15px;border:1px solid #e2e8f0;background:white;font-size:15px;outline:none;font-family:inherit;}
+input,select,textarea{width:100%;padding:12px;border-radius:12px;border:1px solid #e2e8f0;background:white;font-size:15px;outline:none;font-family:inherit;}
 input[readonly]{background:#f1f5f9;color:var(--muted);cursor:not-allowed;}
-.photo-upload{width:100%;aspect-ratio:16/9;background:#f1f5f9;border:2px dashed #cbd5e1;border-radius:20px;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;overflow:hidden;position:relative;margin-bottom:10px;}
+.photo-upload{width:100%;aspect-ratio:16/9;background:#f1f5f9;border:2px dashed #cbd5e1;border-radius:15px;display:flex;align-items:center;justify-content:center;cursor:pointer;position:relative;margin-bottom:10px;overflow:hidden;}
 .photo-upload img{width:100%;height:100%;object-fit:contain;}
-.btn-save{width:100%;background:var(--green);color:white;border:none;padding:20px;border-radius:18px;font-weight:800;font-size:16px;cursor:pointer;margin-top:20px;}
-.btn-clear{width:100%;background:#64748b;color:white;border:none;padding:12px;border-radius:15px;font-weight:700;font-size:14px;cursor:pointer;margin-top:10px;}
-.loc-info{font-size:12px;color:var(--green);font-weight:700;display:block;margin-top:5px;}
+.btn-save, .btn-clear{width:100%;border:none;padding:15px;border-radius:15px;font-weight:800;font-size:16px;cursor:pointer;margin-top:10px;}
+.btn-save{background:var(--green);color:white;}
+.btn-save:hover{background:#059669;}
+.btn-clear{background:#64748b;color:white;}
+.atalhos{display:flex;gap:10px;margin-bottom:20px;justify-content:center;}
+.atalhos a{background:var(--blue);color:white;padding:8px 12px;border-radius:12px;font-weight:700;text-decoration:none;font-size:14px;}
+.atalhos a:hover{background:#2563eb;}
+.loc-info{font-size:12px;color:var(--green);font-weight:700;margin-top:3px;}
 </style>
 </head>
 <body>
@@ -27,116 +33,94 @@ input[readonly]{background:#f1f5f9;color:var(--muted);cursor:not-allowed;}
 <div id="loading" style="text-align:center;margin-top:50px;font-weight:800;color:var(--muted);">VERIFICANDO ACESSO...</div>
 
 <div class="container" id="app">
-    <h1>Novo Anúncio</h1>
 
-    <!-- Dados do Vendedor -->
-    <div class="form-group">
-        <label>Nome do Vendedor</label>
-        <input type="text" id="nomeVendedor" readonly>
-    </div>
-    <div class="form-group">
-        <label>Tipo</label>
-        <input type="text" id="tipoVendedor" readonly>
-    </div>
-    <div class="form-group">
-        <label>Status</label>
-        <input type="text" id="statusVendedor" readonly>
-    </div>
-    <div class="form-group">
-        <label>WhatsApp</label>
-        <input type="text" id="whatsapp" readonly>
-    </div>
+<h1>Novo Anúncio</h1>
 
-    <!-- Fotos -->
-    <div class="form-group">
-        <label>Fotos do Aparelho (até 3)</label>
-        <div class="photo-upload" onclick="document.getElementById('fileInput1').click()">
-            <img id="preview1" style="display:none;">
-            <div id="uploadPlaceholder1"><span style="font-size:30px;">📸</span><span style="font-size:12px;font-weight:700;color:#64748b;">Tirar ou Anexar</span></div>
-        </div>
-        <input type="file" id="fileInput1" accept="image/*" onchange="handleFile(event,1)">
-        <div class="photo-upload" onclick="document.getElementById('fileInput2').click()">
-            <img id="preview2" style="display:none;">
-            <div id="uploadPlaceholder2"><span style="font-size:30px;">📸</span></div>
-        </div>
-        <input type="file" id="fileInput2" accept="image/*" onchange="handleFile(event,2)">
-        <div class="photo-upload" onclick="document.getElementById('fileInput3').click()">
-            <img id="preview3" style="display:none;">
-            <div id="uploadPlaceholder3"><span style="font-size:30px;">📸</span></div>
-        </div>
-        <input type="file" id="fileInput3" accept="image/*" onchange="handleFile(event,3)">
-    </div>
+<!-- Atalhos principais -->
+<div class="atalhos">
+    <a href="vendedor-anuncio.html">Novo Anúncio</a>
+    <a href="vendedor-compras.html">Minhas Vendas</a>
+    <a href="vendedor-perfil.html">Perfil</a>
+</div>
 
-    <div class="form-group">
-        <label>Localização Detectada</label>
-        <input type="text" id="cidade" readonly>
-        <span class="loc-info">📍 Cidade capturada automaticamente</span>
-    </div>
+<h2>Dados do Vendedor</h2>
+<div class="form-group">
+    <label>Nome</label>
+    <input type="text" id="nomeVendedor" readonly>
+</div>
+<div class="form-group">
+    <label>Tipo</label>
+    <input type="text" id="tipoVendedor" readonly>
+</div>
+<div class="form-group">
+    <label>Status</label>
+    <input type="text" id="statusVendedor" readonly>
+</div>
+<div class="form-group">
+    <label>WhatsApp</label>
+    <input type="text" id="whatsapp" readonly>
+</div>
 
-    <div class="form-group">
-        <label>Marca</label>
-        <select id="marca">
-            <option>Apple</option>
-            <option>Samsung</option>
-            <option>Motorola</option>
-            <option>Xiaomi</option>
-            <option>Outro</option>
-        </select>
+<h2>Fotos do Aparelho</h2>
+<div class="form-group">
+    <div class="photo-upload" onclick="document.getElementById('fileInput1').click()">
+        <img id="preview1" style="display:none;">
+        <div id="uploadPlaceholder1"><span style="font-size:30px;">📸</span></div>
     </div>
-
-    <div class="form-group">
-        <label>Modelo</label>
-        <input type="text" id="modelo" placeholder="Ex: iPhone 13 Pro Max">
+    <input type="file" id="fileInput1" accept="image/*" onchange="handleFile(event,1)">
+    <div class="photo-upload" onclick="document.getElementById('fileInput2').click()">
+        <img id="preview2" style="display:none;">
+        <div id="uploadPlaceholder2"><span style="font-size:30px;">📸</span></div>
     </div>
-
-    <div class="form-group">
-        <label>Cor</label>
-        <input type="text" id="cor" placeholder="Ex: Verde Alpino">
+    <input type="file" id="fileInput2" accept="image/*" onchange="handleFile(event,2)">
+    <div class="photo-upload" onclick="document.getElementById('fileInput3').click()">
+        <img id="preview3" style="display:none;">
+        <div id="uploadPlaceholder3"><span style="font-size:30px;">📸</span></div>
     </div>
+    <input type="file" id="fileInput3" accept="image/*" onchange="handleFile(event,3)">
+</div>
 
-    <div class="form-group">
-        <label>Capacidade</label>
-        <select id="capacidade">
-            <option>128GB</option><option>256GB</option><option>512GB</option><option>1TB</option>
-        </select>
-    </div>
+<h2>Informações do Aparelho</h2>
+<div class="form-group">
+    <label>Localização</label>
+    <input type="text" id="cidade" readonly>
+    <span class="loc-info">📍 Capturada automaticamente</span>
+</div>
+<div class="form-group">
+    <label>Marca</label>
+    <select id="marca">
+        <option>Apple</option>
+        <option>Samsung</option>
+        <option>Motorola</option>
+        <option>Xiaomi</option>
+        <option>Outro</option>
+    </select>
+</div>
+<div class="form-group"><label>Modelo</label><input type="text" id="modelo" placeholder="Ex: iPhone 13 Pro Max"></div>
+<div class="form-group"><label>Cor</label><input type="text" id="cor" placeholder="Ex: Verde Alpino"></div>
+<div class="form-group"><label>Capacidade</label>
+    <select id="capacidade">
+        <option>128GB</option><option>256GB</option><option>512GB</option><option>1TB</option>
+    </select>
+</div>
+<div class="form-group"><label>Condição</label>
+    <select id="condicao" onchange="atualizarEstado()">
+        <option>Novo</option><option>Lacrado</option><option>Vitrine</option><option>Usado</option>
+    </select>
+</div>
+<div class="form-group"><label>Estado</label>
+    <select id="estado">
+        <option>Excelente</option><option>Ótimo</option><option>Bom</option><option>Razoável</option>
+    </select>
+</div>
+<div class="form-group"><label>Bateria (%)</label><input type="number" id="bateria" placeholder="Ex: 95"></div>
+<div class="form-group"><label>Preço (R$)</label><input type="number" id="preco" placeholder="Ex: 3800"></div>
+<div class="form-group"><label>Garantia</label><input type="text" id="garantia" placeholder="Ex: 6 meses"></div>
+<div class="form-group"><label>Descrição</label><textarea id="descricao" rows="4" placeholder="Detalhes do aparelho, acessórios, etc"></textarea></div>
 
-    <div class="form-group">
-        <label>Condição</label>
-        <select id="condicao" onchange="atualizarEstado()">
-            <option>Novo</option><option>Lacrado</option><option>Vitrine</option><option>Usado</option>
-        </select>
-    </div>
+<button class="btn-save" onclick="salvarAnuncio()">PUBLICAR</button>
+<button class="btn-clear" onclick="limparFormulario()">LIMPAR FORMULÁRIO</button>
 
-    <div class="form-group">
-        <label>Estado</label>
-        <select id="estado">
-            <option>Excelente</option><option>Ótimo</option><option>Bom</option><option>Razoável</option>
-        </select>
-    </div>
-
-    <div class="form-group">
-        <label>Saúde da Bateria (%)</label>
-        <input type="number" id="bateria" placeholder="Ex: 95">
-    </div>
-
-    <div class="form-group">
-        <label>Preço Sugerido (R$)</label>
-        <input type="number" id="preco" placeholder="Ex: 3800">
-    </div>
-
-    <div class="form-group">
-        <label>Garantia</label>
-        <input type="text" id="garantia" placeholder="Ex: 6 meses">
-    </div>
-
-    <div class="form-group">
-        <label>Descrição do Anúncio</label>
-        <textarea id="descricao" rows="4" placeholder="Conte detalhes sobre o estado do aparelho, riscos ou acessórios inclusos..."></textarea>
-    </div>
-
-    <button class="btn-save" onclick="salvarAnuncio()">PUBLICAR NO RADAR</button>
-    <button class="btn-clear" onclick="limparFormulario()">LIMPAR FORMULÁRIO</button>
 </div>
 
 <script type="module">
@@ -157,10 +141,10 @@ const auth = getAuth(app);
 const IMGBB_API_KEY = "a4405be3b982f9aad88589728a3d949c";
 
 let userLogado = null;
-let fotos = [null,null,null];
+let fotos=[null,null,null];
 
 onAuthStateChanged(auth, async (user)=>{
-    if(!user){ window.location.href='vendedor-login.html'; return; }
+    if(!user){ window.location.href='vendedor-login.html'; return;}
     userLogado=user;
     try{
         const perfil = await getDoc(doc(db,"vendedores",user.uid));
@@ -171,15 +155,15 @@ onAuthStateChanged(auth, async (user)=>{
             document.getElementById('statusVendedor').value=data.status==='verificado'?'Verificado':'Não verificado';
             document.getElementById('whatsapp').value=data.zap||'--';
         }
-    }catch(e){ console.error(e); }
+    }catch(e){console.error(e);}
     document.getElementById('loading').style.display='none';
     document.getElementById('app').style.display='block';
     obterCidade();
 });
 
 function atualizarEstado(){
-    const cond = document.getElementById('condicao').value;
-    const estado = document.getElementById('estado');
+    const cond=document.getElementById('condicao').value;
+    const estado=document.getElementById('estado');
     if(cond==='Novo'){ estado.value='Novo'; estado.disabled=true; }
     else{ estado.disabled=false; }
 }
@@ -205,7 +189,7 @@ function limparFormulario(){
 function handleFile(event,index){
     fotos[index-1]=event.target.files[0];
     if(fotos[index-1]){
-        const reader = new FileReader();
+        const reader=new FileReader();
         reader.onload=(e)=>{
             const img=document.getElementById('preview'+index);
             img.src=e.target.result;
@@ -226,8 +210,8 @@ async function salvarAnuncio(){
             if(f){
                 const formData=new FormData();
                 formData.append('image',f);
-                const resImg = await fetch(`https://api.imgbb.com/1/upload?key=${IMGBB_API_KEY}`,{method:'POST',body:formData});
-                const dataImg = await resImg.json();
+                const resImg=await fetch(`https://api.imgbb.com/1/upload?key=${IMGBB_API_KEY}`,{method:'POST',body:formData});
+                const dataImg=await resImg.json();
                 urls.push(dataImg.data.url);
             }
         }
@@ -255,7 +239,8 @@ async function salvarAnuncio(){
         });
         alert("Anúncio publicado!");
         limparFormulario();
-    }catch(e){console.error(e);alert("Erro ao publicar."); btn.disabled=false; btn.innerText='PUBLICAR NO RADAR';}
+        btn.disabled=false; btn.innerText='PUBLICAR';
+    }catch(e){console.error(e);alert("Erro ao publicar."); btn.disabled=false; btn.innerText='PUBLICAR';}
 }
 
 async function obterCidade(){
@@ -266,5 +251,6 @@ async function obterCidade(){
     });
 }
 </script>
+
 </body>
 </html>
