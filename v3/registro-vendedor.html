@@ -1,167 +1,146 @@
-
-<!-- registro-vendedor.html -->
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Criar Conta | RePhone</title>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
-  <style>
-    /* CSS conforme já definido anteriormente */
-  </style>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cadastro Vendedor | RePhone</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800;900&display=swap" rel="stylesheet">
+    <style>
+        :root { --dark: #0f172a; --green: #16a34a; --bg: #f8fafc; --muted: #64748b; }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; }
+        body { background: var(--bg); color: var(--dark); padding: 20px; }
+        
+        .reg-card { max-width: 450px; margin: 40px auto; background: white; padding: 30px; border-radius: 24px; box-shadow: 0 10px 40px rgba(0,0,0,0.05); }
+        h2 { font-weight: 900; font-size: 28px; margin-bottom: 5px; letter-spacing: -1px; }
+        p { color: var(--muted); font-size: 14px; margin-bottom: 25px; }
+
+        .form-group { margin-bottom: 15px; }
+        label { display: block; font-size: 11px; font-weight: 800; text-transform: uppercase; color: var(--muted); margin-bottom: 5px; }
+        input, select { width: 100%; padding: 14px; border-radius: 12px; border: 1px solid #e2e8f0; font-size: 15px; outline: none; transition: 0.3s; }
+        input:focus { border-color: var(--green); }
+
+        .gps-box { background: #f1f5f9; padding: 10px; border-radius: 10px; font-size: 12px; color: var(--green); font-weight: 700; margin-bottom: 15px; display: flex; align-items: center; gap: 5px; }
+        
+        .btn-reg { width: 100%; background: var(--dark); color: white; border: none; padding: 16px; border-radius: 15px; font-weight: 800; font-size: 16px; cursor: pointer; transition: 0.3s; margin-top: 10px; }
+        .btn-reg:hover { background: #1e293b; transform: translateY(-2px); }
+        .btn-reg:disabled { background: #94a3b8; }
+    </style>
 </head>
 <body>
+
 <div class="reg-card">
-  <h2>Comece a Vender</h2>
-  <p>Crie sua conta para publicar no Radar.</p>
-  
-  <label>E-mail</label>
-  <input type="email" id="email" placeholder="seu@email.com">
-  
-  <label>WhatsApp (com DDD)</label>
-  <input type="number" id="whatsapp" placeholder="Ex: 11999999999">
-  
-  <label>Senha</label>
-  <input type="password" id="pass" placeholder="Mínimo 6 caracteres">
-  
-  <button class="btn-reg" id="btnReg" onclick="registrar()">CRIAR MINHA CONTA</button>
-  
-  <div class="footer-links">
-    Já tem conta? <a href="vendedor-login.html">Fazer Login</a>
-  </div>
+    <h2>Radar RePhone</h2>
+    <p>Crie sua conta de vendedor em segundos.</p>
+
+    <div class="form-group">
+        <label>Nome Completo</label>
+        <input type="text" id="nome" placeholder="Ex: João Silva">
+    </div>
+
+    <div class="form-group">
+        <label>E-mail</label>
+        <input type="email" id="email" placeholder="seu@email.com">
+    </div>
+
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+        <div class="form-group">
+            <label>WhatsApp</label>
+            <input type="number" id="whatsapp" placeholder="11999998888">
+        </div>
+        <div class="form-group">
+            <label>Tipo de Perfil</label>
+            <select id="tipo">
+                <option value="particular">Particular</option>
+                <option value="lojista">Lojista / Assistência</option>
+            </select>
+        </div>
+    </div>
+
+    <div class="form-group">
+        <label>Senha de Acesso</label>
+        <input type="password" id="pass" placeholder="Mínimo 6 caracteres">
+    </div>
+
+    <div class="gps-box" id="gpsStatus">
+        📍 Detectando sua localização...
+    </div>
+    <input type="hidden" id="cidadeLatLong">
+
+    <button class="btn-reg" id="btnReg">CRIAR CONTA</button>
 </div>
 
 <script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-app.js";
-import { getAuth, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-auth.js";
-import { getFirestore, doc, setDoc } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-firestore.js";
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-app.js";
+    import { getAuth, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-auth.js";
+    import { getFirestore, doc, setDoc } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-firestore.js";
 
-const firebaseConfig = { 
-  apiKey: "...", authDomain: "...", projectId: "...", storageBucket: "...", appId: "..." 
-};
-const app = initializeApp(firebaseConfig);
-const auth = getAuth(app);
-const db = getFirestore(app);
+    const firebaseConfig = { 
+        apiKey: "SUA_API_KEY", 
+        authDomain: "rephone-a0a80.firebaseapp.com", 
+        projectId: "rephone-a0a80", 
+        storageBucket: "rephone-a0a80.firebasestorage.app", 
+        appId: "1:431497247030:web:a943715e4acc04b8995b97" 
+    };
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
 
-window.registrar = async () => {
-  const email = document.getElementById('email').value;
-  const pass = document.getElementById('pass').value;
-  const zap = document.getElementById('whatsapp').value;
-  const btn = document.getElementById('btnReg');
+    let localizacaoAtual = "Não detectada";
 
-  if(!email || !pass || !zap) return alert("Preencha todos os campos.");
-  if(pass.length < 6) return alert("A senha deve ter pelo menos 6 caracteres.");
-  if(zap.length < 10) return alert("Digite um WhatsApp válido com DDD.");
+    // Captura GPS automática
+    async function pegarGPS() {
+        if ("geolocation" in navigator) {
+            navigator.geolocation.getCurrentPosition(async (pos) => {
+                try {
+                    const res = await fetch(`https://nominatim.openstreetmap.org/reverse?lat=${pos.coords.latitude}&lon=${pos.coords.longitude}&format=json`);
+                    const data = await res.json();
+                    localizacaoAtual = data.address.city || data.address.town || "Região Desconhecida";
+                    document.getElementById('gpsStatus').innerText = "📍 Localizado: " + localizacaoAtual;
+                } catch (e) { document.getElementById('gpsStatus').innerText = "📍 Localização manual necessária"; }
+            });
+        }
+    }
+    pegarGPS();
 
-  btn.disabled = true;
-  btn.innerText = "CRIANDO CONTA...";
+    document.getElementById('btnReg').onclick = async () => {
+        const nome = document.getElementById('nome').value;
+        const email = document.getElementById('email').value;
+        const zap = document.getElementById('whatsapp').value;
+        const tipo = document.getElementById('tipo').value;
+        const pass = document.getElementById('pass').value;
+        const btn = document.getElementById('btnReg');
 
-  try {
-    const userCredential = await createUserWithEmailAndPassword(auth, email, pass);
-    const user = userCredential.user;
+        if(!nome || !email || !zap || !pass) return alert("Preencha todos os campos!");
 
-    await setDoc(doc(db, "vendedores", user.uid), {
-  nome: document.getElementById('nome').value, // Adicione este input no seu HTML
-  email: email,
-  zap: zap, // Mudei de 'whatsapp' para 'zap' para combinar com o outro código
-  tipo: "particular",
-  status: "verificado",
-  dataRegistro: new Date()
-});
+        btn.disabled = true;
+        btn.innerText = "PROCESSANDO...";
 
-    alert("Conta criada com sucesso!");
-    window.location.href = 'vendedor-anuncio.html';
+        try {
+            // 1. Cria o login no Auth
+            const userCredential = await createUserWithEmailAndPassword(auth, email, pass);
+            const user = userCredential.user;
 
-  } catch (e) {
-    console.error(e);
-    alert("Erro ao criar conta. Verifique se o e-mail já está em uso.");
-    btn.disabled = false;
-    btn.innerText = "CRIAR MINHA CONTA";
-  }
-};
-</script>
-</body>
-</html>
-<!-- registro-vendedor.html -->
-<!DOCTYPE html>
-<html lang="pt-BR">
-<head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Criar Conta | RePhone</title>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
-  <style>
-    /* CSS conforme já definido anteriormente */
-  </style>
-</head>
-<body>
-<div class="reg-card">
-  <h2>Comece a Vender</h2>
-  <p>Crie sua conta para publicar no Radar.</p>
-  
-  <label>E-mail</label>
-  <input type="email" id="email" placeholder="seu@email.com">
-  
-  <label>WhatsApp (com DDD)</label>
-  <input type="number" id="whatsapp" placeholder="Ex: 11999999999">
-  
-  <label>Senha</label>
-  <input type="password" id="pass" placeholder="Mínimo 6 caracteres">
-  
-  <button class="btn-reg" id="btnReg" onclick="registrar()">CRIAR MINHA CONTA</button>
-  
-  <div class="footer-links">
-    Já tem conta? <a href="vendedor-login.html">Fazer Login</a>
-  </div>
-</div>
+            // 2. Salva o perfil detalhado no Firestore
+            await setDoc(doc(db, "vendedores", user.uid), {
+                nome: nome,
+                email: email,
+                zap: zap,
+                tipo: tipo,
+                localizacaoCadastro: localizacaoAtual,
+                status: "verificado",
+                dataRegistro: new Date()
+            });
 
-<script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-app.js";
-import { getAuth, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-auth.js";
-import { getFirestore, doc, setDoc } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-firestore.js";
+            alert("Bem-vindo à RePhone!");
+            window.location.href = 'vendedor-anuncio.html';
 
-const firebaseConfig = { 
-  apiKey: "...", authDomain: "...", projectId: "...", storageBucket: "...", appId: "..." 
-};
-const app = initializeApp(firebaseConfig);
-const auth = getAuth(app);
-const db = getFirestore(app);
-
-window.registrar = async () => {
-  const email = document.getElementById('email').value;
-  const pass = document.getElementById('pass').value;
-  const zap = document.getElementById('whatsapp').value;
-  const btn = document.getElementById('btnReg');
-
-  if(!email || !pass || !zap) return alert("Preencha todos os campos.");
-  if(pass.length < 6) return alert("A senha deve ter pelo menos 6 caracteres.");
-  if(zap.length < 10) return alert("Digite um WhatsApp válido com DDD.");
-
-  btn.disabled = true;
-  btn.innerText = "CRIANDO CONTA...";
-
-  try {
-    const userCredential = await createUserWithEmailAndPassword(auth, email, pass);
-    const user = userCredential.user;
-
-    await setDoc(doc(db, "vendedores", user.uid), {
-      email: email,
-      whatsapp: zap,
-      tipo: "particular",
-      dataRegistro: new Date()
-    });
-
-    alert("Conta criada com sucesso!");
-    window.location.href = 'vendedor-anuncio.html';
-
-  } catch (e) {
-    console.error(e);
-    alert("Erro ao criar conta. Verifique se o e-mail já está em uso.");
-    btn.disabled = false;
-    btn.innerText = "CRIAR MINHA CONTA";
-  }
-};
+        } catch (e) {
+            console.error(e);
+            alert("Erro: " + e.message);
+            btn.disabled = false;
+            btn.innerText = "CRIAR CONTA";
+        }
+    };
 </script>
 </body>
 </html>
