@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Meu Perfil | RePhone</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        :root { --dark: #0f172a; --green: #16a34a; --bg: #f8fafc; --text-muted: #64748b; --blue: #3b82f6; }
+        * { margin:0; padding:0; box-sizing:border-box; font-family:'Inter', sans-serif; }
+        body { background: var(--bg); color: var(--dark); padding-bottom: 50px; }
+
+        .main-header { 
+            background: var(--dark); padding: 12px 20px; display: flex; 
+            justify-content: space-between; align-items: center; position: sticky; 
+            top: 0; z-index: 1000; border-radius: 0 0 25px 25px; 
+        }
+        .logo { font-weight: 900; font-size: 22px; color: white; text-decoration: none; }
+        .logo span { color: var(--green); }
+
+        .container { max-width: 500px; margin: 20px auto; padding: 0 20px; }
+        
+        .profile-header { text-align: center; margin: 30px 0; }
+        .avatar-circle { 
+            width: 80px; height: 80px; background: var(--dark); color: white; 
+            border-radius: 50%; display: flex; align-items: center; justify-content: center; 
+            font-size: 32px; font-weight: 900; margin: 0 auto 10px; border: 4px solid white; box-shadow: 0 10px 20px rgba(0,0,0,0.05);
+        }
+
+        .status-badge { 
+            display: inline-block; padding: 6px 12px; border-radius: 10px; 
+            font-size: 11px; font-weight: 800; text-transform: uppercase; margin-top: 5px;
+        }
+        .status-pendente { background: #fef9c3; color: #854d0e; }
+        .status-verificado { background: #dcfce7; color: #166534; }
+
+        .form-card { background: white; padding: 25px; border-radius: 25px; border: 1px solid #e2e8f0; box-shadow: 0 10px 30px rgba(0,0,0,0.02); }
+        .form-group { margin-bottom: 18px; }
+        label { display: block; font-size: 11px; font-weight: 800; text-transform: uppercase; color: var(--text-muted); margin-bottom: 6px; }
+        input { 
+            width: 100%; padding: 14px; border-radius: 12px; border: 1px solid #e2e8f0; 
+            font-size: 15px; outline: none; transition: 0.3s; background: #f8fafc;
+        }
+        input:focus { border-color: var(--green); background: white; }
+        input[readonly] { opacity: 0.6; cursor: not-allowed; }
+
+        .btn-save { 
+            width: 100%; background: var(--dark); color: white; border: none; 
+            padding: 16px; border-radius: 15px; font-weight: 800; font-size: 15px; 
+            cursor: pointer; transition: 0.3s; margin-top: 10px;
+        }
+        .btn-save:hover { transform: translateY(-2px); box-shadow: 0 10px 20px rgba(0,0,0,0.1); }
+        
+        .nav-footer { display: flex; justify-content: center; gap: 20px; margin-top: 30px; }
+        .nav-link { color: var(--text-muted); text-decoration: none; font-size: 13px; font-weight: 700; }
+        .nav-link:hover { color: var(--dark); }
+    </style>
+</head>
+<body>
+
+    <header class="main-header">
+        <a href="index.html" class="logo">Re<span>Phone</span></a>
+        <div style="color: white; font-size: 11px; font-weight: 800;">MEU PERFIL</div>
+    </header>
+
+    <main class="container">
+        <div class="profile-header">
+            <div id="userInitial" class="avatar-circle">-</div>
+            <h2 id="userNameTitle">Carregando...</h2>
+            <div id="statusBadge" class="status-badge status-pendente">Aguardando Verificação</div>
+        </div>
+
+        <div class="form-card">
+            <div class="form-group">
+                <label>Nome Completo / Nome da Loja</label>
+                <input type="text" id="nome" placeholder="Seu nome">
+            </div>
+            
+            <div class="form-group">
+                <label>E-mail (Login)</label>
+                <input type="email" id="email" readonly>
+            </div>
+
+            <div class="form-group">
+                <label>WhatsApp (Link Direto)</label>
+                <input type="tel" id="whatsapp" placeholder="Ex: 27999887766">
+            </div>
+
+            <div class="form-group">
+                <label>Cidade Atuação</label>
+                <input type="text" id="cidade" placeholder="Sua cidade">
+            </div>
+
+            <button class="btn-save" id="btnSalvar">SALVAR ALTERAÇÕES</button>
+        </div>
+
+        <nav class="nav-footer">
+            <a href="dashboard-vendedor.html" class="nav-link">← Voltar ao Painel</a>
+            <a href="index.html" class="nav-link">Ver Radar</a>
+        </nav>
+    </main>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-app.js";
+        import { getFirestore, doc, getDoc, updateDoc } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-firestore.js";
+        import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-auth.js";
+
+        const firebaseConfig = { 
+            apiKey: "AIzaSyBiN8FqX8UZeyAh1cG2GHZtQWiQH0xPBV4", 
+            authDomain: "rephone-a0a80.firebaseapp.com", 
+            projectId: "rephone-a0a80", 
+            storageBucket: "rephone-a0a80.firebasestorage.app", 
+            appId: "1:431497247030:web:a943715e4acc04b8995b97" 
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+        const auth = getAuth(app);
+
+        let uid = null;
+
+        onAuthStateChanged(auth, async (user) => {
+            if (!user) { window.location.href = 'vendedor-login.html'; return; }
+            uid = user.uid;
+            
+            const docRef = doc(db, "vendedores", uid);
+            const snap = await getDoc(docRef);
+
+            if (snap.exists()) {
+                const data = snap.data();
+                document.getElementById('nome').value = data.nome || "";
+                document.getElementById('email').value = data.email || user.email;
+                document.getElementById('whatsapp').value = data.zap || "";
+                document.getElementById('cidade').value = data.cidade || "";
+                document.getElementById('userNameTitle').innerText = data.nome || "Vendedor";
+                document.getElementById('userInitial').innerText = (data.nome || "V").charAt(0).toUpperCase();
+
+                if(data.status === "verificado") {
+                    const badge = document.getElementById('statusBadge');
+                    badge.innerText = "⭐ Vendedor Verificado";
+                    badge.className = "status-badge status-verificado";
+                }
+            }
+        });
+
+        document.getElementById('btnSalvar').onclick = async () => {
+            const btn = document.getElementById('btnSalvar');
+            const nome = document.getElementById('nome').value;
+            const zap = document.getElementById('whatsapp').value.replace(/\D/g, '');
+            const cidade = document.getElementById('cidade').value;
+
+            if(!nome || !zap) return alert("Nome e WhatsApp são obrigatórios!");
+
+            btn.disabled = true;
+            btn.innerText = "SALVANDO...";
+
+            try {
+                await updateDoc(doc(db, "vendedores", uid), {
+                    nome: nome,
+                    zap: zap,
+                    cidade: cidade
+                });
+                alert("Perfil atualizado com sucesso!");
+                window.location.reload();
+            } catch (e) {
+                alert("Erro ao atualizar.");
+                btn.disabled = false;
+                btn.innerText = "SALVAR ALTERAÇÕES";
+            }
+        };
+    </script>
+</body>
+</html>
