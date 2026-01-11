@@ -117,110 +117,136 @@
     </div>
 
     <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-app.js";
-        import { getFirestore, collection, query, where, onSnapshot } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-firestore.js";
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-app.js";
+    import { getFirestore, collection, query, where, onSnapshot } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-firestore.js";
 
-        const firebaseConfig = { 
-            apiKey: "AIzaSyBiN8FqX8UZeyAh1cG2GHZtQWiQH0xPBV4", 
-            authDomain: "rephone-a0a80.firebaseapp.com", 
-            projectId: "rephone-a0a80", 
-            storageBucket: "rephone-a0a80.firebasestorage.app", 
-            appId: "1:431497247030:web:a943715e4acc04b8995b97" 
-        };
+    const firebaseConfig = { 
+        apiKey: "AIzaSyBiN8FqX8UZeyAh1cG2GHZtQWiQH0xPBV4", 
+        authDomain: "rephone-a0a80.firebaseapp.com", 
+        projectId: "rephone-a0a80", 
+        storageBucket: "rephone-a0a80.firebasestorage.app", 
+        appId: "1:431497247030:web:a943715e4acc04b8995b97" 
+    };
 
-        const app = initializeApp(firebaseConfig);
-        const db = getFirestore(app);
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
 
-        let todosAnuncios = [];
-        let userLat = null, userLng = null;
+    let todosAnuncios = [];
+    let userLat = null, userLng = null;
 
-        window.toggleMenu = () => {
-            const menu = document.getElementById('mobileMenu');
-            const overlay = document.getElementById('menuOverlay');
-            menu.classList.toggle('active');
-            overlay.style.display = menu.classList.contains('active') ? 'block' : 'none';
-        };
+    // --- FUNÇÕES DE INTERFACE ---
+    window.toggleMenu = () => {
+        const menu = document.getElementById('mobileMenu');
+        const overlay = document.getElementById('menuOverlay');
+        menu.classList.toggle('active');
+        overlay.style.display = menu.classList.contains('active') ? 'block' : 'none';
+    };
+    window.toggleBusca = () => document.getElementById('buscaManualBox').classList.toggle('open');
+    window.fecharMatch = () => document.getElementById('matchPopup').classList.remove('active');
 
-        window.toggleBusca = () => document.getElementById('buscaManualBox').classList.toggle('open');
-        window.fecharMatch = () => document.getElementById('matchPopup').classList.remove('active');
+    // --- CÁLCULO DE DISTÂNCIA ---
+    function calcularDistancia(lat1, lon1, lat2, lon2) {
+        const R = 6371;
+        const dLat = (lat2 - lat1) * Math.PI / 180;
+        const dLon = (lon2 - lon1) * Math.PI / 180;
+        const a = Math.sin(dLat/2) * Math.sin(dLat/2) + Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) * Math.sin(dLon/2) * Math.sin(dLon/2);
+        return (R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a))).toFixed(1);
+    }
 
-        function calcularDistancia(lat1, lon1, lat2, lon2) {
-            const R = 6371;
-            const dLat = (lat2 - lat1) * Math.PI / 180;
-            const dLon = (lon2 - lon1) * Math.PI / 180;
-            const a = Math.sin(dLat/2) * Math.sin(dLat/2) + Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) * Math.sin(dLon/2) * Math.sin(dLon/2);
-            return (R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a))).toFixed(1);
-        }
-
-        navigator.geolocation.getCurrentPosition(pos => {
-            userLat = pos.coords.latitude;
-            userLng = pos.coords.longitude;
-            fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${userLat}&lon=${userLng}`)
-                .then(r => r.json()).then(data => {
-                    const cidade = data.address.city || data.address.town || "Sua Região";
-                    document.getElementById('txtLocation').innerHTML = `📍 Você está em <strong>${cidade}</strong>`;
-                    renderizar(todosAnuncios);
-                });
-        }, () => document.getElementById('txtLocation').innerHTML = "📍 Localização desativada");
-
-        onSnapshot(query(collection(db, "anuncios"), where("statusAnuncio", "==", "aprovado")), (snap) => {
-            todosAnuncios = snap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-            renderizar(todosAnuncios);
-        });
-
-        function renderizar(lista) {
-            const grid = document.getElementById('radarGrid');
-            grid.innerHTML = "";
-            lista.forEach(ad => {
-                // CORREÇÃO DO PREÇO: Pega o valor puro do banco
-                const precoNum = parseFloat(ad.preco) || 0;
-                let distHtml = "";
-                if (userLat && ad.coords?.lat) {
-                    const d = calcularDistancia(userLat, userLng, ad.coords.lat, ad.coords.lon);
-                    if(d <= 50) distHtml = ` • ${d}km <span class="badge-near">PERTO</span>`;
-                }
-
-                const card = document.createElement('div');
-                card.className = 'card';
-                card.innerHTML = `
-                    <a href="anuncio.html?id=${ad.id}" style="text-decoration:none; color:inherit;">
-                        <div class="img-container"><img src="${ad.fotos?.[0] || 'https://via.placeholder.com/150'}"></div>
-                        <span style="font-size:9px; font-weight:800; color:var(--text-muted); text-transform:uppercase;">${ad.marca}</span>
-                        <h3 style="font-size:13px; font-weight:800; margin:4px 0;">${ad.modelo}</h3>
-                        <div style="font-size:10px; color:var(--text-muted);">${ad.capacidade} • Bateria ${ad.bateria}%</div>
-                        <div style="font-size:10px; color:var(--green); font-weight:700; margin-top:5px;">📍 ${ad.cidade}${distHtml}</div>
-                        <div class="price-tag">R$ ${precoNum.toLocaleString('pt-br', {minimumFractionDigits:2})}</div>
-                    </a>`;
-                grid.appendChild(card);
+    // --- LOCALIZAÇÃO ---
+    navigator.geolocation.getCurrentPosition(pos => {
+        userLat = pos.coords.latitude;
+        userLng = pos.coords.longitude;
+        fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${userLat}&lon=${userLng}`)
+            .then(r => r.json()).then(data => {
+                const cidade = data.address.city || data.address.town || "Sua Região";
+                document.getElementById('txtLocation').innerHTML = `📍 Você está em <strong>${cidade}</strong>`;
+                renderizar(todosAnuncios);
             });
+    }, () => {
+        document.getElementById('txtLocation').innerHTML = "📍 Localização desativada (Mostrando tudo)";
+    });
+
+    // --- BUSCA DE DADOS (Onde estava o erro) ---
+    // IMPORTANTE: Verifique no seu Firestore se o campo é "status" ou "statusAnuncio"
+    // Vou usar uma busca que pega todos os anúncios para garantir que apareçam, e filtramos no código.
+    onSnapshot(collection(db, "anuncios"), (snap) => {
+        todosAnuncios = snap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+        
+        // Filtramos apenas os aprovados via código para evitar erros de índice no Firebase
+        const aprovados = todosAnuncios.filter(ad => 
+            (ad.status === "aprovado" || ad.statusAnuncio === "aprovado") && ad.statusVenda !== "vendido"
+        );
+        
+        console.log("Anúncios carregados:", aprovados.length);
+        renderizar(aprovados);
+    });
+
+    function renderizar(lista) {
+        const grid = document.getElementById('radarGrid');
+        grid.innerHTML = "";
+
+        if (lista.length === 0) {
+            grid.innerHTML = `<div style="grid-column: 1/-1; text-align:center; padding:50px; color:#64748b;">Nenhum aparelho aprovado no radar ainda...</div>`;
+            return;
         }
 
-        window.fazerMatch = () => {
-            const mod = document.getElementById('matchModelo').value.toLowerCase();
-            const pMax = parseFloat(document.getElementById('matchPreco').value) || Infinity;
-            if(!mod) return alert("O que você busca?");
+        lista.forEach(ad => {
+            const precoNum = parseFloat(ad.preco) || 0;
+            let distHtml = "";
+            
+            if (userLat && ad.coords?.lat) {
+                const d = calcularDistancia(userLat, userLng, ad.coords.lat, ad.coords.lon);
+                if(parseFloat(d) <= 50) distHtml = ` • ${d}km <span class="badge-near">PERTO</span>`;
+            }
 
-            document.getElementById('mCircle').className = "status-circle searching";
-            setTimeout(() => {
-                let match = todosAnuncios
-                    .filter(a => a.modelo.toLowerCase().includes(mod) && parseFloat(a.preco) <= pMax)
-                    .sort((a, b) => b.bateria - a.bateria)[0];
+            const card = document.createElement('div');
+            card.className = 'card';
+            card.innerHTML = `
+                <a href="anuncio.html?id=${ad.id}" style="text-decoration:none; color:inherit;">
+                    <div class="img-container"><img src="${ad.fotos?.[0] || 'https://via.placeholder.com/150'}"></div>
+                    <span style="font-size:9px; font-weight:800; color:var(--text-muted); text-transform:uppercase;">${ad.marca || 'Celular'}</span>
+                    <h3 style="font-size:13px; font-weight:800; margin:4px 0;">${ad.modelo || 'Modelo não informado'}</h3>
+                    <div style="font-size:10px; color:var(--text-muted);">${ad.capacidade || '--'} • Bateria ${ad.bateria || '--'}%</div>
+                    <div style="font-size:10px; color:var(--green); font-weight:700; margin-top:5px;">📍 ${ad.cidade || 'Brasil'}${distHtml}</div>
+                    <div class="price-tag">R$ ${precoNum.toLocaleString('pt-br', {minimumFractionDigits:2})}</div>
+                </a>`;
+            grid.appendChild(card);
+        });
+    }
 
-                if(match) {
-                    const precoM = parseFloat(match.preco).toLocaleString('pt-br', {minimumFractionDigits:2});
-                    document.getElementById('matchData').innerHTML = `
-                        <img src="${match.fotos[0]}" style="width:60px; height:60px; border-radius:10px; object-fit:cover;">
-                        <div><b style="font-size:14px;">${match.modelo}</b><br><span style="color:var(--green-light)">R$ ${precoM}</span></div>`;
-                    document.getElementById('matchLink').href = `anuncio.html?id=${match.id}`;
-                    document.getElementById('matchPopup').classList.add('active');
-                    document.getElementById('mCircle').className = "status-circle";
-                    document.getElementById('mCircle').style.background = "var(--green)";
-                } else {
-                    alert("Nenhum match encontrado para este preço!");
-                    document.getElementById('mCircle').className = "status-circle";
-                }
-            }, 1200);
-        };
-    </script>
+    // --- MATCH INTELIGENTE ---
+    window.fazerMatch = () => {
+        const mod = document.getElementById('matchModelo').value.toLowerCase();
+        const pMax = parseFloat(document.getElementById('matchPreco').value) || Infinity;
+        if(!mod) return alert("O que você busca?");
+
+        document.getElementById('mCircle').className = "status-circle searching";
+        
+        setTimeout(() => {
+            const aprovados = todosAnuncios.filter(ad => 
+                (ad.status === "aprovado" || ad.statusAnuncio === "aprovado") && ad.statusVenda !== "vendido"
+            );
+
+            let match = aprovados
+                .filter(a => a.modelo.toLowerCase().includes(mod) && parseFloat(a.preco) <= pMax)
+                .sort((a, b) => (b.bateria || 0) - (a.bateria || 0))[0];
+
+            if(match) {
+                const precoM = (parseFloat(match.preco) || 0).toLocaleString('pt-br', {minimumFractionDigits:2});
+                document.getElementById('matchData').innerHTML = `
+                    <img src="${match.fotos?.[0] || ''}" style="width:60px; height:60px; border-radius:10px; object-fit:cover;">
+                    <div><b style="font-size:14px;">${match.modelo}</b><br><span style="color:var(--green-light)">R$ ${precoM}</span></div>`;
+                document.getElementById('matchLink').href = `anuncio.html?id=${match.id}`;
+                document.getElementById('matchPopup').classList.add('active');
+                document.getElementById('mCircle').className = "status-circle";
+                document.getElementById('mCircle').style.background = "var(--green)";
+            } else {
+                alert("Nenhum match encontrado para esses filtros!");
+                document.getElementById('mCircle').className = "status-circle";
+            }
+        }, 1200);
+    };
+</script>
 </body>
 </html>
