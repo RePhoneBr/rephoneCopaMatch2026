@@ -1,112 +1,91 @@
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
-<meta charset="UTF-8">
-<title>Login | RePhone Assistência</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
-<style>
-*{margin:0;padding:0;box-sizing:border-box;font-family:'Poppins',sans-serif}
-body{
-  background:#0b0f1a;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  height:100vh;
-  color:#fff;
-}
-.container{
-  background:#12182b;
-  padding:40px;
-  width:380px;
-  border-radius:12px;
-  box-shadow:0 0 25px rgba(0,0,0,.6);
-  text-align:center;
-}
-h2{margin-bottom:20px;font-weight:600}
-input{
-  width:100%;
-  padding:12px;
-  margin:10px 0;
-  border-radius:8px;
-  border:1px solid #333;
-  background:#0d1324;
-  color:#fff;
-}
-button{
-  width:100%;
-  padding:12px;
-  margin-top:10px;
-  background:#00c2ff;
-  border:none;
-  border-radius:8px;
-  cursor:pointer;
-  font-weight:600;
-  transition:.3s;
-}
-button:hover{background:#0088ff}
-.msg{margin-top:10px;font-size:14px;color:#ff6b6b}
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login | RePhone</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Poppins', sans-serif }
+        body { background: #0b0f1a; display: flex; align-items: center; justify-content: center; height: 100vh; color: #fff; padding: 20px; }
+        .container { background: #12182b; padding: 40px; width: 100%; max-width: 380px; border-radius: 20px; box-shadow: 0 15px 35px rgba(0,0,0,0.4); text-align: center; }
+        h2 { margin-bottom: 10px; font-weight: 600; font-size: 24px; }
+        p.subtitle { color: #64748b; font-size: 14px; margin-bottom: 25px; }
+        input { width: 100%; padding: 14px; margin: 10px 0; border-radius: 12px; border: 1px solid #2d3748; background: #0d1324; color: #fff; outline: none; }
+        input:focus { border-color: #00c2ff; }
+        button { width: 100%; padding: 14px; margin-top: 15px; background: #00c2ff; border: none; border-radius: 12px; cursor: pointer; font-weight: 700; color: #0b0f1a; transition: 0.3s; }
+        button:hover { background: #0088ff; transform: translateY(-2px); }
+        button:disabled { background: #1e293b; color: #64748b; cursor: not-allowed; }
+        .msg { margin-top: 15px; font-size: 13px; color: #ff6b6b; min-height: 20px; }
+    </style>
 </head>
 <body>
 
 <div class="container">
-  <h2>Login do Cliente</h2>
+    <h2>RePhone</h2>
+    <p class="subtitle">Entre para acessar sua conta</p>
 
-  <input id="email" type="email" placeholder="Seu email">
-  <input id="senha" type="password" placeholder="Sua senha">
-
-  <button onclick="login()">Entrar</button>
-  <p class="msg" id="msg"></p>
+    <form id="loginForm">
+        <input id="email" type="email" placeholder="Seu e-mail" required>
+        <input id="pass" type="password" placeholder="Sua senha" required>
+        <button type="submit" id="btnEntrar">ENTRAR NO PAINEL</button>
+    </form>
+    
+    <p class="msg" id="msgStatus"></p>
 </div>
 
+<script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-app.js";
+    import { getAuth, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-auth.js";
 
-<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js"></script>
+    const firebaseConfig = { 
+        apiKey: "AIzaSyBiN8FqX8UZeyAh1cG2GHZtQWiQH0xPBV4", 
+        authDomain: "rephone-a0a80.firebaseapp.com", 
+        projectId: "rephone-a0a80", 
+        storageBucket: "rephone-a0a80.firebasestorage.app", 
+        messagingSenderId: "431497247030", 
+        appId: "1:431497247030:web:a943715e4acc04b8995b97" 
+    };
 
-<script>
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
 
-// 🔥 CONFIG FIREBASE
-  <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-app.js";
-        import { getAuth, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-auth.js";
+    const EMAIL_MASTER = "rp.rephone@gmail.com";
 
-        const firebaseConfig = { 
-            apiKey: "AIzaSyBiN8FqX8UZeyAh1cG2GHZtQWiQH0xPBV4", 
-            authDomain: "rephone-a0a80.firebaseapp.com", 
-            projectId: "rephone-a0a80", 
-            storageBucket: "rephone-a0a80.firebasestorage.app", 
-            messagingSenderId: "431497247030", 
-            appId: "1:431497247030:web:a943715e4acc04b8995b97" 
-        };
+    document.getElementById('loginForm').onsubmit = async (e) => {
+        e.preventDefault();
+        const btn = document.getElementById('btnEntrar');
+        const msgStatus = document.getElementById('msgStatus');
+        const email = document.getElementById('email').value.toLowerCase().trim();
+        const pass = document.getElementById('pass').value;
 
-        const app = initializeApp(firebaseConfig);
-        const auth = getAuth(app);
+        btn.innerText = "VERIFICANDO...";
+        btn.disabled = true;
+        msgStatus.innerText = "";
 
-        document.getElementById('loginForm').onsubmit = async (e) => {
-            e.preventDefault();
-            const btn = document.getElementById('btnEntrar');
-            const email = document.getElementById('email').value;
-            const pass = document.getElementById('pass').value;
+        try {
+            const userCredential = await signInWithEmailAndPassword(auth, email, pass);
+            const user = userCredential.user;
 
-            btn.innerText = "VERIFICANDO...";
-            btn.disabled = true;
-
-            try {
-                await signInWithEmailAndPassword(auth, email, pass);
-                window.location.href = "dashboard-vendedor.html";
-            } catch (error) {
-                console.error(error);
-                let msg = "Erro ao entrar. Verifique e-mail e senha.";
-                if (error.code === 'auth/user-not-found') msg = "E-mail não cadastrado.";
-                if (error.code === 'auth/wrong-password') msg = "Senha incorreta.";
-                
-                alert(msg);
-                btn.innerText = "ENTRAR NO PAINEL";
-                btn.disabled = false;
+            // Lógica de Redirecionamento Master
+            if (user.email === EMAIL_MASTER) {
+                window.location.href = "admin.html"; // Redireciona para o Console Master
+            } else {
+                window.location.href = "index.html"; // Redireciona cliente normal para a Home
             }
 
+        } catch (error) {
+            console.error(error);
+            btn.innerText = "ENTRAR NO PAINEL";
+            btn.disabled = false;
+
+            let erroTexto = "E-mail ou senha incorretos.";
+            if (error.code === 'auth/invalid-credential') erroTexto = "Credenciais inválidas.";
+            if (error.code === 'auth/too-many-requests') erroTexto = "Muitas tentativas. Tente mais tarde.";
+            
+            msgStatus.innerText = erroTexto;
+        }
+    };
 </script>
 
 </body>
