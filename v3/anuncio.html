@@ -1,34 +1,24 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-    <!-- Google tag (gtag.js) -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-LHRJ19C0CW"></script>
-<script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
-
-  gtag('config', 'G-LHRJ19C0CW');
-</script>
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-LHRJ19C0CW"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'G-LHRJ19C0CW');
+    </script>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
     <title>Detalhes do Aparelho | RePhone</title>
-
-    <meta property="og:type" content="website">
-    <meta property="og:title" id="metaTitle" content="RePhone - Aparelho Disponível">
-    <meta property="og:description" id="metaDesc" content="Confira preço e fotos deste aparelho no RePhone.">
-    <meta property="og:image" id="metaImg" content="https://www.rephone.com.br/logo.png">
 
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
     <style>
         :root { --dark: #0f172a; --green: #16a34a; --bg: #f8fafc; --muted: #64748b; --blue: #3b82f6; }
         * { margin:0; padding:0; box-sizing:border-box; font-family:'Inter', sans-serif; }
-        
-        body { background: var(--bg); padding: 15px; color: var(--dark); padding-bottom: 100px; } /* Espaço para botões fixos */
+        body { background: var(--bg); padding: 15px; color: var(--dark); padding-bottom: 100px; }
 
-        /* ESTRUTURA RESPONSIVA */
         .container { width: 100%; max-width: 1100px; margin: 0 auto; }
-        
         .header-nav { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
         .btn-back { text-decoration: none; color: var(--muted); font-size: 12px; font-weight: 800; text-transform: uppercase; }
         
@@ -37,215 +27,81 @@
         .status-particular { color: var(--muted); background: #f1f5f9; } 
 
         .main-grid { display: grid; grid-template-columns: 1fr; gap: 20px; }
-        
-        /* Ajuste para telas maiores (PC) */
-        @media (min-width: 850px) {
-            .main-grid { grid-template-columns: 1fr 1.2fr; align-items: start; gap: 30px; }
-        }
+        @media (min-width: 850px) { .main-grid { grid-template-columns: 1fr 1.2fr; align-items: start; gap: 30px; } }
 
+        /* CARROSSEL STYLE */
+        .gallery-wrapper { position: relative; width: 100%; background: white; border-radius: 22px; overflow: hidden; border: 1px solid #e2e8f0; aspect-ratio: 1/1; }
+        .gallery-container { display: flex; height: 100%; overflow-x: auto; scroll-snap-type: x mandatory; scroll-behavior: smooth; -webkit-overflow-scrolling: touch; }
+        .gallery-container::-webkit-scrollbar { display: none; }
+        .gallery-item { min-width: 100%; height: 100%; scroll-snap-align: start; display: flex; align-items: center; justify-content: center; cursor: zoom-in; }
+        .gallery-item img { max-width: 100%; max-height: 100%; object-fit: contain; }
+        
+        .gallery-dots { position: absolute; bottom: 15px; left: 50%; transform: translateX(-50%); display: flex; gap: 8px; z-index: 10; }
+        .dot { width: 8px; height: 8px; border-radius: 50%; background: rgba(15, 23, 42, 0.2); transition: 0.3s; }
+        .dot.active { background: var(--green); transform: scale(1.3); }
+
+        .nav-btn { position: absolute; top: 50%; transform: translateY(-50%); background: rgba(255,255,255,0.9); border: none; width: 35px; height: 35px; border-radius: 50%; cursor: pointer; z-index: 10; display: none; }
+        @media (min-width: 1024px) { .nav-btn { display: block; } }
+        .nav-prev { left: 10px; } .nav-next { right: 10px; }
+
+        /* LIGHTBOX (ZOOM) */
+        #lightbox { position: fixed; inset: 0; background: rgba(0,0,0,0.95); z-index: 5000; display: none; align-items: center; justify-content: center; padding: 20px; }
+        #lightbox img { max-width: 100%; max-height: 90vh; object-fit: contain; border-radius: 10px; }
+        .close-zoom { position: absolute; top: 20px; right: 20px; color: white; font-size: 35px; cursor: pointer; font-weight: 900; }
+
+        /* PAINEL INFOS */
         .panel { background: white; border-radius: 30px; padding: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); }
-        
-        .gallery { width: 100%; background: #f1f5f9; border-radius: 22px; overflow: hidden; display: flex; align-items: center; justify-content: center; aspect-ratio: 1/1; border: 1px solid #e2e8f0; }
-        .gallery img { max-width: 100%; max-height: 100%; object-fit: contain; }
-         h1 { font-size: 26px; font-weight: 900; line-height: 1.1; margin-bottom: 5px; }
-        .seller-name { font-size: 16px; font-weight: 700; color: var(--dark); display: block; margin-top: 5px; }
-        .location-tag { font-size: 13px; color: var(--muted); font-weight: 600; margin-top: 5px; display: block; }
-        .price { font-size: 32px; font-weight: 900; color: var(--green); margin-top: 15px; margin-bottom: 25px; display: block; }
-        
+        h1 { font-size: 26px; font-weight: 900; margin-bottom: 5px; }
+        .price { font-size: 32px; font-weight: 900; color: var(--green); margin: 15px 0 25px; display: block; }
         .info-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 12px; margin-bottom: 25px; }
         .info-box { background: #f8fafc; padding: 15px; border-radius: 18px; border: 1px solid #e2e8f0; }
-        .info-box small { font-size: 9px; color: var(--muted); text-transform: uppercase; font-weight: 800; display: block; margin-bottom: 4px; }
-        .info-box span { font-size: 14px; font-weight: 700; color: var(--dark); }
-        
-        .desc-box { padding-top: 20px; border-top: 1px solid #f1f5f9; }
-        .desc-box h4 { font-size: 11px; font-weight: 900; text-transform: uppercase; color: var(--muted); margin-bottom: 8px; }
-        .desc-box p { font-size: 14px; color: #475569; line-height: 1.6; }
+        .info-box small { font-size: 9px; color: var(--muted); text-transform: uppercase; font-weight: 800; display: block; }
+        .info-box span { font-size: 14px; font-weight: 700; }
 
-        /* RODAPÉ FIXO */
-        .footer-controls {
-            position: fixed; bottom: 0; left: 0; width: 100%;
-            background: rgba(255, 255, 255, 0.9);
-            backdrop-filter: blur(10px);
-            padding: 15px; border-top: 1px solid #e2e8f0;
-            display: flex; gap: 10px; z-index: 1000; justify-content: center;
-        }
-
-        .btn-zap { 
-            flex: 2; background: #25d366; color: white; text-align: center; 
-            padding: 18px; border-radius: 20px; text-decoration: none; 
-            font-weight: 900; font-size: 16px; max-width: 400px;
-        }
-
-        .btn-share { 
-            flex: 1; background: white; color: var(--dark); border: 2px solid #e2e8f0;
-            border-radius: 20px; font-weight: 800; font-size: 14px; cursor: pointer; max-width: 150px;
-        }
-        /* =====================================================
-   DESKTOP – VISUAL PROFISSIONAL / MARKETPLACE
-   NÃO ALTERA MOBILE
-   ===================================================== */
-
-@media (min-width: 1024px) {
-
-  body {
-    padding: 30px 0 120px;
-    background: #f1f5f9;
-  }
-
-  .container {
-    max-width: 1200px;
-    padding: 0 20px;
-  }
-
-  /* HEADER */
-  .header-nav {
-    margin-bottom: 25px;
-  }
-
-  .btn-back {
-    font-size: 13px;
-  }
-
-  .badge-verificado {
-    font-size: 12px;
-    padding: 8px 16px;
-  }
-
-  /* GRID PRINCIPAL */
-  .main-grid {
-    grid-template-columns: 1.1fr 1.4fr;
-    gap: 40px;
-  }
-
-  /* GALERIA */
-  .gallery {
-    border-radius: 30px;
-    aspect-ratio: 1 / 1;
-  }
-
-  .gallery img {
-    max-width: 90%;
-    max-height: 90%;
-  }
-
-  /* PAINEL DE INFORMAÇÕES */
-  .panel {
-    padding: 30px;
-    border-radius: 35px;
-  }
-
-  h1 {
-    font-size: 30px;
-  }
-
-  .seller-name {
-    font-size: 17px;
-  }
-
-  .location-tag {
-    font-size: 14px;
-  }
-
-  .price {
-    font-size: 36px;
-  }
-
-  /* GRID TÉCNICO */
-  .info-grid {
-    grid-template-columns: repeat(4, 1fr);
-    gap: 14px;
-  }
-
-  .info-box span {
-    font-size: 15px;
-  }
-
-  /* DESCRIÇÃO */
-  .desc-box p {
-    font-size: 15px;
-    line-height: 1.7;
-  }
-
-  /* FOOTER DE AÇÃO (DESKTOP) */
-  .footer-controls {
-    justify-content: center;
-    gap: 20px;
-    padding: 20px;
-  }
-
-  .btn-zap {
-    max-width: 360px;
-    font-size: 17px;
-  }
-
-  .btn-share {
-    max-width: 180px;
-  }
-}
-
-/* TELAS GRANDES */
-@media (min-width: 1440px) {
-  .container {
-    max-width: 1350px;
-  }
-
-  .main-grid {
-    gap: 50px;
-  }
-}
-
-/* MICROINTERAÇÕES DESKTOP */
-@media (hover: hover) and (min-width: 1024px) {
-  .panel {
-    transition: box-shadow 0.25s ease, transform 0.25s ease;
-  }
-
-  .panel:hover {
-    box-shadow: 0 35px 70px rgba(0,0,0,0.08);
-    transform: translateY(-4px);
-  }
-}
-.btn-zap.vendido {
-    background: #cbd5e1 !important; /* Cinza */
-    color: #64748b !important;
-    cursor: not-allowed;
-    pointer-events: none; /* Impede o clique */
-}
+        /* FOOTER FIXO */
+        .footer-controls { position: fixed; bottom: 0; left: 0; width: 100%; background: rgba(255, 255, 255, 0.9); backdrop-filter: blur(10px); padding: 15px; border-top: 1px solid #e2e8f0; display: flex; gap: 10px; z-index: 1000; justify-content: center; }
+        .btn-zap { flex: 2; background: #25d366; color: white; text-align: center; padding: 18px; border-radius: 20px; text-decoration: none; font-weight: 900; font-size: 16px; max-width: 400px; }
+        .btn-share { flex: 1; background: white; border: 2px solid #e2e8f0; border-radius: 20px; font-weight: 800; cursor: pointer; max-width: 150px; }
+        .btn-zap.vendido { background: #cbd5e1 !important; color: #64748b !important; pointer-events: none; }
     </style>
 </head>
 <body>
 
+    <div id="lightbox" onclick="this.style.display='none'">
+        <span class="close-zoom">&times;</span>
+        <img id="imgZoom" src="">
+    </div>
+
     <div class="container">
         <div class="header-nav">
             <a href="index.html" class="btn-back">← Voltar</a>
-            <div id="pVendedorTipo" class="badge-verificado">CARREGANDO...</div>
+            <div id="pVendedorTipo" class="badge-verificado">Carregando...</div>
         </div>
 
         <div class="main-grid" id="mainPanel" style="display:none;">
-            <div class="gallery">
-                <img id="pImg" src="" alt="Foto">
+            <div class="gallery-wrapper">
+                <button class="nav-btn nav-prev" onclick="moveSlide(-1)">❮</button>
+                <div class="gallery-container" id="galleryContainer"></div>
+                <button class="nav-btn nav-next" onclick="moveSlide(1)">❯</button>
+                <div class="gallery-dots" id="galleryDots"></div>
             </div>
             
             <div class="panel">
                 <h1 id="pModeloHeader">---</h1>
-                <span id="pNomeVendedor" class="seller-name">Vendedor: Carregando...</span>
-                <span id="pLocal" class="location-tag">📍 ---</span>
+                <span id="pNomeVendedor" style="font-weight:700; font-size:14px;">---</span>
+                <span id="pLocal" style="display:block; font-size:12px; color:var(--muted); margin-top:5px;">📍 ---</span>
                 <span class="price" id="pPreco">R$ ---</span>
 
                 <div class="info-grid">
                     <div class="info-box"><small>Marca</small><span id="pMarca">--</span></div>
-                    <div class="info-box"><small>Modelo</small><span id="pModeloGrid">--</span></div>
-                    <div class="info-box"><small>Cor</small><span id="pCor">--</span></div>
                     <div class="info-box"><small>Capacidade</small><span id="pCapacidade">--</span></div>
+                    <div class="info-box"><small>Saúde Bateria</small><span id="pBateria">--</span>%</div>
                     <div class="info-box"><small>Condição</small><span id="pCondicao">--</span></div>
-                    <div class="info-box"><small>Estado</small><span id="pEstado">--</span></div>
-                    <div class="info-box"><small>Bateria</small><span id="pBateria">--</span>%</div>
-                    <div class="info-box"><small>Garantia</small><span id="pGarantia">--</span></div>
                 </div>
 
-                <div class="desc-box">
-                    <h4>Descrição</h4>
-                    <p id="pDesc">--</p>
+                <div style="border-top:1px solid #f1f5f9; padding-top:20px;">
+                    <h4 style="font-size:11px; text-transform:uppercase; color:var(--muted); margin-bottom:10px;">Descrição do Vendedor</h4>
+                    <p id="pDesc" style="font-size:14px; line-height:1.6; color:#475569;"></p>
                 </div>
             </div>
         </div>
@@ -253,153 +109,113 @@
 
     <div class="footer-controls">
         <button id="pShare" class="btn-share">COMPARTILHAR</button>
-        <a id="pZap" class="btn-zap" href="#">NEGOCIAR</a>
+        <a id="pZap" class="btn-zap" href="#">NEGOCIAR AGORA</a>
     </div>
+
 <script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-app.js";
-import { getFirestore, doc, getDoc, addDoc, collection, serverTimestamp } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-firestore.js";
-import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-auth.js";
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-app.js";
+    import { getFirestore, doc, getDoc, addDoc, collection, serverTimestamp } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-firestore.js";
+    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-auth.js";
 
-const firebaseConfig = { 
-  apiKey: "AIzaSyBiN8FqX8UZeyAh1cG2GHZtQWiQH0xPBV4", 
-  authDomain: "rephone-a0a80.firebaseapp.com", 
-  projectId: "rephone-a0a80", 
-  storageBucket: "rephone-a0a80.firebasestorage.app", 
-  appId: "1:431497247030:web:a943715e4acc04b8995b97" 
-};
-
-const app = initializeApp(firebaseConfig);
-const db = getFirestore(app);
-const auth = getAuth(app);
-
-const anuncioId = new URLSearchParams(location.search).get("id");
-let usuarioLogado = null;
-
-// Escuta o estado do usuário
-onAuthStateChanged(auth, (user) => {
-    usuarioLogado = user;
-});
-
-if (!anuncioId) {
-    alert("Anúncio não encontrado");
-    window.location.href = 'index.html';
-}
-
-async function carregarAnuncio() {
-    const snap = await getDoc(doc(db, "anuncios", anuncioId));
-    if (!snap.exists()) {
-        alert("Anúncio não existe");
-        return;
-    }
-
-    const ad = snap.data();
-    const precoFmt = Number(ad.preco || 0).toLocaleString("pt-BR", { minimumFractionDigits: 2 });
-
-    // Preencher UI
-    document.getElementById("pImg").src = ad.fotos?.[0] || "https://via.placeholder.com/400";
-    document.getElementById("pModeloHeader").innerText = ad.modelo || "--";
-    document.getElementById("pModeloGrid").innerText = ad.modelo || "--";
-    document.getElementById("pPreco").innerText = `R$ ${precoFmt}`;
-    document.getElementById("pMarca").innerText = ad.marca || "--";
-    document.getElementById("pCor").innerText = ad.cor || "--";
-    document.getElementById("pCapacidade").innerText = ad.capacidade || "--";
-    document.getElementById("pCondicao").innerText = ad.condicao || "--";
-    document.getElementById("pEstado").innerText = ad.estado || "--";
-    document.getElementById("pBateria").innerText = (ad.bateria || "--");
-    document.getElementById("pGarantia").innerText = ad.garantia || "Sem garantia";
-    document.getElementById("pDesc").innerText = ad.descricao || "";
-    document.getElementById("pLocal").innerText = `📍 ${ad.cidade || "Local não informado"}`;
-    document.getElementById("mainPanel").style.display = "grid";
-
-    // Lógica do Vendedor
-    let vendedorNome = ad.nomeVendedor || "Vendedor Particular";
-    const pVendedorTipo = document.getElementById("pVendedorTipo");
-    const pNomeVendedor = document.getElementById("pNomeVendedor");
-
-    const vSnap = await getDoc(doc(db, "vendedores", ad.vendedorId || ad.uid));
-    if (vSnap.exists()) {
-        const v = vSnap.data();
-        vendedorNome = v.nome || vendedorNome;
-        if (v.status === "verificado") {
-            pVendedorTipo.innerText = "🏢 LOJISTA VERIFICADO";
-            pVendedorTipo.className = "badge-verificado status-lojista";
-        } else {
-            pVendedorTipo.innerText = "👤 VENDEDOR PARTICULAR";
-            pVendedorTipo.className = "badge-verificado status-particular";
-        }
-    }
-    pNomeVendedor.innerText = `Vendedor: ${vendedorNome}`;
-
-    // Lógica do Botão Negociar
-    const btnZap = document.getElementById("pZap");
-    const isVendido = ad.statusVenda === "vendido" || ad.statusVenda === "entregue";
-
-    if (isVendido) {
-        btnZap.innerText = "APARELHO VENDIDO";
-        btnZap.classList.add("vendido");
-        btnZap.onclick = null;
-    } else {
-        btnZap.onclick = async (e) => {
-            e.preventDefault();
-            
-            if (!usuarioLogado) {
-                alert("Para negociar, você precisa estar logado!");
-                window.location.href = `login-cliente.html?returnId=${anuncioId}`;
-                return;
-            }
-
-            if (!ad.whatsapp) return alert("Vendedor sem WhatsApp cadastrado.");
-
-            btnZap.innerText = "REGISTRANDO...";
-            btnZap.style.opacity = "0.5";
-
-            try {
-                // Registrar intenção na coleção 'compras'
-                await addDoc(collection(db, "compras"), {
-                    anuncioId: anuncioId,
-                    clienteId: usuarioLogado.uid,
-                    clienteNome: usuarioLogado.displayName || "Cliente",
-                    vendedorId: ad.vendedorId || ad.uid,
-                    produto: ad.modelo,
-                    preco: ad.preco,
-                    fotoProduto: ad.fotos?.[0] || "",
-                    vendedorNome: vendedorNome,
-                    status: "Em negociação",
-                    confirmacaoComprador: false,
-                    dataCompra: serverTimestamp()
-                });
-
-                // Abrir WhatsApp
-                const msg = `Olá ${vendedorNome}! Vi seu anúncio do ${ad.modelo} no RePhone e tenho interesse. Link: ${window.location.href}`;
-                window.open(`https://wa.me/55${ad.whatsapp.replace(/\D/g, '')}?text=${encodeURIComponent(msg)}`, '_blank');
-                
-                btnZap.innerText = "NEGOCIAR";
-                btnZap.style.opacity = "1";
-
-            } catch (error) {
-                console.error("Erro:", error);
-                alert("Erro ao registrar interesse.");
-                btnZap.innerText = "NEGOCIAR";
-                btnZap.style.opacity = "1";
-            }
-        };
-    }
-
-    // Compartilhamento
-    document.getElementById("pShare").onclick = async () => {
-        const shareData = {
-            title: `RePhone - ${ad.modelo}`,
-            text: `Confira este ${ad.modelo} no RePhone!`,
-            url: window.location.href
-        };
-        if (navigator.share) await navigator.share(shareData);
-        else {
-            await navigator.clipboard.writeText(window.location.href);
-            alert("Link copiado!");
-        }
+    const firebaseConfig = { 
+        apiKey: "AIzaSyBiN8FqX8UZeyAh1cG2GHZtQWiQH0xPBV4", 
+        authDomain: "rephone-a0a80.firebaseapp.com", 
+        projectId: "rephone-a0a80", 
+        storageBucket: "rephone-a0a80.firebasestorage.app", 
+        appId: "1:431497247030:web:a943715e4acc04b8995b97" 
     };
-}
-carregarAnuncio();
-    </script>
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+    const auth = getAuth(app);
+
+    const anuncioId = new URLSearchParams(location.search).get("id");
+    let usuarioLogado = null;
+
+    onAuthStateChanged(auth, (user) => { usuarioLogado = user; });
+
+    async function carregarAnuncio() {
+        if (!anuncioId) return;
+        const snap = await getDoc(doc(db, "anuncios", anuncioId));
+        if (!snap.exists()) return alert("Anúncio não encontrado");
+
+        const ad = snap.data();
+        
+        // --- CARROSSEL ---
+        const container = document.getElementById("galleryContainer");
+        const dotsContainer = document.getElementById("galleryDots");
+        const fotos = ad.fotos || [];
+
+        fotos.forEach((url, i) => {
+            const item = document.createElement("div");
+            item.className = "gallery-item";
+            item.onclick = () => { document.getElementById('imgZoom').src = url; document.getElementById('lightbox').style.display='flex'; };
+            item.innerHTML = `<img src="${url}">`;
+            container.appendChild(item);
+
+            const dot = document.createElement("div");
+            dot.className = `dot ${i === 0 ? 'active' : ''}`;
+            dotsContainer.appendChild(dot);
+        });
+
+        container.onscroll = () => {
+            const idx = Math.round(container.scrollLeft / container.offsetWidth);
+            document.querySelectorAll(".dot").forEach((d, i) => d.classList.toggle("active", i === idx));
+        };
+
+        window.moveSlide = (dir) => { container.scrollLeft += dir * container.offsetWidth; };
+
+        // --- PREENCHIMENTO ---
+        document.getElementById("pModeloHeader").innerText = ad.modelo;
+        document.getElementById("pPreco").innerText = `R$ ${parseFloat(ad.preco).toLocaleString('pt-br', {minimumFractionDigits:2})}`;
+        document.getElementById("pMarca").innerText = ad.marca;
+        document.getElementById("pCapacidade").innerText = ad.capacidade;
+        document.getElementById("pBateria").innerText = ad.bateria;
+        document.getElementById("pCondicao").innerText = ad.condicao || ad.estado;
+        document.getElementById("pDesc").innerText = ad.descricao || "Sem descrição.";
+        document.getElementById("pLocal").innerText = `📍 ${ad.cidade}`;
+        document.getElementById("mainPanel").style.display = "grid";
+
+        // --- VENDEDOR ---
+        const vSnap = await getDoc(doc(db, "vendedores", ad.vendedorId || ad.uid));
+        if(vSnap.exists()) {
+            const v = vSnap.data();
+            document.getElementById("pNomeVendedor").innerText = `Vendedor: ${v.nome}`;
+            const badge = document.getElementById("pVendedorTipo");
+            badge.innerText = v.status === "verificado" ? "🏢 LOJISTA VERIFICADO" : "👤 VENDEDOR PARTICULAR";
+            badge.className = `badge-verificado ${v.status === "verificado" ? 'status-lojista' : 'status-particular'}`;
+        }
+
+        // --- BOTÃO ZAP & COMPRA ---
+        const btnZap = document.getElementById("pZap");
+        if(ad.statusVenda === "vendido") {
+            btnZap.innerText = "APARELHO VENDIDO";
+            btnZap.classList.add("vendido");
+        } else {
+            btnZap.onclick = async (e) => {
+                e.preventDefault();
+                if(!usuarioLogado) { window.location.href = `login-cliente.html?returnId=${anuncioId}`; return; }
+                
+                btnZap.innerText = "CONECTANDO...";
+                try {
+                    await addDoc(collection(db, "compras"), {
+                        anuncioId, clienteId: usuarioLogado.uid, produto: ad.modelo, preco: ad.preco, fotoProduto: fotos[0], status: "Negociação Iniciada", dataCompra: serverTimestamp()
+                    });
+                    const msg = encodeURIComponent(`Olá! Vi seu anúncio do ${ad.modelo} no RePhone.`);
+                    window.open(`https://wa.me/55${ad.whatsapp.replace(/\D/g,'')}?text=${msg}`, '_blank');
+                } catch(err) { console.error(err); }
+                btnZap.innerText = "NEGOCIAR AGORA";
+            };
+        }
+
+        // --- SHARE ---
+        document.getElementById("pShare").onclick = () => {
+            if(navigator.share) navigator.share({ title: ad.modelo, url: location.href });
+            else { navigator.clipboard.writeText(location.href); alert("Link copiado!"); }
+        };
+    }
+
+    carregarAnuncio();
+</script>
 </body>
 </html>
