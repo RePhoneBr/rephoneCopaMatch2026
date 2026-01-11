@@ -51,33 +51,51 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/12.7.0/firebas
 import { getAuth, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-auth.js";
 
 const firebaseConfig = { 
-    apiKey: "SUA_API_KEY", 
-    authDomain: "SEU_PROJETO.firebaseapp.com", 
-    projectId: "SEU_PROJETO", 
-    storageBucket: "SEU_PROJETO.appspot.com", 
-    appId: "1:123456:web:xxxx" 
+    apiKey: "AIzaSyBiN8FqX8UZeyAh1cG2GHZtQWiQH0xPBV4", 
+    authDomain: "rephone-a0a80.firebaseapp.com", 
+    projectId: "rephone-a0a80", 
+    storageBucket: "rephone-a0a80.firebasestorage.app", 
+    appId: "1:431497247030:web:a943715e4acc04b8995b97" 
 };
 
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 
+// DEFINIÇÃO DO E-MAIL MASTER
+const EMAIL_MASTER = "rp.rephone@gmail.com";
+
 document.getElementById('loginForm').onsubmit = async (e) => {
     e.preventDefault();
     const btn = document.getElementById('btnEntrar');
-    const email = document.getElementById('email').value;
+    const email = document.getElementById('email').value.toLowerCase().trim();
     const pass = document.getElementById('pass').value;
 
     btn.innerText = "VERIFICANDO...";
     btn.disabled = true;
 
     try {
-        await signInWithEmailAndPassword(auth, email, pass);
-        window.location.href = "vendedor-anuncio.html";
+        const userCredential = await signInWithEmailAndPassword(auth, email, pass);
+        const user = userCredential.user;
+
+        // LÓGICA DE DIRECIONAMENTO INTELIGENTE
+        if (user.email === EMAIL_MASTER) {
+            console.log("Acesso Master detectado.");
+            window.location.href = "admin.html"; // Vai para o Console Master
+        } else {
+            window.location.href = "dashboard-vendedor.html"; // Vendedor normal vai para seus anúncios
+        }
+
     } catch (error) {
         console.error(error);
         let msg = "Erro ao entrar. Verifique e-mail e senha.";
-        if (error.code === 'auth/user-not-found') msg = "E-mail não cadastrado.";
-        if (error.code === 'auth/wrong-password') msg = "Senha incorreta.";
+        
+        // Tratamento de erros específicos do Firebase v10+
+        if (error.code === 'auth/invalid-credential') {
+            msg = "E-mail ou senha incorretos.";
+        } else if (error.code === 'auth/user-disabled') {
+            msg = "Esta conta foi desativada pelo administrador.";
+        }
+
         alert(msg);
         btn.innerText = "ENTRAR NO PAINEL";
         btn.disabled = false;
