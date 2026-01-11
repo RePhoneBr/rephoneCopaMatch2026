@@ -80,19 +80,39 @@
     }
 
     // Login com Google
-    document.getElementById('btnGoogle').onclick = async () => {
+   document.getElementById('btnGoogle').onclick = async () => {
+        const btn = document.getElementById('btnGoogle');
+        btn.disabled = true;
+        btn.innerText = "Conectando...";
+
         try {
-            await signInWithPopup(auth, provider);
+            // Garante que a sessão persista mesmo se fechar a aba
+            await setPersistence(auth, browserSessionPersistence);
+            
+            const result = await signInWithPopup(auth, provider);
+            console.log("Sucesso:", result.user);
             redirecionarAposLogin();
-        } catch (e) {
-            alert("Erro ao entrar com Google: " + e.message);
+            
+        } catch (error) {
+            console.error("Erro detalhado:", error);
+            btn.disabled = false;
+            btn.innerHTML = `<img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google"> Entrar com Google`;
+            
+            if (error.code === 'auth/popup-closed-by-user') {
+                alert("O login foi cancelado porque a janela foi fechada.");
+            } else if (error.code === 'auth/cancelled-popup-request') {
+                // Ignora, o usuário clicou duas vezes rápido
+            } else {
+                alert("Erro ao entrar com Google: " + error.message);
+            }
         }
     };
 
-    // Login com E-mail
+    // LOGIN COM E-MAIL (MANTIDO)
     document.getElementById('btnLogin').onclick = async () => {
         const email = document.getElementById('email').value.trim();
         const pass = document.getElementById('pass').value;
+        if(!email || !pass) return alert("Preencha e-mail e senha.");
 
         try {
             await signInWithEmailAndPassword(auth, email, pass);
