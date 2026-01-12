@@ -51,10 +51,44 @@
         .busca-collapsible { overflow: hidden; max-height: 0; transition: 0.4s; }
         .busca-collapsible.open { max-height: 500px; margin-top: 15px; }
 
-        .ticker-wrapper { width: 100%; background: #0f172a; color: white; overflow: hidden; white-space: nowrap; padding: 10px 0; font-size: 11px; font-weight: 800; cursor: pointer; position: sticky; top: 0; z-index: 2000; }
-        .ticker-content { display: inline-block; animation: ticker-animation 30s linear infinite; }
-        .ticker-item { display: inline-block; padding-right: 60px; text-transform: uppercase; }
-        .ticker-highlight { color: #3b82f6; background: rgba(59, 130, 246, 0.1); padding: 4px 12px; border-radius: 20px; border: 1px solid #3b82f6; margin: 0 10px; }
+        .ticker-wrapper {
+    width: 100%;
+    background: rgba(15, 23, 42, 0.85); /* Preto transparente */
+    backdrop-filter: blur(8px); /* Efeito de vidro */
+    color: white;
+    overflow: hidden;
+    white-space: nowrap;
+    padding: 12px 0;
+    font-size: 11px;
+    font-weight: 800;
+    cursor: pointer;
+    position: sticky;
+    top: 0;
+    z-index: 2000;
+    border-bottom: 1px solid rgba(255,255,255,0.1);
+}
+
+.ticker-content {
+    display: inline-block;
+    animation: ticker-animation 35s linear infinite;
+}
+
+.ticker-item {
+    display: inline-block;
+    padding-right: 60px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.ticker-highlight {
+    color: #3b82f6; 
+    background: rgba(59, 130, 246, 0.2);
+    padding: 5px 15px;
+    border-radius: 20px;
+    border: 1px solid rgba(59, 130, 246, 0.5);
+    margin: 0 10px;
+    font-weight: 900;
+}
 
         @keyframes ticker-animation { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }
         .ticker-wrapper:hover .ticker-content { animation-play-state: paused; }
@@ -287,22 +321,32 @@
         };
 
         async function atualizarBannerDinamico() {
-            const tickerContent = document.getElementById('tickerContent');
-            try {
-                const q = query(collection(db, "anuncios"), where("status", "==", "aprovado"), orderBy("preco", "asc"), limit(1));
-                const snap = await getDocs(q);
-                let ofertaTexto = "🔥 NOVAS OFERTAS CHEGANDO NO RADAR...";
-                if (!snap.empty) {
-                    const ad = snap.docs[0].data();
-                    const precoFormatado = parseFloat(ad.preco).toLocaleString('pt-br', {style: 'currency', currency: 'BRL'});
-                    ofertaTexto = `🔥 MATCH DE HOJE: ${ad.modelo} POR APENAS ${precoFormatado} EM ${ad.cidade}!`;
-                }
-                const guiaLink = `<span class="ticker-highlight" onclick="window.location.href='como-comprar.html'">📖 LEIA: COMO COMPRAR COM SEGURANÇA</span>`;
-                const seguranca = `🛡️ DICA: NUNCA PAGUE ANTES DE TESTAR O APARELHO EM MÃOS!`;
-                tickerContent.innerHTML = `<span class="ticker-item">${ofertaTexto}</span>${guiaLink}<span class="ticker-item">${seguranca}</span>` + 
-                                        `<span class="ticker-item">${ofertaTexto}</span>${guiaLink}<span class="ticker-item">${seguranca}</span>`;
-            } catch (e) { console.error("Banner erro:", e); }
+            async function atualizarBannerDinamico() {
+    const tickerContent = document.getElementById('tickerContent');
+    const guiaLink = `<span class="ticker-highlight" onclick="window.location.href='como-comprar.html'">📖 GUIA: COMO COMPRAR COM SEGURANÇA NA REPHONE</span>`;
+    const seguranca = `<span class="ticker-item">🛡️ NUNCA PAGUE ANTES DE TESTAR O APARELHO EM MÃOS!</span>`;
+    const seguranca2 = `<span class="ticker-item">📍 PREFIRA ENCONTROS EM LOCAIS PÚBLICOS E MOVIMENTADOS</span>`;
+
+    // 1. Mostra o conteúdo de segurança imediatamente
+    tickerContent.innerHTML = guiaLink + seguranca + seguranca2 + guiaLink + seguranca + seguranca2;
+
+    try {
+        // 2. Busca a melhor oferta para "temperar" o banner
+        const q = query(collection(db, "anuncios"), where("status", "==", "aprovado"), orderBy("preco", "asc"), limit(1));
+        const snap = await getDocs(q);
+        
+        if (!snap.empty) {
+            const ad = snap.docs[0].data();
+            const precoFmt = parseFloat(ad.preco).toLocaleString('pt-br', {style: 'currency', currency: 'BRL'});
+            const ofertaTexto = `<span class="ticker-item">🔥 MATCH DE HOJE: ${ad.modelo} POR ${precoFmt} EM ${ad.cidade}!</span>`;
+            
+            // 3. Atualiza o banner incluindo a oferta dinâmica
+            tickerContent.innerHTML = ofertaTexto + guiaLink + seguranca + ofertaTexto + guiaLink + seguranca2;
         }
+    } catch (e) { 
+        console.log("Mantendo apenas dicas de segurança no banner."); 
+    }
+}
 
         window.toggleMenu = () => document.getElementById('mobileMenu').classList.toggle('active');
         window.toggleBusca = () => document.getElementById('buscaManualBox').classList.toggle('open');
