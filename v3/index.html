@@ -51,6 +51,14 @@
         .busca-collapsible { overflow: hidden; max-height: 0; transition: 0.4s; }
         .busca-collapsible.open { max-height: 500px; margin-top: 15px; }
 
+        .ticker-wrapper { width: 100%; background: #0f172a; color: white; overflow: hidden; white-space: nowrap; padding: 10px 0; font-size: 11px; font-weight: 800; cursor: pointer; position: sticky; top: 0; z-index: 2000; }
+        .ticker-content { display: inline-block; animation: ticker-animation 30s linear infinite; }
+        .ticker-item { display: inline-block; padding-right: 60px; text-transform: uppercase; }
+        .ticker-highlight { color: #3b82f6; background: rgba(59, 130, 246, 0.1); padding: 4px 12px; border-radius: 20px; border: 1px solid #3b82f6; margin: 0 10px; }
+
+        @keyframes ticker-animation { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }
+        .ticker-wrapper:hover .ticker-content { animation-play-state: paused; }
+
         .feed { padding: 0 15px 150px; display: grid; grid-template-columns: 1fr 1fr; gap: 12px; max-width: 1200px; margin: 0 auto; }
         @media (min-width: 1024px) { .feed { grid-template-columns: repeat(4, 1fr); } }
 
@@ -64,10 +72,10 @@
         #matchPopup { position: fixed; bottom: -100%; left: 0; width: 100%; background: var(--dark); color: white; padding: 25px; border-radius: 30px 30px 0 0; z-index: 3000; transition: 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
         #matchPopup.active { bottom: 0; }
 
-        .rephone-footer { position: fixed; bottom: 0; left: 0; width: 100%; background: rgba(15, 23, 42, 0.9); backdrop-filter: blur(10px); padding: 12px 20px; z-index: 1000; border-top: 1px solid rgba(255, 255, 255, 0.1); display: flex; flex-direction: column; align-items: center; gap: 5px; }
-        .footer-links { display: flex; gap: 15px; font-size: 11px; }
+        .rephone-footer { position: fixed; bottom: 0; left: 0; width: 100%; background: rgba(15, 23, 42, 0.95); backdrop-filter: blur(10px); padding: 15px 20px; z-index: 1000; border-top: 1px solid rgba(255, 255, 255, 0.1); display: flex; flex-direction: column; align-items: center; gap: 8px; }
+        .footer-links { display: flex; gap: 15px; font-size: 11px; flex-wrap: wrap; justify-content: center; }
         .footer-links a { color: #94a3b8; text-decoration: none; font-weight: 600; }
-        .lgpd-banner { position: fixed; bottom: 80px; left: 50%; transform: translateX(-50%); width: 90%; max-width: 400px; background: var(--dark); color: white; padding: 15px; border-radius: 20px; z-index: 4000; display: none; justify-content: space-between; align-items: center; font-size: 11px; }
+        .footer-info { color: #64748b; font-size: 10px; font-weight: 700; }
     </style>
 </head>
 <body>
@@ -84,37 +92,39 @@
 
     <div id="menuOverlay" onclick="toggleMenu()"></div>
     <nav id="mobileMenu">
-    <div id="greeting" style="color:#94a3b8; font-size:11px; font-weight:800; text-align:center; margin-bottom:15px; text-transform: uppercase;">Menu RePhone</div>
-    
-    <a href="index.html" class="menu-link">🏠 Início / Radar</a>
+        <div id="greeting" style="color:#94a3b8; font-size:11px; font-weight:800; text-align:center; margin-bottom:15px; text-transform: uppercase;">Menu RePhone</div>
+        <a href="index.html" class="menu-link">🏠 Início / Radar</a>
 
-    <div id="menuGuest" style="display: flex; flex-direction: column; gap: 12px;">
-        <div style="height: 1px; background: rgba(255,255,255,0.1); margin: 5px 0;"></div>
-        <a href="login-cliente.html" class="menu-link" style="background: var(--blue);">🛍️ Entrar como Comprador</a>
-        <a href="vendedor-login.html" class="menu-link destaque">💼 Painel do Vendedor</a>
+        <div id="menuGuest">
+            <a href="login-cliente.html" class="menu-link" style="background: var(--blue);">🛍️ Entrar como Comprador</a>
+            <a href="vendedor-login.html" class="menu-link destaque">💼 Painel do Vendedor</a>
+        </div>
+
+        <div id="menuCustomer" style="display: none; flex-direction: column; gap: 12px;">
+            <span style="font-size:10px; color:#64748b; font-weight:800; padding-left:10px;">MINHA ÁREA</span>
+            <a href="como-comprar.html" class="menu-link" style="background: rgba(59, 130, 246, 0.1); color: var(--blue); border: 1px dashed var(--blue);">📖 Como Comprar</a>
+            <a href="minhas-compras.html" class="menu-link">📦 Meus Pedidos / Matches</a>
+            <a href="perfil-cliente.html" class="menu-link">👤 Meu Perfil</a>
+        </div>
+
+        <div id="menuSeller" style="display: none; flex-direction: column; gap: 12px;">
+            <span style="font-size:10px; color:var(--green-light); font-weight:800; padding-left:10px;">PAINEL VENDEDOR</span>
+            <a href="como-vender.html" style="background: rgba(22, 163, 74, 0.1); color: var(--green); border: 1px dashed var(--green);" class="menu-link">📖 Como Anunciar</a>
+            <a href="vendedor-anuncio.html" class="menu-link destaque">➕ Anunciar Aparelho</a>
+            <a href="dashboard-vendedor.html" class="menu-link">📊 Meus Anúncios</a>
+        </div>
+
+        <div id="divLogout" style="display: none; margin-top: 10px;">
+            <button class="btn-logout-menu" onclick="fazerLogout()" style="width:100%; border: 1px solid rgba(239, 68, 68, 0.3); padding: 15px; border-radius: 12px;">SAIR DA CONTA</button>
+        </div>
+    </nav>
+
+    <div class="ticker-wrapper" id="tickerWrapper">
+        <div class="ticker-content" id="tickerContent">
+            <span class="ticker-item">⚡ CARREGANDO OFERTAS NO RADAR...</span>
+        </div>
     </div>
 
-    <div id="menuCustomer" style="display: none; flex-direction: column; gap: 12px;">
-        <div style="height: 1px; background: rgba(255,255,255,0.1); margin: 5px 0;"></div>
-        <span style="font-size:10px; color:#64748b; font-weight:800; padding-left:10px;">MINHA ÁREA</span>
-        <a href="minhas-compras.html" class="menu-link">📦 Meus Pedidos / Matches</a>
-        <a href="perfil-cliente.html" class="menu-link">👤 Meu Perfil</a>
-    </div>
-
-    <div id="menuSeller" style="display: none; flex-direction: column; gap: 12px;">
-        <div style="height: 1px; background: rgba(255,255,255,0.1); margin: 5px 0;"></div>
-        <span style="font-size:10px; color:var(--green-light); font-weight:800; padding-left:10px;">PAINEL VENDEDOR</span>
-        <a href="como-vender.html" style="background: rgba(22, 163, 74, 0.1); color: var(--green); border: 1px dashed var(--green);" class="menu-link">
-    📖 Tutorial: Como Anunciar</a>
-        <a href="vendedor-anuncio.html" class="menu-link destaque">➕ Anunciar Aparelho</a>
-        <a href="dashboard-vendedor.html" class="menu-link">📊 Meus Anúncios</a>
-        <a href="vendedor-perfil.html" class="menu-link">⚙️ Configurações da Loja</a>
-    </div>
-
-    <div id="divLogout" style="display: none; margin-top: 10px;">
-        <button class="btn-logout-menu" onclick="fazerLogout()" style="width:100%; border: 1px solid rgba(239, 68, 68, 0.3); padding: 15px; border-radius: 12px;">SAIR DA CONTA</button>
-    </div>
-</nav>
     <section class="hero">
         <div class="match-card">
             <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 15px;">
@@ -148,7 +158,7 @@
     </div>
 
     <div id="lgpdBanner" class="lgpd-banner">
-        <span>Usamos cookies para melhorar sua experiência.</span>
+        <span>Cookies melhoram sua experiência.</span>
         <button onclick="aceitarCookies()" style="background:var(--green); border:none; padding:8px 15px; border-radius:8px; color:white; font-weight:800; cursor:pointer;">OK</button>
     </div>
 
@@ -157,13 +167,14 @@
             <a href="sobre.html">Sobre</a>
             <a href="politica-de-privacidade.html">Privacidade</a>
             <a href="termos-de-uso.html">Termos</a>
+            <a href="termos-vendedores.html">Vendedores</a>
         </div>
-        <div style="color: #64748b; font-size: 10px; font-weight: 700;">RePhone © 2026 — Versão 4.0</div>
+        <div class="footer-info">RePhone © 2026 — Versão 4.0</div>
     </footer>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-app.js";
-        import { getFirestore, collection, onSnapshot, query, where, doc, getDoc } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-firestore.js";
+        import { getFirestore, collection, onSnapshot, query, where, doc, getDoc, orderBy, limit, getDocs } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-firestore.js";
         import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-auth.js";
 
         const firebaseConfig = { 
@@ -181,50 +192,36 @@
         let todosAnuncios = [];
         let uLat = null, uLng = null;
 
-        // --- AUTH & REDIRECT ---
-       onAuthStateChanged(auth, async (user) => {
-    const guestUI = document.getElementById('menuGuest');
-    const customerUI = document.getElementById('menuCustomer');
-    const sellerUI = document.getElementById('menuSeller');
-    const logoutUI = document.getElementById('divLogout');
-    const greet = document.getElementById('greeting');
+        onAuthStateChanged(auth, async (user) => {
+            const guestUI = document.getElementById('menuGuest');
+            const customerUI = document.getElementById('menuCustomer');
+            const sellerUI = document.getElementById('menuSeller');
+            const logoutUI = document.getElementById('divLogout');
+            const greet = document.getElementById('greeting');
 
-    if (user) {
-        guestUI.style.display = 'none';
-        logoutUI.style.display = 'block';
+            if (user) {
+                guestUI.style.display = 'none';
+                logoutUI.style.display = 'block';
+                const sellerDoc = await getDoc(doc(db, "vendedores", user.uid));
+                if (sellerDoc.exists()) {
+                    sellerUI.style.display = 'flex';
+                    customerUI.style.display = 'none';
+                    greet.innerText = "Olá, Lojista " + (sellerDoc.data().nome?.split(' ')[0] || "");
+                } else {
+                    customerUI.style.display = 'flex';
+                    sellerUI.style.display = 'none';
+                    greet.innerText = "Olá, Comprador";
+                }
+            } else {
+                guestUI.style.display = 'flex';
+                customerUI.style.display = 'none';
+                sellerUI.style.display = 'none';
+                logoutUI.style.display = 'none';
+            }
+        });
 
-        // 1. Tenta identificar se é VENDEDOR
-        const sellerDoc = await getDoc(doc(db, "vendedores", user.uid));
-        if (sellerDoc.exists()) {
-            sellerUI.style.display = 'flex';
-            customerUI.style.display = 'none';
-            greet.innerText = "Olá, Lojista " + (sellerDoc.data().nome?.split(' ')[0] || "");
-            return; // Encerra aqui
-        }
-
-        // 2. Se não for vendedor, assume que é COMPRADOR
-        const clientDoc = await getDoc(doc(db, "clientes", user.uid));
-        customerUI.style.display = 'flex';
-        sellerUI.style.display = 'none';
-        
-        if (clientDoc.exists()) {
-            greet.innerText = "Olá, " + (clientDoc.data().nome?.split(' ')[0] || "Cliente");
-        } else {
-            greet.innerText = "Olá, " + (user.displayName?.split(' ')[0] || "Usuário");
-        }
-
-    } else {
-        // Usuário Deslogado
-        guestUI.style.display = 'flex';
-        customerUI.style.display = 'none';
-        sellerUI.style.display = 'none';
-        logoutUI.style.display = 'none';
-        greet.innerText = "Menu RePhone";
-    }
-});
         window.fazerLogout = () => signOut(auth).then(() => window.location.reload());
 
-        // --- LOCALIZAÇÃO ---
         function calcularDistancia(lat1, lon1, lat2, lon2) {
             const R = 6371;
             const dLat = (lat2 - lat1) * Math.PI / 180;
@@ -238,8 +235,7 @@
             try {
                 const res = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${uLat}&lon=${uLng}`);
                 const data = await res.json();
-                const cidade = data.address.city || data.address.town || data.address.village || "sua região";
-                document.getElementById('txtLocation').innerHTML = `📍 Ofertas exclusivas em <strong>${cidade}</strong>`;
+                document.getElementById('txtLocation').innerHTML = `📍 Ofertas exclusivas em <strong>${data.address.city || data.address.town || "sua região"}</strong>`;
                 renderizar(todosAnuncios);
             } catch (e) { detectarIP(); }
         }, () => detectarIP(), { timeout: 8000 });
@@ -252,10 +248,10 @@
             } catch(e) {}
         }
 
-        // --- DADOS ---
         onSnapshot(query(collection(db, "anuncios"), where("status", "==", "aprovado")), (snap) => {
             todosAnuncios = snap.docs.map(d => ({ id: d.id, ...d.data() }));
             renderizar(todosAnuncios);
+            atualizarBannerDinamico();
         });
 
         window.renderizar = (lista) => {
@@ -265,14 +261,10 @@
                 const isVendido = ad.statusVenda === "vendido";
                 let distHtml = "";
                 const adLat = ad.coords?.lat || ad.lat;
-                const adLon = ad.coords?.lon || ad.lng;
-                const locMetodo = ad.coords?.metodo === "gps" ? "Confirmada" : "Aproximada";
-                
                 if (uLat && adLat) {
-                    const d = calcularDistancia(uLat, uLng, adLat, adLon);
+                    const d = calcularDistancia(uLat, uLng, adLat, ad.coords?.lon || ad.lng);
                     distHtml = ` • ${d}km ${d <= 5 ? '<span style="color:var(--green)">PERTO</span>' : ''}`;
                 }
-
                 const card = document.createElement('div');
                 card.className = 'card';
                 card.innerHTML = `
@@ -283,10 +275,10 @@
                         </div>
                         <h3 style="font-size:13px; font-weight:800; margin-bottom:5px;">${ad.modelo}</h3>
                         <div style="font-size:10px; color:var(--text-muted); font-weight:600;">
-                            ${ad.capacidade || '--'} • Bateria ${ad.bateria || '--'}% • ${ad.condicao || ad.estado || '--'}
+                            ${ad.capacidade || '--'} • Bateria ${ad.bateria || '--'}% • ${ad.condicao || '--'}
                         </div>
                         <div style="font-size:10px; color:var(--green); font-weight:700; margin-top:5px;">
-                            📍 ${ad.cidade} <small style="font-weight:400; color:#94a3b8">(${locMetodo})</small>${distHtml}
+                            📍 ${ad.cidade} ${distHtml}
                         </div>
                         <div class="price-tag">R$ ${parseFloat(ad.preco || 0).toLocaleString('pt-br', {minimumFractionDigits:2})}</div>
                     </a>`;
@@ -294,7 +286,24 @@
             });
         };
 
-        // --- BUSCA E MATCH ---
+        async function atualizarBannerDinamico() {
+            const tickerContent = document.getElementById('tickerContent');
+            try {
+                const q = query(collection(db, "anuncios"), where("status", "==", "aprovado"), orderBy("preco", "asc"), limit(1));
+                const snap = await getDocs(q);
+                let ofertaTexto = "🔥 NOVAS OFERTAS CHEGANDO NO RADAR...";
+                if (!snap.empty) {
+                    const ad = snap.docs[0].data();
+                    const precoFormatado = parseFloat(ad.preco).toLocaleString('pt-br', {style: 'currency', currency: 'BRL'});
+                    ofertaTexto = `🔥 MATCH DE HOJE: ${ad.modelo} POR APENAS ${precoFormatado} EM ${ad.cidade}!`;
+                }
+                const guiaLink = `<span class="ticker-highlight" onclick="window.location.href='como-comprar.html'">📖 LEIA: COMO COMPRAR COM SEGURANÇA</span>`;
+                const seguranca = `🛡️ DICA: NUNCA PAGUE ANTES DE TESTAR O APARELHO EM MÃOS!`;
+                tickerContent.innerHTML = `<span class="ticker-item">${ofertaTexto}</span>${guiaLink}<span class="ticker-item">${seguranca}</span>` + 
+                                        `<span class="ticker-item">${ofertaTexto}</span>${guiaLink}<span class="ticker-item">${seguranca}</span>`;
+            } catch (e) { console.error("Banner erro:", e); }
+        }
+
         window.toggleMenu = () => document.getElementById('mobileMenu').classList.toggle('active');
         window.toggleBusca = () => document.getElementById('buscaManualBox').classList.toggle('open');
         window.fecharMatch = () => document.getElementById('matchPopup').classList.remove('active');
@@ -316,31 +325,17 @@
             const mod = document.getElementById('matchModelo').value.toLowerCase();
             const pMax = parseFloat(document.getElementById('matchPreco').value) || Infinity;
             if(!mod) return alert("Digite o modelo!");
-            
             document.getElementById('mCircle').className = "status-circle searching";
             setTimeout(() => {
-                const match = todosAnuncios.filter(a => a.statusVenda !== "vendido" && a.modelo.toLowerCase().includes(mod) && parseFloat(a.preco) <= pMax)
-                              .sort((a,b) => (b.bateria||0) - (a.bateria||0))[0];
+                const match = todosAnuncios.filter(a => a.statusVenda !== "vendido" && a.modelo.toLowerCase().includes(mod) && parseFloat(a.preco) <= pMax).sort((a,b) => (b.bateria||0) - (a.bateria||0))[0];
                 document.getElementById('mCircle').className = "status-circle";
                 if(match) {
-                    document.getElementById('matchData').innerHTML = `<img src="${match.fotos?.[0]}" style="width:60px; height:60px; object-fit:contain; border-radius:10px; background:white;">
-                        <div><b>${match.modelo}</b><br>R$ ${match.preco}</div>`;
+                    document.getElementById('matchData').innerHTML = `<img src="${match.fotos?.[0]}" style="width:60px; height:60px; object-fit:contain; border-radius:10px; background:white;"><div><b>${match.modelo}</b><br>R$ ${match.preco}</div>`;
                     document.getElementById('matchLink').href = `anuncio.html?id=${match.id}`;
                     document.getElementById('matchPopup').classList.add('active');
                 } else { alert("Nenhum match ideal agora."); }
             }, 1200);
         };
-
-        if(!localStorage.getItem('lgpd_ok')) document.getElementById('lgpdBanner').style.display = 'flex';
     </script>
-    <footer class="rephone-footer">
-        <div class="footer-links">
-            <a href="sobre.html">Sobre</a>
-            <a href="politica-de-privacidade.html">Privacidade</a>
-            <a href="termos-de-uso.html">Termos de Uso</a>
-            <a href="termos-vendedores.html">Termos Vendedor</a>
-        </div>
-        <div class="footer-info">RePhone © 2026 — Versão 4.0</div>
-    </footer>
 </body>
 </html>
