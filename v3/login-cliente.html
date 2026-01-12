@@ -3,140 +3,95 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Entrar | RePhone</title>
+    <title>Login Comprador | RePhone</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
     <style>
-        :root { --dark: #0f172a; --green: #16a34a; --bg: #f8fafc; --muted: #64748b; }
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; }
+        :root { --dark: #0f172a; --green: #16a34a; --bg: #f8fafc; --blue: #3b82f6; }
+        * { margin:0; padding:0; box-sizing:border-box; font-family:'Inter', sans-serif; }
         body { background: var(--bg); display: flex; align-items: center; justify-content: center; min-height: 100vh; padding: 20px; }
-        
-        .login-card { background: white; width: 100%; max-width: 400px; padding: 40px; border-radius: 24px; box-shadow: 0 10px 40px rgba(0,0,0,0.05); text-align: center; }
-        h2 { font-weight: 900; font-size: 28px; margin-bottom: 10px; letter-spacing: -1px; }
-        p { color: var(--muted); font-size: 14px; margin-bottom: 30px; }
-
-        .btn-google { width: 100%; display: flex; align-items: center; justify-content: center; gap: 10px; background: white; border: 1px solid #e2e8f0; padding: 14px; border-radius: 12px; font-weight: 700; cursor: pointer; transition: 0.3s; margin-bottom: 20px; }
-        .btn-google:hover { background: #f1f5f9; }
-        .btn-google img { width: 20px; }
-
-        .divider { display: flex; align-items: center; color: #cbd5e1; font-size: 12px; margin: 20px 0; font-weight: 700; }
-        .divider::before, .divider::after { content: ""; flex: 1; height: 1px; background: #e2e8f0; margin: 0 10px; }
-
-        input { width: 100%; padding: 14px; margin-bottom: 15px; border-radius: 12px; border: 1px solid #e2e8f0; font-size: 15px; outline: none; }
-        .btn-login { width: 100%; background: var(--dark); color: white; border: none; padding: 16px; border-radius: 12px; font-weight: 800; cursor: pointer; }
-        
-        .footer-links { margin-top: 25px; font-size: 13px; color: var(--muted); }
-        .footer-links a { color: var(--dark); font-weight: 700; text-decoration: none; }
+        .login-card { background: white; padding: 35px; border-radius: 30px; box-shadow: 0 20px 40px rgba(0,0,0,0.05); width: 100%; max-width: 400px; text-align: center; border: 1px solid #e2e8f0; }
+        .logo { font-weight: 900; font-size: 24px; color: var(--dark); text-decoration: none; display: block; margin-bottom: 25px; }
+        .logo span { color: var(--green); }
+        .btn-google { width: 100%; background: white; color: var(--dark); border: 2px solid #e2e8f0; padding: 16px; border-radius: 15px; font-weight: 800; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 10px; transition: 0.3s; }
+        .btn-google:hover { background: #f8fafc; border-color: #cbd5e1; }
+        .divider { margin: 25px 0; color: #94a3b8; font-size: 12px; font-weight: 700; text-transform: uppercase; }
+        .btn-back { display: block; margin-top: 20px; color: #64748b; text-decoration: none; font-size: 13px; font-weight: 600; }
     </style>
 </head>
 <body>
 
-<div class="login-card">
-    <h2>RePhone</h2>
-    <p>Entre para negociar e acompanhar seus pedidos.</p>
+    <div class="login-card">
+        <a href="index.html" class="logo">Re<span>Phone</span></a>
+        <h2 style="font-weight: 900; margin-bottom: 30px; letter-spacing: -1px;">Bem-vindo de volta!</h2>
 
-    <button class="btn-google" id="btnGoogle">
-        <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google">
-        Entrar com Google
-    </button>
+        <button class="btn-google" id="btnGoogle">
+            <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/pwa_list/google.svg" width="20">
+            ENTRAR COM GOOGLE
+        </button>
 
-    <div class="divider">OU COM E-MAIL</div>
-
-    <input type="email" id="email" placeholder="Seu e-mail">
-    <input type="password" id="pass" placeholder="Sua senha">
-    
-    <button class="btn-login" id="btnLogin">ENTRAR</button>
-
-    <div class="footer-links">
-        Não tem conta? <a href="cadastro-cliente.html">Criar conta grátis</a>
-    </div>
-</div>
-
-<script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-app.js";
-    import { 
-        getAuth, 
-        signInWithEmailAndPassword, 
-        GoogleAuthProvider, 
-        signInWithPopup, 
-        setPersistence, 
-        browserLocalPersistence 
-    } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-auth.js";
-
-    const firebaseConfig = { 
-        apiKey: "AIzaSyBiN8FqX8UZeyAh1cG2GHZtQWiQH0xPBV4", 
-        authDomain: "rephone-a0a80.firebaseapp.com", 
-        projectId: "rephone-a0a80", 
-        storageBucket: "rephone-a0a80.firebasestorage.app", 
-        appId: "1:431497247030:web:a943715e4acc04b8995b97" 
-    };
-
-    const app = initializeApp(firebaseConfig);
-    const auth = getAuth(app);
-    const provider = new GoogleAuthProvider();
-
-    // Idioma em Português
-    auth.languageCode = 'pt';
-
-    function redirecionarAposLogin() {
-    const urlParams = new URLSearchParams(window.location.search);
-    const returnId = urlParams.get('returnId');
-    const goto = urlParams.get('goto');
-
-    if (goto === 'compras') {
-        window.location.href = 'compras.html';
-    } else if (returnId) {
-        window.location.href = `anuncio.html?id=${returnId}`;
-    } else {
-        window.location.href = 'index.html';
-    }
-}
-
-    // LOGIN COM GOOGLE
-    document.getElementById('btnGoogle').onclick = async () => {
-        const btn = document.getElementById('btnGoogle');
-        btn.disabled = true;
-        btn.innerText = "Conectando...";
-
-        try {
-            await setPersistence(auth, browserLocalPersistence);
-            const result = await signInWithPopup(auth, provider);
-            console.log("Logado com sucesso:", result.user.displayName);
-            redirecionarAposLogin();
-        } catch (error) {
-            console.error("Erro no login Google:", error);
-            btn.disabled = false;
-            btn.innerHTML = `<img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google"> Entrar com Google`;
-            
-            if (error.code === 'auth/popup-closed-by-user') {
-                alert("Você fechou a janela de login do Google antes de terminar.");
-            } else {
-                alert("Erro ao entrar com Google: " + error.message);
-            }
-        }
-    };
-
-    // LOGIN COM E-MAIL
-    document.getElementById('btnLogin').onclick = async () => {
-        const email = document.getElementById('email').value.trim();
-        const pass = document.getElementById('pass').value;
-        const btn = document.getElementById('btnLogin');
+        <div class="divider">Ou use seu e-mail</div>
         
-        if(!email || !pass) return alert("Por favor, preencha e-mail e senha.");
+        <p style="font-size: 12px; color: #64748b;">Ainda não tem conta? <a href="cadastro-cliente.html" style="color: var(--blue); text-decoration: none; font-weight: 700;">Cadastre-se</a></p>
+        
+        <a href="index.html" class="btn-back">← Voltar para a Home</a>
+    </div>
 
-        btn.disabled = true;
-        btn.innerText = "ENTRANDO...";
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-app.js";
+        import { getAuth, GoogleAuthProvider, signInWithPopup } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-auth.js";
+        import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-firestore.js";
 
-        try {
-            await setPersistence(auth, browserLocalPersistence);
-            await signInWithEmailAndPassword(auth, email, pass);
-            redirecionarAposLogin();
-        } catch (e) {
-            console.error("Erro no login E-mail:", e);
-            alert("E-mail ou senha incorretos.");
-            btn.disabled = false;
-            btn.innerText = "ENTRAR";
-        }
-    };
-</script>
+        const firebaseConfig = { 
+            apiKey: "AIzaSyBiN8FqX8UZeyAh1cG2GHZtQWiQH0xPBV4", 
+            authDomain: "rephone-a0a80.firebaseapp.com", 
+            projectId: "rephone-a0a80", 
+            storageBucket: "rephone-a0a80.firebasestorage.app", 
+            appId: "1:431497247030:web:a943715e4acc04b8995b97" 
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+        const provider = new GoogleAuthProvider();
+
+        document.getElementById('btnGoogle').onclick = async () => {
+            const btn = document.getElementById('btnGoogle');
+            btn.disabled = true;
+            btn.innerText = "CONECTANDO...";
+
+            try {
+                const result = await signInWithPopup(auth, provider);
+                const user = result.user;
+
+                // Salva ou atualiza os dados do cliente no Firestore para garantir que o menu funcione
+                const clientRef = doc(db, "clientes", user.uid);
+                const clientSnap = await getDoc(clientRef);
+
+                if (!clientSnap.exists()) {
+                    await setDoc(clientRef, {
+                        nome: user.displayName,
+                        email: user.email,
+                        tipo: "comprador",
+                        dataCadastro: new Date()
+                    });
+                }
+
+                window.location.href = "index.html";
+
+            } catch (error) {
+                console.error("Erro no Login Google:", error);
+                btn.disabled = false;
+                btn.innerHTML = `<img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/pwa_list/google.svg" width="20"> ENTRAR COM GOOGLE`;
+                
+                if(error.code === 'auth/popup-closed-by-user') {
+                    alert("Você fechou a janela de login antes de completar.");
+                } else if (error.code === 'auth/unauthorized-domain') {
+                    alert("Este domínio não está autorizado no Firebase. Adicione 'rephone.com.br' nas configurações.");
+                } else {
+                    alert("Erro ao entrar: " + error.message);
+                }
+            }
+        };
+    </script>
 </body>
 </html>
