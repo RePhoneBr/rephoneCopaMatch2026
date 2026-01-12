@@ -1,72 +1,117 @@
-<script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-app.js";
-    import { getAuth, createUserWithEmailAndPassword, updateProfile } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-auth.js";
-    import { getFirestore, doc, setDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-firestore.js";
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Cadastro Comprador | RePhone</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        :root { --dark: #0f172a; --green: #16a34a; --bg: #f8fafc; --text-muted: #64748b; --blue: #3b82f6; }
+        * { margin:0; padding:0; box-sizing:border-box; font-family:'Inter', sans-serif; }
+        body { background: var(--bg); color: var(--dark); display: flex; align-items: center; justify-content: center; min-height: 100vh; padding: 20px; }
 
-    const firebaseConfig = { 
-        apiKey: "AIzaSyBiN8FqX8UZeyAh1cG2GHZtQWiQH0xPBV4", 
-        authDomain: "rephone-a0a80.firebaseapp.com", 
-        projectId: "rephone-a0a80", 
-        storageBucket: "rephone-a0a80.firebasestorage.app", 
-        appId: "1:431497247030:web:a943715e4acc04b8995b97" 
-    };
+        .auth-card { background: white; padding: 35px; border-radius: 30px; box-shadow: 0 20px 40px rgba(0,0,0,0.05); border: 1px solid #e2e8f0; width: 100%; max-width: 400px; text-align: center; }
+        .logo { font-weight: 900; font-size: 24px; color: var(--dark); text-decoration: none; margin-bottom: 5px; display: block; }
+        .logo span { color: var(--green); }
+        h2 { font-weight: 800; font-size: 18px; margin-bottom: 25px; color: var(--text-muted); }
 
-    const app = initializeApp(firebaseConfig);
-    const auth = getAuth(app);
-    const db = getFirestore(app);
+        .form-group { text-align: left; margin-bottom: 15px; }
+        .form-group label { display: block; font-size: 11px; font-weight: 800; color: var(--text-muted); text-transform: uppercase; margin-bottom: 6px; margin-left: 5px; }
+        .form-group input { width: 100%; padding: 14px; border-radius: 12px; border: 1px solid #e2e8f0; background: #f8fafc; font-size: 15px; outline: none; transition: 0.3s; }
+        .form-group input:focus { border-color: var(--green); background: white; }
 
-    // FUNÇÃO PARA DIRECIONAR O USUÁRIO (Igual ao Login)
-    function redirecionarAposRegistro() {
-        const urlParams = new URLSearchParams(window.location.search);
-        const returnId = urlParams.get('returnId'); 
+        .btn-register { width: 100%; background: var(--green); color: white; border: none; padding: 16px; border-radius: 15px; font-weight: 800; font-size: 15px; cursor: pointer; margin-top: 10px; transition: 0.3s; }
+        .btn-register:active { transform: scale(0.98); }
 
-        if (returnId) {
-            window.location.href = `anuncio.html?id=${returnId}`;
-        } else {
-            window.location.href = 'index.html';
-        }
-    }
+        .footer-link { margin-top: 20px; font-size: 13px; color: var(--text-muted); }
+        .footer-link a { color: var(--blue); text-decoration: none; font-weight: 700; }
+    </style>
+</head>
+<body>
 
-    document.getElementById('btnReg').onclick = async () => {
-        const nome = document.getElementById('nome').value.trim();
-        const email = document.getElementById('email').value.toLowerCase().trim();
-        const pass = document.getElementById('pass').value;
-        const btn = document.getElementById('btnReg');
+    <div class="auth-card">
+        <a href="index.html" class="logo">Re<span>Phone</span></a>
+        <h2>Criar conta de Comprador</h2>
 
-        if(!nome || !email || !pass) return alert("Preencha todos os campos.");
-        if(pass.length < 6) return alert("A senha deve ter no mínimo 6 caracteres.");
+        <div class="form-group">
+            <label>Nome Completo</label>
+            <input type="text" id="regName" placeholder="Seu nome">
+        </div>
 
-        btn.disabled = true;
-        btn.innerText = "CRIANDO CONTA...";
+        <div class="form-group">
+            <label>E-mail</label>
+            <input type="email" id="regEmail" placeholder="exemplo@email.com">
+        </div>
 
-        try {
-            // 1. Cria o usuário no Auth
-            const userCredential = await createUserWithEmailAndPassword(auth, email, pass);
-            const user = userCredential.user;
+        <div class="form-group">
+            <label>Senha</label>
+            <input type="password" id="regPass" placeholder="Mínimo 6 caracteres">
+        </div>
 
-            // 2. Atualiza o nome no perfil do Auth
-            await updateProfile(user, { displayName: nome });
+        <button class="btn-register" id="btnRegister">CADASTRAR AGORA</button>
 
-            // 3. Salva os dados na coleção de 'clientes'
-            await setDoc(doc(db, "clientes", user.uid), {
-                nome: nome,
-                email: email,
-                uid: user.uid,
-                dataCadastro: serverTimestamp(), // Usa o tempo do servidor para precisão
-                tipo: "comprador"
-            });
+        <div class="footer-link">
+            Já tem uma conta? <a href="login-cliente.html">Fazer Login</a>
+        </div>
+    </div>
 
-            alert("Bem-vindo à RePhone, " + nome + "!");
-            redirecionarAposRegistro();
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-app.js";
+        import { getAuth, createUserWithEmailAndPassword, updateProfile } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-auth.js";
+        import { getFirestore, doc, setDoc } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-firestore.js";
 
-        } catch (e) {
-            console.error(e);
-            let msg = "Erro ao criar conta: " + e.message;
-            if (e.code === 'auth/email-already-in-use') msg = "Este e-mail já está em uso.";
-            
-            alert(msg);
-            btn.disabled = false;
-            btn.innerText = "CRIAR MINHA CONTA";
-        }
-    };
-</script>
+        const firebaseConfig = { 
+            apiKey: "AIzaSyBiN8FqX8UZeyAh1cG2GHZtQWiQH0xPBV4", 
+            authDomain: "rephone-a0a80.firebaseapp.com", 
+            projectId: "rephone-a0a80", 
+            storageBucket: "rephone-a0a80.firebasestorage.app", 
+            appId: "1:431497247030:web:a943715e4acc04b8995b97" 
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+
+        document.getElementById('btnRegister').onclick = async () => {
+            const nome = document.getElementById('regName').value.trim();
+            const email = document.getElementById('regEmail').value.trim();
+            const pass = document.getElementById('regPass').value;
+            const btn = document.getElementById('btnRegister');
+
+            if (!nome || !email || !pass) return alert("Preencha todos os campos.");
+            if (pass.length < 6) return alert("A senha deve ter pelo menos 6 caracteres.");
+
+            btn.disabled = true;
+            btn.innerText = "CRIANDO CONTA...";
+
+            try {
+                // 1. Criar no Auth
+                const userCredential = await createUserWithEmailAndPassword(auth, email, pass);
+                const user = userCredential.user;
+
+                // 2. Atualizar perfil básico
+                await updateProfile(user, { displayName: nome });
+
+                // 3. Criar documento na coleção 'clientes' para o perfil completo
+                await setDoc(doc(db, "clientes", user.uid), {
+                    nome: nome,
+                    email: email,
+                    tipo: "comprador",
+                    dataCadastro: new Date()
+                });
+
+                alert("Conta criada com sucesso!");
+                window.location.href = "index.html";
+
+            } catch (error) {
+                console.error(error);
+                if (error.code === 'auth/email-already-in-use') alert("Este e-mail já está cadastrado.");
+                else alert("Erro ao criar conta: " + error.message);
+            } finally {
+                btn.disabled = false;
+                btn.innerText = "CADASTRAR AGORA";
+            }
+        };
+    </script>
+</body>
+</html>
