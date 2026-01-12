@@ -38,6 +38,37 @@
         .menu-link { padding: 18px; border-radius: 15px; text-decoration: none; font-weight: 800; font-size: 13px; text-align: center; color: white; background: rgba(255,255,255,0.05); }
         .menu-link.destaque { background: var(--green); }
 
+        /* BANNER TICKER COM GLASSMORPHISM */
+        .ticker-wrapper {
+            width: 100%;
+            background: rgba(15, 23, 42, 0.85);
+            backdrop-filter: blur(8px);
+            color: white;
+            overflow: hidden;
+            white-space: nowrap;
+            padding: 12px 0;
+            font-size: 11px;
+            font-weight: 800;
+            cursor: pointer;
+            position: sticky;
+            top: 0;
+            z-index: 2000;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+        .ticker-content { display: inline-block; animation: ticker-animation 35s linear infinite; }
+        .ticker-item { display: inline-block; padding-right: 60px; text-transform: uppercase; letter-spacing: 0.5px; }
+        .ticker-highlight {
+            color: #3b82f6; 
+            background: rgba(59, 130, 246, 0.2);
+            padding: 5px 15px;
+            border-radius: 20px;
+            border: 1px solid rgba(59, 130, 246, 0.5);
+            margin: 0 10px;
+            font-weight: 900;
+        }
+        @keyframes ticker-animation { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }
+        .ticker-wrapper:hover .ticker-content { animation-play-state: paused; }
+
         .hero { padding: 10px 20px 30px; max-width: 600px; margin: 0 auto; }
         .match-card { background: white; padding: 25px; border-radius: 30px; box-shadow: 0 20px 40px rgba(0,0,0,0.05); border: 1px solid #f1f5f9; }
         .status-circle { width: 12px; height: 12px; border-radius: 50%; background: #cbd5e1; transition: 0.3s; }
@@ -51,48 +82,6 @@
         .busca-collapsible { overflow: hidden; max-height: 0; transition: 0.4s; }
         .busca-collapsible.open { max-height: 500px; margin-top: 15px; }
 
-        .ticker-wrapper {
-    width: 100%;
-    background: rgba(15, 23, 42, 0.85); /* Preto transparente */
-    backdrop-filter: blur(8px); /* Efeito de vidro */
-    color: white;
-    overflow: hidden;
-    white-space: nowrap;
-    padding: 12px 0;
-    font-size: 11px;
-    font-weight: 800;
-    cursor: pointer;
-    position: sticky;
-    top: 0;
-    z-index: 2000;
-    border-bottom: 1px solid rgba(255,255,255,0.1);
-}
-
-.ticker-content {
-    display: inline-block;
-    animation: ticker-animation 35s linear infinite;
-}
-
-.ticker-item {
-    display: inline-block;
-    padding-right: 60px;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-}
-
-.ticker-highlight {
-    color: #3b82f6; 
-    background: rgba(59, 130, 246, 0.2);
-    padding: 5px 15px;
-    border-radius: 20px;
-    border: 1px solid rgba(59, 130, 246, 0.5);
-    margin: 0 10px;
-    font-weight: 900;
-}
-
-        @keyframes ticker-animation { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }
-        .ticker-wrapper:hover .ticker-content { animation-play-state: paused; }
-
         .feed { padding: 0 15px 150px; display: grid; grid-template-columns: 1fr 1fr; gap: 12px; max-width: 1200px; margin: 0 auto; }
         @media (min-width: 1024px) { .feed { grid-template-columns: repeat(4, 1fr); } }
 
@@ -100,11 +89,7 @@
         .img-container { width: 100%; aspect-ratio: 1/1; background: #f1f5f9; border-radius: 14px; overflow: hidden; margin-bottom: 8px; display: flex; align-items: center; justify-content: center; }
         .card img { max-width: 100%; max-height: 100%; object-fit: contain; }
         .badge-vendido { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%) rotate(-15deg); background: var(--red); color: white; padding: 5px 10px; border-radius: 8px; font-weight: 900; font-size: 12px; z-index: 5; }
-
         .price-tag { background: linear-gradient(135deg, #16a34a, #4ade80); color: white; padding: 5px 10px; border-radius: 8px; font-weight: 900; font-size: 15px; margin-top: auto; align-self: flex-start; }
-
-        #matchPopup { position: fixed; bottom: -100%; left: 0; width: 100%; background: var(--dark); color: white; padding: 25px; border-radius: 30px 30px 0 0; z-index: 3000; transition: 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
-        #matchPopup.active { bottom: 0; }
 
         .rephone-footer { position: fixed; bottom: 0; left: 0; width: 100%; background: rgba(15, 23, 42, 0.95); backdrop-filter: blur(10px); padding: 15px 20px; z-index: 1000; border-top: 1px solid rgba(255, 255, 255, 0.1); display: flex; flex-direction: column; align-items: center; gap: 8px; }
         .footer-links { display: flex; gap: 15px; font-size: 11px; flex-wrap: wrap; justify-content: center; }
@@ -122,42 +107,40 @@
         <button class="btn-menu-icon" onclick="toggleMenu()">☰</button>
     </header>
 
+    <div class="ticker-wrapper" id="tickerWrapper">
+        <div class="ticker-content" id="tickerContent">
+            <span class="ticker-highlight" onclick="window.location.href='como-comprar.html'">📖 GUIA: COMO COMPRAR COM SEGURANÇA</span>
+            <span class="ticker-item">🛡️ NUNCA PAGUE ANTES DE TESTAR O APARELHO EM MÃOS!</span>
+            <span class="ticker-item">📍 PREFIRA ENCONTROS EM LOCAIS PÚBLICOS</span>
+        </div>
+    </div>
+
     <div class="location-bar" id="txtLocation">📍 Localizando ofertas próximas...</div>
 
     <div id="menuOverlay" onclick="toggleMenu()"></div>
     <nav id="mobileMenu">
         <div id="greeting" style="color:#94a3b8; font-size:11px; font-weight:800; text-align:center; margin-bottom:15px; text-transform: uppercase;">Menu RePhone</div>
         <a href="index.html" class="menu-link">🏠 Início / Radar</a>
-
         <div id="menuGuest">
             <a href="login-cliente.html" class="menu-link" style="background: var(--blue);">🛍️ Entrar como Comprador</a>
             <a href="vendedor-login.html" class="menu-link destaque">💼 Painel do Vendedor</a>
         </div>
-
         <div id="menuCustomer" style="display: none; flex-direction: column; gap: 12px;">
             <span style="font-size:10px; color:#64748b; font-weight:800; padding-left:10px;">MINHA ÁREA</span>
             <a href="como-comprar.html" class="menu-link" style="background: rgba(59, 130, 246, 0.1); color: var(--blue); border: 1px dashed var(--blue);">📖 Como Comprar</a>
             <a href="minhas-compras.html" class="menu-link">📦 Meus Pedidos / Matches</a>
             <a href="perfil-cliente.html" class="menu-link">👤 Meu Perfil</a>
         </div>
-
         <div id="menuSeller" style="display: none; flex-direction: column; gap: 12px;">
             <span style="font-size:10px; color:var(--green-light); font-weight:800; padding-left:10px;">PAINEL VENDEDOR</span>
             <a href="como-vender.html" style="background: rgba(22, 163, 74, 0.1); color: var(--green); border: 1px dashed var(--green);" class="menu-link">📖 Como Anunciar</a>
             <a href="vendedor-anuncio.html" class="menu-link destaque">➕ Anunciar Aparelho</a>
             <a href="dashboard-vendedor.html" class="menu-link">📊 Meus Anúncios</a>
         </div>
-
         <div id="divLogout" style="display: none; margin-top: 10px;">
-            <button class="btn-logout-menu" onclick="fazerLogout()" style="width:100%; border: 1px solid rgba(239, 68, 68, 0.3); padding: 15px; border-radius: 12px;">SAIR DA CONTA</button>
+            <button onclick="fazerLogout()" style="width:100%; border: 1px solid rgba(239, 68, 68, 0.3); padding: 15px; border-radius: 12px; background:none; color:white; font-weight:800;">SAIR DA CONTA</button>
         </div>
     </nav>
-
-    <div class="ticker-wrapper" id="tickerWrapper">
-        <div class="ticker-content" id="tickerContent">
-            <span class="ticker-item">⚡ CARREGANDO OFERTAS NO RADAR...</span>
-        </div>
-    </div>
 
     <section class="hero">
         <div class="match-card">
@@ -171,7 +154,6 @@
             <input type="number" id="matchPreco" placeholder="Ex: 4000">
             <button class="btn-match" onclick="fazerMatch()">DAR MATCH</button>
             <button class="btn-match" style="background:#f1f5f9; color:var(--dark); margin-top:10px;" onclick="toggleBusca()">🔍 BUSCA MANUAL</button>
-            
             <div id="buscaManualBox" class="busca-collapsible">
                 <input type="text" id="buscaMarca" placeholder="Marca (Apple, Samsung...)">
                 <button class="btn-match" onclick="buscarManual()">FILTRAR AGORA</button>
@@ -181,20 +163,6 @@
     </section>
 
     <main id="radarGrid" class="feed"></main>
-
-    <div id="matchPopup">
-        <span class="match-label">🔥 MATCH!</span>
-        <div id="matchData" style="display: flex; align-items: center; gap: 15px; margin: 15px 0;"></div>
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
-            <button class="btn-match" style="background:#334155" onclick="fecharMatch()">FECHAR</button>
-            <a href="#" id="matchLink" class="btn-match" style="text-decoration:none; text-align:center;">VER AGORA</a>
-        </div>
-    </div>
-
-    <div id="lgpdBanner" class="lgpd-banner">
-        <span>Cookies melhoram sua experiência.</span>
-        <button onclick="aceitarCookies()" style="background:var(--green); border:none; padding:8px 15px; border-radius:8px; color:white; font-weight:800; cursor:pointer;">OK</button>
-    </div>
 
     <footer class="rephone-footer">
         <div class="footer-links">
@@ -226,6 +194,7 @@
         let todosAnuncios = [];
         let uLat = null, uLng = null;
 
+        // AUTH
         onAuthStateChanged(auth, async (user) => {
             const guestUI = document.getElementById('menuGuest');
             const customerUI = document.getElementById('menuCustomer');
@@ -251,37 +220,37 @@
                 customerUI.style.display = 'none';
                 sellerUI.style.display = 'none';
                 logoutUI.style.display = 'none';
+                greet.innerText = "Menu RePhone";
             }
         });
 
         window.fazerLogout = () => signOut(auth).then(() => window.location.reload());
 
-        function calcularDistancia(lat1, lon1, lat2, lon2) {
-            const R = 6371;
-            const dLat = (lat2 - lat1) * Math.PI / 180;
-            const dLon = (lon2 - lon1) * Math.PI / 180;
-            const a = Math.sin(dLat/2) * Math.sin(dLat/2) + Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) * Math.sin(dLon/2) * Math.sin(dLon/2);
-            return (R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a))).toFixed(1);
+        // BANNER DINÂMICO
+        async function atualizarBannerDinamico() {
+            const tickerContent = document.getElementById('tickerContent');
+            const guiaLink = `<span class="ticker-highlight" onclick="window.location.href='como-comprar.html'">📖 GUIA: COMO COMPRAR COM SEGURANÇA</span>`;
+            const seguranca = `<span class="ticker-item">🛡️ NUNCA PAGUE ANTES DE TESTAR O APARELHO EM MÃOS!</span>`;
+            const seguranca2 = `<span class="ticker-item">📍 PREFIRA ENCONTROS EM LOCAIS PÚBLICOS</span>`;
+
+            try {
+                const q = query(collection(db, "anuncios"), where("status", "==", "aprovado"), orderBy("preco", "asc"), limit(1));
+                const snap = await getDocs(q);
+                
+                if (!snap.empty) {
+                    const ad = snap.docs[0].data();
+                    const precoFmt = parseFloat(ad.preco).toLocaleString('pt-br', {style: 'currency', currency: 'BRL'});
+                    const ofertaTexto = `<span class="ticker-item">🔥 MATCH DE HOJE: ${ad.modelo} POR ${precoFmt} EM ${ad.cidade}!</span>`;
+                    tickerContent.innerHTML = ofertaTexto + guiaLink + seguranca + ofertaTexto + guiaLink + seguranca2;
+                } else {
+                    tickerContent.innerHTML = guiaLink + seguranca + seguranca2 + guiaLink + seguranca + seguranca2;
+                }
+            } catch (e) {
+                tickerContent.innerHTML = guiaLink + seguranca + seguranca2 + guiaLink + seguranca + seguranca2;
+            }
         }
 
-        navigator.geolocation.getCurrentPosition(async (pos) => {
-            uLat = pos.coords.latitude; uLng = pos.coords.longitude;
-            try {
-                const res = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${uLat}&lon=${uLng}`);
-                const data = await res.json();
-                document.getElementById('txtLocation').innerHTML = `📍 Ofertas exclusivas em <strong>${data.address.city || data.address.town || "sua região"}</strong>`;
-                renderizar(todosAnuncios);
-            } catch (e) { detectarIP(); }
-        }, () => detectarIP(), { timeout: 8000 });
-
-        async function detectarIP() {
-            try {
-                const res = await fetch('https://ipapi.co/json/');
-                const data = await res.json();
-                document.getElementById('txtLocation').innerHTML = `📍 Ofertas em <strong>${data.city || 'sua região'}</strong>`;
-            } catch(e) {}
-        }
-
+        // CARREGAR DADOS
         onSnapshot(query(collection(db, "anuncios"), where("status", "==", "aprovado")), (snap) => {
             todosAnuncios = snap.docs.map(d => ({ id: d.id, ...d.data() }));
             renderizar(todosAnuncios);
@@ -292,94 +261,43 @@
             const grid = document.getElementById('radarGrid');
             grid.innerHTML = "";
             lista.forEach(ad => {
-                const isVendido = ad.statusVenda === "vendido";
-                let distHtml = "";
-                const adLat = ad.coords?.lat || ad.lat;
-                if (uLat && adLat) {
-                    const d = calcularDistancia(uLat, uLng, adLat, ad.coords?.lon || ad.lng);
-                    distHtml = ` • ${d}km ${d <= 5 ? '<span style="color:var(--green)">PERTO</span>' : ''}`;
-                }
                 const card = document.createElement('div');
                 card.className = 'card';
                 card.innerHTML = `
                     <a href="anuncio.html?id=${ad.id}" style="text-decoration:none; color:inherit; height:100%; display:flex; flex-direction:column;">
                         <div class="img-container">
-                            ${isVendido ? '<div class="badge-vendido">VENDIDO</div>' : ''}
-                            <img src="${ad.fotos?.[0] || ''}" style="filter:${isVendido ? 'grayscale(1)' : 'none'}">
+                            ${ad.statusVenda === "vendido" ? '<div class="badge-vendido">VENDIDO</div>' : ''}
+                            <img src="${ad.fotos?.[0] || ''}">
                         </div>
-                        <h3 style="font-size:13px; font-weight:800; margin-bottom:5px;">${ad.modelo}</h3>
-                        <div style="font-size:10px; color:var(--text-muted); font-weight:600;">
-                            ${ad.capacidade || '--'} • Bateria ${ad.bateria || '--'}% • ${ad.condicao || '--'}
-                        </div>
-                        <div style="font-size:10px; color:var(--green); font-weight:700; margin-top:5px;">
-                            📍 ${ad.cidade} ${distHtml}
-                        </div>
-                        <div class="price-tag">R$ ${parseFloat(ad.preco || 0).toLocaleString('pt-br', {minimumFractionDigits:2})}</div>
+                        <h3 style="font-size:13px; font-weight:800;">${ad.modelo}</h3>
+                        <div style="font-size:10px; color:var(--text-muted); margin:5px 0;">📍 ${ad.cidade}</div>
+                        <div class="price-tag">R$ ${parseFloat(ad.preco).toLocaleString('pt-br')}</div>
                     </a>`;
                 grid.appendChild(card);
             });
         };
 
-        async function atualizarBannerDinamico() {
-            async function atualizarBannerDinamico() {
-    const tickerContent = document.getElementById('tickerContent');
-    const guiaLink = `<span class="ticker-highlight" onclick="window.location.href='como-comprar.html'">📖 GUIA: COMO COMPRAR COM SEGURANÇA NA REPHONE</span>`;
-    const seguranca = `<span class="ticker-item">🛡️ NUNCA PAGUE ANTES DE TESTAR O APARELHO EM MÃOS!</span>`;
-    const seguranca2 = `<span class="ticker-item">📍 PREFIRA ENCONTROS EM LOCAIS PÚBLICOS E MOVIMENTADOS</span>`;
-
-    // 1. Mostra o conteúdo de segurança imediatamente
-    tickerContent.innerHTML = guiaLink + seguranca + seguranca2 + guiaLink + seguranca + seguranca2;
-
-    try {
-        // 2. Busca a melhor oferta para "temperar" o banner
-        const q = query(collection(db, "anuncios"), where("status", "==", "aprovado"), orderBy("preco", "asc"), limit(1));
-        const snap = await getDocs(q);
-        
-        if (!snap.empty) {
-            const ad = snap.docs[0].data();
-            const precoFmt = parseFloat(ad.preco).toLocaleString('pt-br', {style: 'currency', currency: 'BRL'});
-            const ofertaTexto = `<span class="ticker-item">🔥 MATCH DE HOJE: ${ad.modelo} POR ${precoFmt} EM ${ad.cidade}!</span>`;
-            
-            // 3. Atualiza o banner incluindo a oferta dinâmica
-            tickerContent.innerHTML = ofertaTexto + guiaLink + seguranca + ofertaTexto + guiaLink + seguranca2;
-        }
-    } catch (e) { 
-        console.log("Mantendo apenas dicas de segurança no banner."); 
-    }
-}
-
+        // INTERAÇÕES
         window.toggleMenu = () => document.getElementById('mobileMenu').classList.toggle('active');
         window.toggleBusca = () => document.getElementById('buscaManualBox').classList.toggle('open');
-        window.fecharMatch = () => document.getElementById('matchPopup').classList.remove('active');
-        window.aceitarCookies = () => { localStorage.setItem('lgpd_ok', 'true'); document.getElementById('lgpdBanner').style.display = 'none'; };
-
         window.buscarManual = () => {
-            const marca = document.getElementById('buscaMarca').value.toLowerCase();
-            const filtrados = todosAnuncios.filter(ad => (ad.marca || '').toLowerCase().includes(marca) || (ad.modelo || '').toLowerCase().includes(marca));
-            renderizar(filtrados);
+            const m = document.getElementById('buscaMarca').value.toLowerCase();
+            renderizar(todosAnuncios.filter(a => a.modelo.toLowerCase().includes(m)));
         };
-
         window.limparBusca = () => {
             document.getElementById('buscaMarca').value = "";
             renderizar(todosAnuncios);
-            document.getElementById('buscaManualBox').classList.remove('open');
         };
-
+        
         window.fazerMatch = () => {
             const mod = document.getElementById('matchModelo').value.toLowerCase();
-            const pMax = parseFloat(document.getElementById('matchPreco').value) || Infinity;
             if(!mod) return alert("Digite o modelo!");
-            document.getElementById('mCircle').className = "status-circle searching";
-            setTimeout(() => {
-                const match = todosAnuncios.filter(a => a.statusVenda !== "vendido" && a.modelo.toLowerCase().includes(mod) && parseFloat(a.preco) <= pMax).sort((a,b) => (b.bateria||0) - (a.bateria||0))[0];
-                document.getElementById('mCircle').className = "status-circle";
-                if(match) {
-                    document.getElementById('matchData').innerHTML = `<img src="${match.fotos?.[0]}" style="width:60px; height:60px; object-fit:contain; border-radius:10px; background:white;"><div><b>${match.modelo}</b><br>R$ ${match.preco}</div>`;
-                    document.getElementById('matchLink').href = `anuncio.html?id=${match.id}`;
-                    document.getElementById('matchPopup').classList.add('active');
-                } else { alert("Nenhum match ideal agora."); }
-            }, 1200);
+            const match = todosAnuncios.find(a => a.modelo.toLowerCase().includes(mod));
+            if(match) window.location.href = `anuncio.html?id=${match.id}`;
+            else alert("Nenhum match encontrado.");
         };
+
+        atualizarBannerDinamico();
     </script>
 </body>
 </html>
