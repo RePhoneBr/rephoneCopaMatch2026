@@ -162,10 +162,14 @@
                         <button onclick="descartar('${id}')" class="btn-action btn-ignore">SEM INTERESSE</button>
                     `;
                 } else if (abaAtual === 'finalizado') {
-                    const zapLink = `https://wa.me/55${(item.backupVendedorWhatsapp || "").replace(/\D/g,'')}`;
-                    botoes = `
-                        <a href="${zapLink}" target="_blank" class="btn-action btn-zap">💬 WHATSAPP</a>
-                        ${!item.notaAvaliacao ? `<button onclick="abrirAvaliacao('${id}')" class="btn-action btn-star">⭐ AVALIAR</button>` : `<span style="font-size:11px; font-weight:800; color:#f59e0b;">⭐ ${item.notaAvaliacao}/5</span>`}
+                const numZap = item.vendedorWhatsapp || item.backupVendedorWhatsapp || "";
+    const zapLink = `https://wa.me/55${numZap.replace(/\D/g,'')}`;
+    
+    botoes = `
+        <a href="${zapLink}" target="_blank" class="btn-action btn-zap">💬 WHATSAPP</a>
+        ${!item.notaAvaliacao ? 
+            `<button onclick="abrirAvaliacao('${id}')" class="btn-action btn-star">⭐ AVALIAR</button>` : 
+            `<span style="font-size:11px; font-weight:800; color:#f59e0b;">⭐ ${item.notaAvaliacao}/5</span>`
                     `;
                 }
 
