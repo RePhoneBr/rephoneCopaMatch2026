@@ -6,15 +6,24 @@
     <title>Login Comprador | RePhone</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
     <style>
-        :root { --dark: #0f172a; --green: #16a34a; --bg: #f8fafc; --blue: #3b82f6; }
+        :root { --dark: #0f172a; --green: #16a34a; --bg: #f8fafc; --blue: #3b82f6; --red: #ef4444; }
         * { margin:0; padding:0; box-sizing:border-box; font-family:'Inter', sans-serif; }
         body { background: var(--bg); display: flex; align-items: center; justify-content: center; min-height: 100vh; padding: 20px; }
+        
         .login-card { background: white; padding: 35px; border-radius: 30px; box-shadow: 0 20px 40px rgba(0,0,0,0.05); width: 100%; max-width: 400px; text-align: center; border: 1px solid #e2e8f0; }
         .logo { font-weight: 900; font-size: 24px; color: var(--dark); text-decoration: none; display: block; margin-bottom: 25px; }
         .logo span { color: var(--green); }
-        .btn-google { width: 100%; background: white; color: var(--dark); border: 2px solid #e2e8f0; padding: 16px; border-radius: 15px; font-weight: 800; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 10px; transition: 0.3s; }
-        .btn-google:hover { background: #f8fafc; border-color: #cbd5e1; }
-        .divider { margin: 25px 0; color: #94a3b8; font-size: 12px; font-weight: 700; text-transform: uppercase; }
+
+        .form-group { text-align: left; margin-bottom: 15px; }
+        .form-group label { display: block; font-size: 11px; font-weight: 800; color: #64748b; text-transform: uppercase; margin-bottom: 5px; margin-left: 5px; }
+        .form-group input { width: 100%; padding: 14px; border-radius: 12px; border: 1px solid #e2e8f0; background: #f8fafc; font-size: 15px; outline: none; transition: 0.3s; }
+        .form-group input:focus { border-color: var(--green); background: white; }
+
+        .forgot-pass { display: block; text-align: right; font-size: 11px; color: var(--blue); font-weight: 700; text-decoration: none; margin-bottom: 20px; cursor: pointer; }
+
+        .btn-login { width: 100%; background: var(--green); color: white; border: none; padding: 16px; border-radius: 15px; font-weight: 800; font-size: 15px; cursor: pointer; transition: 0.3s; }
+        .btn-login:disabled { background: #94a3b8; cursor: not-allowed; }
+        
         .btn-back { display: block; margin-top: 20px; color: #64748b; text-decoration: none; font-size: 13px; font-weight: 600; }
     </style>
 </head>
@@ -22,24 +31,32 @@
 
     <div class="login-card">
         <a href="index.html" class="logo">Re<span>Phone</span></a>
-        <h2 style="font-weight: 900; margin-bottom: 30px; letter-spacing: -1px;">Bem-vindo de volta!</h2>
+        <h2 style="font-weight: 900; margin-bottom: 30px; letter-spacing: -1px;">Acesse sua conta</h2>
 
-        <button class="btn-google" id="btnGoogle">
-            <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/pwa_list/google.svg" width="20">
-            ENTRAR COM GOOGLE
-        </button>
+        <div class="form-group">
+            <label>E-mail</label>
+            <input type="email" id="loginEmail" placeholder="seu@email.com">
+        </div>
 
-        <div class="divider">Ou use seu e-mail</div>
+        <div class="form-group">
+            <label>Senha</label>
+            <input type="password" id="loginPass" placeholder="••••••••">
+        </div>
+
+        <span class="forgot-pass" id="btnRecuperar">Esqueci minha senha</span>
+
+        <button class="btn-login" id="btnLogin">ENTRAR</button>
         
-        <p style="font-size: 12px; color: #64748b;">Ainda não tem conta? <a href="cadastro-cliente.html" style="color: var(--blue); text-decoration: none; font-weight: 700;">Cadastre-se</a></p>
+        <p style="font-size: 12px; color: #64748b; margin-top: 20px;">
+            Ainda não tem conta? <a href="cadastro-cliente.html" style="color: var(--blue); text-decoration: none; font-weight: 700;">Cadastre-se</a>
+        </p>
         
         <a href="index.html" class="btn-back">← Voltar para a Home</a>
     </div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-app.js";
-        import { getAuth, GoogleAuthProvider, signInWithPopup } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-auth.js";
-        import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-firestore.js";
+        import { getAuth, signInWithEmailAndPassword, sendPasswordResetEmail } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-auth.js";
 
         const firebaseConfig = { 
             apiKey: "AIzaSyBiN8FqX8UZeyAh1cG2GHZtQWiQH0xPBV4", 
@@ -51,44 +68,46 @@
 
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
-        const db = getFirestore(app);
-        const provider = new GoogleAuthProvider();
 
-        document.getElementById('btnGoogle').onclick = async () => {
-            const btn = document.getElementById('btnGoogle');
+        // --- Lógica de Login ---
+        document.getElementById('btnLogin').onclick = async () => {
+            const email = document.getElementById('loginEmail').value.trim();
+            const pass = document.getElementById('loginPass').value;
+            const btn = document.getElementById('btnLogin');
+
+            if (!email || !pass) return alert("Por favor, preencha todos os campos.");
+
             btn.disabled = true;
-            btn.innerText = "CONECTANDO...";
+            btn.innerText = "AUTENTICANDO...";
 
             try {
-                const result = await signInWithPopup(auth, provider);
-                const user = result.user;
-
-                // Salva ou atualiza os dados do cliente no Firestore para garantir que o menu funcione
-                const clientRef = doc(db, "clientes", user.uid);
-                const clientSnap = await getDoc(clientRef);
-
-                if (!clientSnap.exists()) {
-                    await setDoc(clientRef, {
-                        nome: user.displayName,
-                        email: user.email,
-                        tipo: "comprador",
-                        dataCadastro: new Date()
-                    });
-                }
-
+                await signInWithEmailAndPassword(auth, email, pass);
                 window.location.href = "index.html";
-
             } catch (error) {
-                console.error("Erro no Login Google:", error);
+                console.error("Erro no login:", error.code);
                 btn.disabled = false;
-                btn.innerHTML = `<img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/pwa_list/google.svg" width="20"> ENTRAR COM GOOGLE`;
-                
-                if(error.code === 'auth/popup-closed-by-user') {
-                    alert("Você fechou a janela de login antes de completar.");
-                } else if (error.code === 'auth/unauthorized-domain') {
-                    alert("Este domínio não está autorizado no Firebase. Adicione 'rephone.com.br' nas configurações.");
+                btn.innerText = "ENTRAR";
+                alert("Email ou senha incorretos.");
+            }
+        };
+
+        // --- Lógica de Recuperação de Senha ---
+        document.getElementById('btnRecuperar').onclick = async () => {
+            const email = document.getElementById('loginEmail').value.trim();
+
+            if (!email) {
+                return alert("Digite seu e-mail no campo acima para receber o link de recuperação.");
+            }
+
+            try {
+                await sendPasswordResetEmail(auth, email);
+                alert("Link de recuperação enviado para o seu e-mail! Verifique também a pasta de spam.");
+            } catch (error) {
+                console.error("Erro ao recuperar:", error.code);
+                if (error.code === 'auth/user-not-found') {
+                    alert("Este e-mail não está cadastrado.");
                 } else {
-                    alert("Erro ao entrar: " + error.message);
+                    alert("Ocorreu um erro ao tentar enviar o e-mail de recuperação.");
                 }
             }
         };
