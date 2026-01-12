@@ -201,31 +201,59 @@
         });
 
         window.renderizar = (lista) => {
-            const grid = document.getElementById('radarGrid');
-            grid.innerHTML = "";
-            lista.forEach(ad => {
-                const isLojista = ad.tipoVendedor === 'lojista';
-                let distHtml = "";
-                if (uLat && ad.lat) {
-                    const d = calcularDistancia(uLat, uLng, ad.lat, ad.lng);
-                    distHtml = ` • ${d}km ${d <= 5 ? '<span style="color:var(--green)">PERTO</span>' : ''}`;
-                }
+    const grid = document.getElementById('radarGrid');
+    grid.innerHTML = "";
+    
+    lista.forEach(ad => {
+        const isVendido = ad.statusVenda === 'vendido';
+        const isLojista = ad.tipoVendedor === 'lojista';
+        
+        let distHtml = "";
+        if (uLat && ad.lat) {
+            const d = calcularDistancia(uLat, uLng, ad.lat, ad.lng);
+            distHtml = ` • ${d}km ${d <= 5 ? '<span style="color:var(--green)">PERTO</span>' : ''}`;
+        }
 
-                const card = document.createElement('div');
-                card.className = 'card';
-                card.innerHTML = `
-                    ${isLojista ? '<div class="badge-verificado">VERIFICADO</div>' : ''}
-                    <div class="img-container"><img src="${ad.fotos?.[0] || ''}"></div>
-                    <div class="badge-tipo ${isLojista ? 'tipo-lojista' : 'tipo-particular'}">${ad.tipoVendedor || 'Particular'}</div>
-                    <h3 style="font-size:13px; font-weight:800; margin:8px 0 3px;">${ad.modelo}</h3>
-                    <div style="font-size:10px; color:var(--text-muted); font-weight:700;">${ad.capacidade || '--'} • Bateria ${ad.bateria || '--'}% • ${ad.condicao || '--'}</div>
-                    <div style="font-size:10px; color:var(--green); font-weight:800; margin-top:5px;">📍 ${ad.cidade}${distHtml}</div>
-                    <div class="price-tag">R$ ${parseFloat(ad.preco).toLocaleString('pt-br', {minimumFractionDigits: 2})}</div>
-                    <a href="anuncio.html?id=${ad.id}" style="position:absolute; inset:0;"></a>
-                `;
-                grid.appendChild(card);
-            });
-        };
+        const card = document.createElement('div');
+        card.className = 'card';
+        
+        // Aplica estilo de desativado se estiver vendido
+        if (isVendido) {
+            card.style.opacity = "0.6";
+            card.style.filter = "grayscale(1)";
+            card.style.pointerEvents = "none"; // Impede o clique
+        }
+
+        card.innerHTML = `
+            ${isLojista && !isVendido ? '<div class="badge-verificado">VERIFICADO</div>' : ''}
+            <div class="img-container" style="position: relative;">
+                ${isVendido ? '<div style="position:absolute; inset:0; display:flex; align-items:center; justify-content:center; background:rgba(0,0,0,0.4); z-index:10; border-radius:15px;"><span style="background:var(--red); color:white; padding:8px 15px; border-radius:10px; font-weight:900; font-size:14px; transform:rotate(-10deg); box-shadow: 0 4px 15px rgba(0,0,0,0.3);">VENDIDO</span></div>' : ''}
+                <img src="${ad.fotos?.[0] || ''}" loading="lazy">
+            </div>
+            
+            <div class="badge-tipo ${isLojista ? 'tipo-lojista' : 'tipo-particular'}">
+                ${isLojista ? 'Lojista Verificado' : 'Particular'}
+            </div>
+            
+            <h3 style="font-size:13px; font-weight:800; margin:8px 0 3px;">${ad.modelo}</h3>
+            
+            <div style="font-size:10px; color:var(--text-muted); font-weight:700;">
+                ${ad.capacidade || '--'} • Bateria ${ad.bateria || '--'}% • ${ad.condicao || '--'}
+            </div>
+            
+            <div style="font-size:10px; color:var(--green); font-weight:800; margin-top:5px;">
+                📍 ${ad.cidade}${distHtml}
+            </div>
+            
+            <div class="price-tag" style="${isVendido ? 'background: #64748b; box-shadow:none;' : ''}">
+                ${isVendido ? 'INDISPONÍVEL' : 'R$ ' + parseFloat(ad.preco).toLocaleString('pt-br', {minimumFractionDigits: 2})}
+            </div>
+            
+            ${!isVendido ? `<a href="anuncio.html?id=${ad.id}" style="position:absolute; inset:0;"></a>` : ''}
+        `;
+        grid.appendChild(card);
+    });
+};
 
         // --- FUNÇÕES DE INTERFACE ---
         window.toggleMenu = () => {
