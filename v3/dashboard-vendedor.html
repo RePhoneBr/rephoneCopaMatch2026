@@ -1,250 +1,29 @@
-<!DOCTYPE html>
-<html lang="pt-br">
-<head>
-    <!-- Google tag (gtag.js) -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-LHRJ19C0CW"></script>
-<script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
-
-  gtag('config', 'G-LHRJ19C0CW');
-</script>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Meus Anúncios | RePhone</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
-    <style>
-        :root { --dark: #0f172a; --green: #16a34a; --red: #ef4444; --bg: #f8fafc; --muted: #64748b; --blue: #2563eb; }
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; -webkit-tap-highlight-color: transparent; }
-        body { background: var(--bg); color: var(--dark); padding: 0 0 100px 0; }
-
-        /* Header */
-        .header-premium { background: var(--dark); padding: 30px 20px; border-radius: 0 0 30px 30px; color: white; margin-bottom: 20px; }
-        .header-premium h1 { font-weight: 900; font-size: 24px; letter-spacing: -1px; }
-        .header-premium p { opacity: 0.8; font-size: 13px; margin-top: 5px; }
-
-        .container { padding: 0 20px; }
-
-        /* Painel de Resumo */
-        .painel-resumo { background: white; border-radius: 20px; padding: 15px; margin-bottom: 25px; border: 1px solid #e2e8f0; box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
-        .linha-topo { display: flex; justify-content: space-between; font-size: 11px; color: var(--muted); font-weight: 700; text-transform: uppercase; }
-        .badges { display: flex; gap: 8px; margin: 15px 0; flex-wrap: wrap; }
-        .badge { font-size: 10px; font-weight: 900; padding: 8px 12px; border-radius: 12px; border: 1px solid transparent; }
-        .badge.ativo { background: #dcfce7; color: #166534; }
-        .badge.pendente { background: #dbeafe; color: #1e40af; }
-        .badge.entregue { background: #f1f5f9; color: var(--muted); }
-
-        /* Lista de Anúncios */
-        .ad-list { display: flex; flex-direction: column; gap: 15px; }
-        .ad-item { background: white; padding: 15px; border-radius: 20px; border: 1px solid #e2e8f0; display: flex; flex-direction: column; gap: 12px; position: relative; }
-        .ad-main-info { display: flex; align-items: center; gap: 12px; }
-        .ad-item img { width: 70px; height: 70px; border-radius: 15px; object-fit: cover; background: #eee; }
-        .ad-info { flex: 1; }
-        .ad-info h3 { font-size: 16px; font-weight: 800; color: var(--dark); }
-        .ad-info .price { color: var(--green); font-weight: 900; font-size: 15px; display: block; margin-top: 2px; }
-
-        .btn-delete { background: #fee2e2; color: var(--red); border: none; width: 35px; height: 35px; border-radius: 10px; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 14px; }
-
-        /* Ações */
-        .acoes-venda { display: flex; gap: 8px; }
-        .btn-status { border: none; padding: 12px; border-radius: 12px; font-size: 12px; font-weight: 800; cursor: pointer; flex: 1; transition: 0.2s; }
-        .btn-status.marcar-vendido { background: var(--blue); color: white; }
-        .btn-status.marcar-entregue { background: var(--green); color: white; }
+<section style="padding: 20px;">
+    <!-- CARD DE PERFIL E RESUMO -->
+    <div style="background: var(--dark); color: white; padding: 25px; border-radius: 25px; margin-bottom: 25px; box-shadow: 0 10px 20px rgba(0,0,0,0.1);">
+        <h2 style="font-size: 18px; margin-bottom: 5px;">Olá, <span id="userName">Colecionador</span>! ⚽</h2>
+        <p style="font-size: 12px; opacity: 0.8; font-weight: 600;">Seu inventário de repetidas:</p>
         
-        .share-box { background: #f8fafc; padding: 12px; border-radius: 15px; border: 1px dashed #cbd5e1; margin-top: 5px; }
-        .share-label { font-size: 10px; font-weight: 800; color: var(--muted); display: block; margin-bottom: 8px; }
-        .share-buttons { display: flex; gap: 10px; }
-        .btn-share-action { background: white; border: 1px solid #e2e8f0; padding: 10px; border-radius: 10px; flex: 1; display: flex; align-items: center; justify-content: center; gap: 5px; font-size: 12px; font-weight: 700; cursor: pointer; }
-
-        /* Nav Bottom */
-        .nav-bottom { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); width: 92%; max-width: 400px; background: var(--dark); display: flex; justify-content: space-around; padding: 12px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.3); z-index: 1000; }
-        .nav-item { color: #64748b; text-decoration: none; font-size: 10px; font-weight: 700; text-align: center; }
-        .nav-item.active { color: var(--green); }
-        .nav-item span { display: block; font-size: 20px; margin-bottom: 2px; }
-
-        .empty-state { text-align: center; padding: 40px 20px; color: var(--muted); font-weight: 600; }
-    </style>
-</head>
-<body>
-
-    <header class="header-premium">
-        <h1 id="vendedorNome">Meu Painel</h1>
-        <p id="perfilTipo">Carregando informações...</p>
-    </header>
-
-    <div class="container">
-        <div class="painel-resumo">
-            <div class="linha-topo">
-                <span id="dataHoje">...</span>
-                <span id="localAtual">📍 Localizando...</span>
+        <div style="display: flex; gap: 15px; margin-top: 15px;">
+            <div style="background: rgba(255,255,255,0.1); padding: 10px 20px; border-radius: 15px; text-align: center; flex: 1;">
+                <div style="font-size: 20px; font-weight: 900;" id="countDisponivel">0</div>
+                <div style="font-size: 9px; text-transform: uppercase; font-weight: 700;">Disponíveis</div>
             </div>
-            <div class="badges">
-                <span class="badge ativo" id="countAtivos">Ativos: 0</span>
-                <span class="badge pendente" id="countPendentes">Vendidos: 0</span>
-                <span class="badge entregue" id="countVendidos">Entregues: 0</span>
+            <div style="background: rgba(255,255,255,0.1); padding: 10px 20px; border-radius: 15px; text-align: center; flex: 1;">
+                <div style="font-size: 20px; font-weight: 900;" id="countTrocadas">0</div>
+                <div style="font-size: 9px; text-transform: uppercase; font-weight: 700;">Trocadas</div>
             </div>
-        </div>
-
-        <div id="listaAnuncios" class="ad-list">
-            <div class="empty-state">Buscando seus anúncios...</div>
         </div>
     </div>
 
-    <nav class="nav-bottom">
-        <a href="index.html" class="nav-item"><span>🏠</span>Home</a>
-        <a href="vendedor-anuncio.html" class="nav-item"><span>➕</span>Anunciar</a>
-        <a href="dashboard-vendedor.html" class="nav-item active"><span>📱</span>Anúncios</a>
-        <a href="vendedor-perfil.html" class="nav-item"><span>👤</span>Perfil</a>
-    </nav>
+    <!-- BOTÃO AÇÃO RÁPIDA -->
+    <a href="anunciar.html" style="display: block; background: var(--green); color: white; text-align: center; padding: 18px; border-radius: 15px; text-decoration: none; font-weight: 900; margin-bottom: 25px; box-shadow: 0 5px 15px rgba(22, 163, 74, 0.3);">
+        ➕ CADASTRAR REPETIDAS
+    </a>
 
-<script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-app.js";
-    import { getFirestore, collection, query, where, onSnapshot, doc, deleteDoc, getDoc, updateDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-firestore.js";
-    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-auth.js";
-
-    const firebaseConfig = { 
-        apiKey: "AIzaSyBiN8FqX8UZeyAh1cG2GHZtQWiQH0xPBV4", 
-        authDomain: "rephone-a0a80.firebaseapp.com", 
-        projectId: "rephone-a0a80", 
-        storageBucket: "rephone-a0a80.firebasestorage.app", 
-        appId: "1:431497247030:web:a943715e4acc04b8995b97" 
-    };
-    
-    const app = initializeApp(firebaseConfig);
-    const db = getFirestore(app);
-    const auth = getAuth(app);
-
-    const LINK_BASE = "https://www.rephone.com.br/v3/minhas-compras.html";
-
-    onAuthStateChanged(auth, async (user) => {
-        if (!user) { window.location.href = "vendedor-login.html"; return; }
-
-        document.getElementById("dataHoje").innerText = "📅 " + new Date().toLocaleDateString('pt-BR');
-        obterLocalizacao();
-
-        const vSnap = await getDoc(doc(db, "vendedores", user.uid));
-        if (vSnap.exists()) {
-            const v = vSnap.data();
-            document.getElementById('vendedorNome').innerText = "Olá, " + (v.nome?.split(' ')[0] || 'Vendedor');
-            document.getElementById('perfilTipo').innerText = `${v.tipo === 'lojista' ? '🏢 Lojista' : '👤 Particular'} • ${v.status === 'verificado' ? '✅ Verificado' : '⚠️ Pendente'}`;
-        }
-
-        const q = query(collection(db, "anuncios"), where("vendedorId", "==", user.uid));
-        onSnapshot(q, (snap) => {
-            renderizarAnuncios(snap);
-        });
-    });
-
-    function renderizarAnuncios(snap) {
-        const container = document.getElementById('listaAnuncios');
-        let ativos = 0, vendidos = 0, entregues = 0;
-        
-        if (snap.empty) {
-            container.innerHTML = '<div class="empty-state">Você ainda não anunciou nenhum aparelho.</div>';
-            atualizarContadores(0, 0, 0);
-            return;
-        }
-
-        container.innerHTML = "";
-        snap.forEach(d => {
-            const ad = d.data();
-            const id = d.id;
-            const status = ad.statusVenda || 'disponivel';
-
-            if (status === 'disponivel') ativos++;
-            else if (status === 'vendido') vendidos++;
-            else if (status === 'entregue') entregues++;
-
-            const card = document.createElement('div');
-            card.className = 'ad-item';
-            const linkAcomp = `${LINK_BASE}?id=${id}`;
-            const fotoUrl = (ad.fotos && ad.fotos.length > 0) ? ad.fotos[0] : 'https://via.placeholder.com/150?text=Sem+Foto';
-
-            card.innerHTML = `
-                <div class="ad-main-info" style="${status !== 'disponivel' ? 'opacity: 0.6' : ''}">
-                    <img src="${fotoUrl}" alt="${ad.modelo}">
-                    <div class="ad-info">
-                        <h3>${ad.modelo} ${status === 'vendido' ? '<span style="color:var(--blue); font-size:10px;">(RESERVADO)</span>' : ''}</h3>
-                        <span class="price">R$ ${parseFloat(ad.preco || 0).toLocaleString('pt-BR', {minimumFractionDigits: 2})}</span>
-                    </div>
-                    <button class="btn-delete" onclick="window.deletarAnuncio('${id}')">🗑️</button>
-                </div>
-
-                <div class="acoes-venda">
-                    ${status === 'disponivel' ? `<button class="btn-status marcar-vendido" onclick="window.marcarVendido('${id}')">Marcar como Vendido</button>` : ''}
-                    ${status === 'vendido' ? `<button class="btn-status marcar-entregue" onclick="window.marcarEntregue('${id}')">Confirmar Entrega</button>` : ''}
-                    ${status === 'entregue' ? `<div class="badge entregue" style="width:100%; text-align:center; background:#f1f5f9; border: 1px solid #e2e8f0;">✅ Venda Finalizada</div>` : ''}
-                </div>
-
-                ${status === 'vendido' ? `
-                    <div class="share-box">
-                        <span class="share-label">ENVIE O STATUS PARA O COMPRADOR:</span>
-                        <div class="share-buttons">
-                            <button class="btn-share-action" onclick="window.abrirZap('${linkAcomp}', '${ad.modelo}')">🟢 WhatsApp</button>
-                            <button class="btn-share-action" onclick="window.copiarLink('${linkAcomp}')">🔗 Copiar Link</button>
-                        </div>
-                    </div>
-                ` : ''}
-            `;
-            container.appendChild(card);
-        });
-
-        atualizarContadores(ativos, vendidos, entregues);
-    }
-
-    function atualizarContadores(a, v, e) {
-        document.getElementById("countAtivos").innerText = `Ativos: ${a}`;
-        document.getElementById("countPendentes").innerText = `Vendidos: ${v}`;
-        document.getElementById("countVendidos").innerText = `Entregues: ${e}`;
-    }
-
-    // --- FUNÇÕES GLOBAIS ---
-    window.marcarVendido = async (id) => {
-        if(confirm("Marcar como vendido? Isso gera o link de acompanhamento.")) {
-            await updateDoc(doc(db, "anuncios", id), { 
-                statusVenda: "vendido", 
-                dataVenda: serverTimestamp() 
-            });
-        }
-    };
-
-    window.marcarEntregue = async (id) => {
-        if(confirm("Confirmar entrega ao comprador?")) {
-            await updateDoc(doc(db, "anuncios", id), { 
-                statusVenda: "entregue", 
-                dataEntrega: serverTimestamp() 
-            });
-        }
-    };
-
-    window.deletarAnuncio = async (id) => {
-        if (confirm("Remover anúncio permanentemente?")) {
-            await deleteDoc(doc(db, "anuncios", id));
-        }
-    };
-
-    window.copiarLink = (link) => {
-        navigator.clipboard.writeText(link);
-        alert("Link copiado!");
-    };
-
-    window.abrirZap = (link, modelo) => {
-        const msg = encodeURIComponent(`Olá! Seu ${modelo} já está reservado. Você pode acompanhar o status por aqui: ${link}`);
-        window.open(`https://wa.me/?text=${msg}`, '_blank');
-    };
-
-    async function obterLocalizacao() {
-        if (navigator.geolocation) {
-            navigator.geolocation.getCurrentPosition(async pos => {
-                try {
-                    const res = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${pos.coords.latitude}&lon=${pos.coords.longitude}`);
-                    const data = await res.json();
-                    document.getElementById("localAtual").innerText = "📍 " + (data.address.city || data.address.town || "Local Atual");
-                } catch (e) { document.getElementById("localAtual").innerText = "📍 Localização Ativa"; }
-            });
-        }
-    }
-</script>
-</body>
-</html>
+    <!-- LISTA DE FIGURINHAS -->
+    <h3 style="font-size: 14px; font-weight: 800; color: var(--dark); margin-bottom: 15px;">GERENCIAR MINHAS FIGURINHAS</h3>
+    <div id="listaRepetidas" style="display: flex; flex-direction: column; gap: 10px;">
+        <!-- Os itens entram aqui via JS -->
+    </div>
+</section>
