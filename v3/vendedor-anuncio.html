@@ -1,354 +1,125 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="pt-br">
 <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Anunciar Aparelho | RePhone</title>
-    
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>CopaMatch | Cadastrar Figurinhas</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap" rel="stylesheet">
-    
     <style>
-        :root { 
-            --dark: #0f172a; 
-            --green: #16a34a; 
-            --green-light: #4ade80; 
-            --bg: #f8fafc; 
-            --text-muted: #64748b; 
-            --blue: #3b82f6;
-        }
+        :root { --dark: #6b0b1a; --gold: #bda677; --green: #16a34a; --bg: #f8fafc; }
+        * { margin:0; padding:0; box-sizing:border-box; font-family:'Inter', sans-serif; }
+        body { background: var(--bg); padding: 20px; }
+
+        .header-cadastro { margin-bottom: 25px; }
+        .header-cadastro h2 { font-weight: 900; color: var(--dark); font-size: 24px; }
+        .header-cadastro p { color: #64748b; font-size: 13px; font-weight: 600; }
+
+        .form-card { background: white; padding: 25px; border-radius: 25px; border: 1px solid #e2e8f0; box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
         
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; }
-        body { background: var(--bg); color: var(--dark); overflow-x: hidden; padding-bottom: 50px; }
-
-        .main-header { 
-            background: var(--dark); 
-            padding: 12px 20px; 
-            display: flex; 
-            justify-content: space-between; 
-            align-items: center; 
-            position: sticky; 
-            top: 0; 
-            z-index: 1000; 
-            border-radius: 0 0 25px 25px; 
-            box-shadow: 0 4px 20px rgba(0,0,0,0.1); 
-        }
-        .logo { font-weight: 900; font-size: 22px; color: white; text-decoration: none; }
-        .logo span { color: var(--green); }
-
-        .container { max-width: 600px; margin: 20px auto; padding: 0 20px; display: none; }
+        label { display: block; font-size: 11px; font-weight: 800; color: var(--dark); margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.5px; }
         
-        h1 { font-size: 24px; font-weight: 900; margin: 20px 0 10px; text-align: left; }
-        h2 { font-size: 14px; font-weight: 800; text-transform: uppercase; color: var(--text-muted); margin: 30px 0 15px; letter-spacing: 1px; border-bottom: 1px solid #e2e8f0; padding-bottom: 8px; }
-
-        .atalhos { display: flex; gap: 8px; margin-bottom: 20px; overflow-x: auto; padding-bottom: 10px; }
-        .atalhos a { 
-            background: white; color: var(--dark); padding: 10px 16px; border-radius: 12px; 
-            font-weight: 700; text-decoration: none; font-size: 13px; border: 1px solid #e2e8f0;
-            white-space: nowrap; transition: 0.3s;
-        }
-        .atalhos a.active { background: var(--dark); color: white; border-color: var(--dark); }
-
-        .form-group { margin-bottom: 20px; }
-        label { display: block; font-size: 11px; font-weight: 800; text-transform: uppercase; color: var(--text-muted); margin-bottom: 6px; }
+        .input-group { margin-bottom: 20px; }
+        
         input, select, textarea { 
-            width: 100%; padding: 14px; border-radius: 15px; border: 1px solid #e2e8f0; 
-            background: white; font-size: 15px; outline: none; transition: 0.3s;
+            width: 100%; padding: 15px; border-radius: 12px; border: 1.5px solid #e2e8f0; 
+            font-size: 14px; font-weight: 600; outline: none; transition: 0.2s;
         }
-        input:focus { border-color: var(--green); box-shadow: 0 0 0 3px rgba(22, 163, 74, 0.1); }
-        input[readonly] { background: #f1f5f9; color: var(--text-muted); cursor: not-allowed; }
-
-        .grid-fotos { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
-        .photo-upload { 
-            width: 100%; aspect-ratio: 1/1; background: white; border: 2px dashed #cbd5e1; 
-            border-radius: 15px; display: flex; align-items: center; justify-content: center; 
-            cursor: pointer; overflow: hidden; position: relative;
-        }
-        .photo-upload img { width: 100%; height: 100%; object-fit: cover; }
-        .photo-upload span { font-size: 24px; }
-
-        .btn-save { 
-            width: 100%; background: var(--green); color: white; border: none; padding: 18px; 
-            border-radius: 18px; font-weight: 800; font-size: 16px; cursor: pointer; 
-            margin-top: 20px; box-shadow: 0 10px 25px rgba(22, 163, 74, 0.3);
-        }
-        .btn-save:disabled { background: #94a3b8; cursor: not-allowed; box-shadow: none; }
         
-        .btn-clear { 
-            width: 100%; background: transparent; color: var(--text-muted); border: none; 
-            padding: 12px; font-weight: 700; font-size: 13px; cursor: pointer; margin-top: 10px;
+        input:focus { border-color: var(--gold); }
+
+        .btn-postar { 
+            width: 100%; background: var(--dark); color: white; padding: 18px; 
+            border: none; border-radius: 15px; font-weight: 900; font-size: 16px; 
+            cursor: pointer; box-shadow: 0 10px 20px rgba(107, 11, 26, 0.2);
         }
 
-        .loc-info { font-size: 11px; color: var(--green); font-weight: 700; margin-top: 5px; display: block; }
-
-        #loading { text-align: center; margin-top: 100px; font-weight: 800; color: var(--text-muted); animation: pulse 1.5s infinite; }
-        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
+        .hint { font-size: 10px; color: #94a3b8; margin-top: 5px; font-weight: 600; }
+        
+        .tipo-selector { display: flex; gap: 10px; margin-bottom: 20px; }
+        .tipo-option { 
+            flex: 1; text-align: center; padding: 12px; border-radius: 12px; 
+            border: 1.5px solid #e2e8f0; font-size: 11px; font-weight: 800; cursor: pointer;
+        }
+        .tipo-option.active { border-color: var(--dark); background: var(--dark); color: white; }
     </style>
 </head>
 <body>
 
-    <header class="main-header">
-        <a href="index.html" class="logo">Re<span>Phone</span></a>
-        <div style="color: white; font-size: 12px; font-weight: 800;">PAINEL VENDEDOR</div>
-    </header>
+    <div class="header-cadastro">
+        <button onclick="history.back()" style="background:none; border:none; color:var(--dark); font-weight:800; margin-bottom:10px; cursor:pointer;">← VOLTAR</button>
+        <h2>Postar Repetidas</h2>
+        <p>Adicione suas figurinhas para troca ou venda.</p>
+    </div>
 
-    <div id="loading">VERIFICANDO ACESSO...</div>
-
-    <main class="container" id="app">
-        <h1>Anunciar Aparelho</h1>
-
-        <nav class="atalhos">
-            <a href="vendedor-anuncio.html" class="active">Novo Anúncio</a>
-            <a href="dashboard-vendedor.html">Meus Anúncios</a>
-            <a href="vendedor-perfil.html">Meu Perfil</a>
-        </nav>
-
-        <h2>Dados do Vendedor</h2>
-        <div class="form-group">
-            <label>Vendedor</label>
-            <input type="text" id="nomeVendedor" readonly>
-        </div>
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
-            <div class="form-group">
-                <label>Tipo</label>
-                <input type="text" id="tipoVendedor" readonly>
-            </div>
-            <div class="form-group">
-                <label>WhatsApp</label>
-                <input type="text" id="whatsapp" readonly>
-            </div>
-        </div>
-
-        <h2>Fotos do Aparelho</h2>
-        <div class="grid-fotos">
-            <div class="photo-upload" onclick="document.getElementById('fileInput1').click()">
-                <img id="preview1" style="display:none;">
-                <div id="uploadPlaceholder1"><span>+</span></div>
-            </div>
-            <div class="photo-upload" onclick="document.getElementById('fileInput2').click()">
-                <img id="preview2" style="display:none;">
-                <div id="uploadPlaceholder2"><span>+</span></div>
-            </div>
-            <div class="photo-upload" onclick="document.getElementById('fileInput3').click()">
-                <img id="preview3" style="display:none;">
-                <div id="uploadPlaceholder3"><span>+</span></div>
-            </div>
-        </div>
-        <input type="file" id="fileInput1" accept="image/*" style="display:none">
-        <input type="file" id="fileInput2" accept="image/*" style="display:none">
-        <input type="file" id="fileInput3" accept="image/*" style="display:none">
-
-        <h2>Informações do Aparelho</h2>
-        <div class="form-group">
-            <label>Localização do Anúncio</label>
-            <input type="text" id="cidade" readonly placeholder="Localizando...">
-            <span class="loc-info">📍 Capturada automaticamente via GPS</span>
-        </div>
-
-        <div class="form-group">
-            <label>Marca</label>
-            <select id="marca">
-                <option>Apple</option>
-                <option>Samsung</option>
-                <option>Motorola</option>
-                <option>Xiaomi</option>
-                <option>Outro</option>
+    <div class="form-card">
+        <div class="input-group">
+            <label>Seleção / Categoria</label>
+            <select id="figSelecao">
+                <option value="Brasil">Brasil 🇧🇷</option>
+                <option value="Argentina">Argentina 🇦🇷</option>
+                <option value="França">França 🇫🇷</option>
+                <option value="Lendas">Lendas (Legend) ⭐</option>
+                <option value="Estádios">Estádios 🏟️</option>
+                <option value="Outros">Outros Países</option>
             </select>
         </div>
 
-        <div class="form-group">
-            <label>Modelo</label>
-            <input type="text" id="modelo" placeholder="Ex: iPhone 13 Pro Max">
+        <div class="input-group">
+            <label>Números das Figurinhas</label>
+            <input type="text" id="figNumeros" placeholder="Ex: 10, 15, 22, 54">
+            <p class="hint">Dica: Separe os números por vírgula para cadastrar vários de uma vez.</p>
         </div>
 
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
-            <div class="form-group">
-                <label>Cor</label>
-                <input type="text" id="cor" placeholder="Ex: Grafite">
-            </div>
-            <div class="form-group">
-                <label>Capacidade</label>
-                <select id="capacidade">
-                    <option>64GB</option><option>128GB</option><option>256GB</option><option>512GB</option><option>1TB</option>
-                </select>
-            </div>
+        <label>Tipo de Figurinha</label>
+        <div class="tipo-selector">
+            <div class="tipo-option active" onclick="setTipo(this, 'normal')">NORMAL</div>
+            <div class="tipo-option" onclick="setTipo(this, 'brilhante')">BRILHANTE</div>
         </div>
 
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
-            <div class="form-group">
-                <label>Condição</label>
-                <select id="condicao">
-                    <option>Novo</option><option>Lacrado</option><option>Vitrine</option><option>Usado</option>
-                </select>
-            </div>
-            <div class="form-group">
-                <label>Saúde da Bateria (%)</label>
-                <input type="number" id="bateria" placeholder="Ex: 92">
-            </div>
+        <div class="input-group">
+            <label>Preço por Figurinha (R$)</label>
+            <input type="number" id="figPreco" placeholder="0,00" step="0.50">
+            <p class="hint">Deixe 0,00 se aceitar apenas trocas.</p>
         </div>
 
-        <div class="form-group">
-            <label>Preço de Venda (R$)</label>
-            <input type="number" id="preco" placeholder="Ex: 3500">
-        </div>
+        <button class="btn-postar" onclick="salvarFigurinhas()">POSTAR NO RADAR</button>
+    </div>
 
-        <div class="form-group">
-            <label>Garantia / Detalhes</label>
-            <textarea id="descricao" rows="3" placeholder="Ex: 3 meses de garantia, acompanha carregador original..."></textarea>
-        </div>
+    <script>
+        let tipoSelecionado = 'normal';
 
-        <button class="btn-save" id="btnPublicar">PUBLICAR ANÚNCIO</button>
-        <button class="btn-clear" id="btnLimpar">Limpar campos</button>
-    </main>
-
-   <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-app.js";
-    import { getFirestore, collection, addDoc, doc, getDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-firestore.js";
-    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-auth.js";
-
-    const firebaseConfig = { 
-        apiKey: "AIzaSyBiN8FqX8UZeyAh1cG2GHZtQWiQH0xPBV4", 
-        authDomain: "rephone-a0a80.firebaseapp.com", 
-        projectId: "rephone-a0a80", 
-        storageBucket: "rephone-a0a80.firebasestorage.app", 
-        appId: "1:431497247030:web:a943715e4acc04b8995b97" 
-    };
-
-    const app = initializeApp(firebaseConfig);
-    const db = getFirestore(app);
-    const auth = getAuth(app);
-    const IMGBB_API_KEY = "a4405be3b982f9aad88589728a3d949c";
-
-    let userLogado = null;
-    let fotos = [null, null, null];
-    let statusVendedorGlobal = "Pendente";
-    // VARIÁVEL GLOBAL ÚNICA
-    let coordsGlobal = { lat: null, lon: null, metodo: "não identificado" };
-
-    // --- VERIFICAÇÃO DE LOGIN ---
-    onAuthStateChanged(auth, async (user) => {
-        if (!user) { window.location.href = 'vendedor-login.html'; return; }
-        userLogado = user;
-        try {
-            const perfil = await getDoc(doc(db, "vendedores", user.uid));
-            if (perfil.exists()) {
-                const data = perfil.data();
-                document.getElementById('nomeVendedor').value = data.nome || '--';
-                document.getElementById('tipoVendedor').value = data.tipo === 'lojista' ? 'Lojista' : 'Particular';
-                document.getElementById('whatsapp').value = data.zap || '--';
-                statusVendedorGlobal = data.status || "Pendente";
-            }
-        } catch (e) { console.error(e); }
-        
-        document.getElementById('loading').style.display = 'none';
-        document.getElementById('app').style.display = 'block';
-        obterCidadeECoords(); // Dispara a localização assim que logar
-    });
-
-    // --- LÓGICA DE LOCALIZAÇÃO (CORRIGIDA) ---
-    async function obterCidadeECoords() {
-        const campoCidade = document.getElementById('cidade');
-        if ("geolocation" in navigator) {
-            navigator.geolocation.getCurrentPosition(
-                async (pos) => {
-                    coordsGlobal = { lat: pos.coords.latitude, lon: pos.coords.longitude, metodo: "gps" };
-                    try {
-                        const res = await fetch(`https://nominatim.openstreetmap.org/reverse?lat=${coordsGlobal.lat}&lon=${coordsGlobal.lon}&format=json`);
-                        const data = await res.json();
-                        campoCidade.value = data.address.city || data.address.town || data.address.village || "Sua Região";
-                    } catch (e) { campoCidade.value = "Localização via GPS"; }
-                },
-                async () => { capturarPorIP(); },
-                { timeout: 8000 }
-            );
-        } else { capturarPorIP(); }
-    }
-
-    async function capturarPorIP() {
-        try {
-            const res = await fetch('https://ipapi.co/json/');
-            const data = await res.json();
-            coordsGlobal = { lat: data.latitude, lon: data.longitude, metodo: "ip" };
-            document.getElementById('cidade').value = data.city || "Sua Região";
-        } catch (e) { document.getElementById('cidade').value = "Aracruz"; }
-    }
-
-    // --- LÓGICA DE FOTOS ---
-    window.handleFile = (event, index) => {
-        const file = event.target.files[0];
-        if (file) {
-            fotos[index - 1] = file;
-            const reader = new FileReader();
-            reader.onload = (e) => {
-                const img = document.getElementById('preview' + index);
-                img.src = e.target.result;
-                img.style.display = 'block';
-                document.getElementById('uploadPlaceholder' + index).style.display = 'none';
-            }
-            reader.readAsDataURL(file);
+        function setTipo(el, tipo) {
+            document.querySelectorAll('.tipo-option').forEach(opt => opt.classList.remove('active'));
+            el.classList.add('active');
+            tipoSelecionado = tipo;
         }
-    };
-    [1, 2, 3].forEach(i => {
-        document.getElementById('fileInput' + i).addEventListener('change', (e) => window.handleFile(e, i));
-    });
 
-    // --- SALVAR ANÚNCIO ---
-    window.salvarAnuncio = async () => {
-        const mod = document.getElementById('modelo').value;
-        const preRaw = document.getElementById('preco').value;
-        
-        if (!fotos[0]) return alert("Adicione pelo menos a foto principal!");
-        if (!mod || !preRaw) return alert("Modelo e Preço são obrigatórios!");
+        async function salvarFigurinhas() {
+            const selecao = document.getElementById('figSelecao').value;
+            const numerosBrutos = document.getElementById('figNumeros').value;
+            const preco = document.getElementById('figPreco').value || 0;
+            
+            if(!numerosBrutos) return alert("Digite ao menos um número!");
 
-        const btn = document.getElementById('btnPublicar');
-        btn.disabled = true;
-        btn.innerText = 'SUBINDO IMAGENS...';
+            // Transforma a string "10, 15, 20" em um array [10, 15, 20]
+            const listaNumeros = numerosBrutos.split(',').map(n => n.trim()).filter(n => n !== "");
 
-        try {
-            const urls = [];
-            for (const f of fotos) {
-                if (f) {
-                    const formData = new FormData();
-                    formData.append('image', f);
-                    const resImg = await fetch(`https://api.imgbb.com/1/upload?key=${IMGBB_API_KEY}`, { method: 'POST', body: formData });
-                    const dataImg = await resImg.json();
-                    if(dataImg.success) urls.push(dataImg.data.url);
-                }
-            }
-
-            btn.innerText = 'SALVANDO NO RADAR...';
-
-            await addDoc(collection(db, "anuncios"), {
-                vendedorId: userLogado.uid,
-                vendedorTipo: document.getElementById('tipoVendedor').value.toLowerCase(),
-                whatsapp: document.getElementById('whatsapp').value,
-                marca: document.getElementById('marca').value,
-                modelo: mod,
-                cor: document.getElementById('cor').value,
-                capacidade: document.getElementById('capacidade').value,
-                condicao: document.getElementById('condicao').value,
-                bateria: parseInt(document.getElementById('bateria').value) || 0,
-                preco: parseFloat(preRaw),
-                cidade: document.getElementById('cidade').value,
-                coords: coordsGlobal, // AGORA GRAVA CORRETAMENTE
-                descricao: document.getElementById('descricao').value,
-                fotos: urls,
-                statusVenda: 'disponivel',
-                statusAnuncio: 'aprovado', 
-                dataCriacao: serverTimestamp()
-            });
-
-            alert("Sucesso! Seu anúncio já está no Radar RePhone.");
-            window.location.href = "dashboard-vendedor.html";
-        } catch (e) {
-            console.error(e);
-            alert("Erro ao publicar: " + e.message);
-            btn.disabled = false;
-            btn.innerText = 'PUBLICAR ANÚNCIO';
+            alert(`Processando ${listaNumeros.length} figurinhas da seleção ${selecao}...`);
+            
+            // Aqui entrará o loop para salvar no Firebase
+            /* 
+               listaNumeros.forEach(num => {
+                  db.collection('anuncios').add({
+                     numero: num,
+                     selecao: selecao,
+                     tipo: tipoSelecionado,
+                     preco: preco,
+                     status: 'aprovado',
+                     data: new Date()
+                  })
+               })
+            */
         }
-    };
-
-    document.getElementById('btnPublicar').onclick = window.salvarAnuncio;
-    document.getElementById('btnLimpar').onclick = () => window.location.reload();
-</script>
+    </script>
 </body>
 </html>
